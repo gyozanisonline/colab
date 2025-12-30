@@ -132,6 +132,7 @@ function togglePosterMode(val) {
         window.bgInstance.setPosterMode(posterMode);
     }
 }
+window.togglePosterMode = togglePosterMode;
 
 // function preload(){
 //   // Remote fonts might fail to load due to CORS or network. Switching to system fonts for reliability.
@@ -159,11 +160,11 @@ function setup() {
     lineHeight = pgTextSize * 0.8;
 
     if (width < 600) {
-        document.getElementById("textArea").value = "THIS\nAND\nTHEN\nTHAT\nAND\nNOW\nTHIS";
+        document.getElementById("textArea").value = "Colab\nExperiment Together";
     } else if (width > 1300) {
-        document.getElementById("textArea").value = "CHANGES\nchanges";
+        document.getElementById("textArea").value = "Colab\nExperiment Together";
     } else {
-        document.getElementById("textArea").value = "UNIFIED\nFLOW";
+        document.getElementById("textArea").value = "Colab\nExperiment Together";
     }
 
     bkgdColor = color(0, 0, 0, 0); // Transparent background for layering
