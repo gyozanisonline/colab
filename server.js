@@ -37,8 +37,22 @@ io.on('connection', (socket) => {
         // Optionally update server-side state storage here if persistence is needed later
     });
 
+    // Handle Mouse Movement
+    socket.on('mouse_move', (data) => {
+        // Broadcast mouse position to others
+        // data: { x: 0.5, y: 0.5 } (normalized coordinates)
+        socket.broadcast.emit('remote_mouse_move', {
+            id: socket.id,
+            x: data.x,
+            y: data.y,
+            color: data.color || '#ff0000' // Fallback color
+        });
+    });
+
     socket.on('disconnect', () => {
         console.log('User disconnected:', socket.id);
+        // Notify others to remove this user's cursor
+        io.emit('remote_mouse_remove', { id: socket.id });
     });
 });
 
