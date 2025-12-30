@@ -131,6 +131,8 @@ function togglePosterMode(val) {
     if (window.bgInstance && typeof window.bgInstance.setPosterMode === 'function') {
         window.bgInstance.setPosterMode(posterMode);
     }
+
+    if (window.emitFunction) window.emitFunction('togglePosterMode', val);
 }
 window.togglePosterMode = togglePosterMode;
 

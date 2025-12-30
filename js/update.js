@@ -10,6 +10,8 @@ function setText() {
         keyArray = "";
     }
 
+    if (window.emitChange) window.emitChange('text', 'textArea', enteredText);
+
     resetAnim();
 }
 
@@ -71,6 +73,7 @@ function setLayerCount(val) {
     groupCount = parseInt(val);
     console.log('Layer Count:', groupCount);
     resetAnim();
+    if (window.emitFunction) window.emitFunction('setLayerCount', val);
 }
 
 function setBkgdColor(val) {
@@ -161,16 +164,19 @@ function hideWidget() {
 function setAnimSpeed(val) {
     animSpeed = parseFloat(val);
     console.log('Animation Speed:', animSpeed);
+    if (window.emitFunction) window.emitFunction('setAnimSpeed', val);
 }
 
 function setAnimSpread(val) {
     animSpread = parseInt(val);
     console.log('Animation Spread:', animSpread);
+    if (window.emitFunction) window.emitFunction('setAnimSpread', val);
 }
 
 function setAnimIntensity(val) {
     animIntensity = parseInt(val);
     console.log('Animation Intensity:', animIntensity);
+    if (window.emitFunction) window.emitFunction('setAnimIntensity', val);
 }
 
 // Motion type toggle functions
@@ -409,6 +415,7 @@ function setShapeMode(val) {
     shapeMode = val;
     console.log('Shape Mode:', shapeMode);
     resetAnim();
+    if (window.emitFunction) window.emitFunction('setShapeMode', val);
 }
 // === DROPDOWN-BASED EFFECT MANAGEMENT ===
 
@@ -502,6 +509,9 @@ function toggleEffect(effectId) {
 
     // Reset dropdown
     document.getElementById('effect-select').value = '';
+
+    // Emit the toggle action (remote clients will call the specific toggle function)
+    if (window.emitFunction) window.emitFunction(effect.toggle, !isActive);
 }
 
 // Show intensity control for selected effect
@@ -534,6 +544,8 @@ function updateEffectIntensity(value) {
     if (effect) {
         window[effect.intensity](value);
         intensityValue.textContent = value + '%';
+
+        if (window.emitFunction) window.emitFunction(effect.intensity, value);
     }
 }
 
@@ -570,5 +582,7 @@ function removeEffect(effectId) {
         window[effect.toggle](false);
         activeEffects = activeEffects.filter(e => e.id !== effectId);
         updateActiveEffectsList();
+
+        if (window.emitFunction) window.emitFunction(effect.toggle, false);
     }
 }

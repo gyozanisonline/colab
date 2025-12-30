@@ -34,31 +34,40 @@ window.app = {
         document.getElementById('bg-cols').addEventListener('input', (e) => {
             console.log('BG Cols Input:', e.target.value);
             if (window.bgInstance) window.bgInstance.updateParams('cols', parseInt(e.target.value));
+            if (window.emitChange) window.emitChange('param', 'bg-cols', e.target.value);
         });
         document.getElementById('bg-rows').addEventListener('input', (e) => {
             console.log('BG Rows Input:', e.target.value);
             if (window.bgInstance) window.bgInstance.updateParams('rows', parseInt(e.target.value));
+            if (window.emitChange) window.emitChange('param', 'bg-rows', e.target.value);
         });
         document.getElementById('bg-speed').addEventListener('input', (e) => {
             console.log('BG Speed Input:', e.target.value);
             if (window.bgInstance) window.bgInstance.updateParams('speed', parseFloat(e.target.value));
+            if (window.emitChange) window.emitChange('param', 'bg-speed', e.target.value);
         });
         document.getElementById('bg-color').addEventListener('input', (e) => {
             console.log('BG Color Input:', e.target.value);
             if (window.bgInstance) window.bgInstance.updateParams('color', e.target.value);
+            if (window.emitChange) window.emitChange('param', 'bg-color', e.target.value);
         });
         document.getElementById('grid-color').addEventListener('input', (e) => {
             console.log('Grid Color Input:', e.target.value);
             if (window.bgInstance) window.bgInstance.updateParams('strokeColor', e.target.value);
+            if (window.emitChange) window.emitChange('param', 'grid-color', e.target.value);
         });
 
         // Step 2: Type Controls
         document.getElementById('type-text').addEventListener('input', (e) => {
             if (window.typeInstance) window.typeInstance.updateParams('text', e.target.value.toUpperCase());
+            // This 'type-text' ID might not be used anymore? The main text area is 'textArea'. 
+            // Leaving it just in case, but adding emit.
+            if (window.emitChange) window.emitChange('param', 'type-text', e.target.value);
         });
         document.getElementById('type-size').addEventListener('input', (e) => {
             console.log('Type Size Input:', e.target.value);
             if (window.typeInstance) window.typeInstance.updateParams('size', parseInt(e.target.value));
+            if (window.emitChange) window.emitChange('param', 'type-size', e.target.value);
         });
     },
 
