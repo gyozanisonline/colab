@@ -34,6 +34,18 @@
             <aside id="controls-panel">
                 <div class="controls-group"
                     style="margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
+                    <label>Your Name & Color
+                        <div style="display: flex; gap: 5px; margin-top: 5px;">
+                            <input type="text" id="player-name" placeholder="Guest" maxlength="15"
+                                style="flex-grow: 1; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 4px; border-radius: 4px;">
+                            <input type="color" id="player-color" value="#00ffcc"
+                                style="width: 30px; height: 30px; border: none; padding: 0; background: none; cursor: pointer;">
+                        </div>
+                    </label>
+                </div>
+
+                <div class="controls-group"
+                    style="margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
                     <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
                         <input type="checkbox" id="poster-mode-toggle"
                             onchange="if(typeof togglePosterMode === 'function') togglePosterMode(this.checked)"

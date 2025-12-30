@@ -3,7 +3,29 @@ const socket = io();
 let isRemoteUpdate = false;
 
 // --- MOUSE CURSOR LOGIC ---
-const myColor = '#' + Math.floor(Math.random() * 16777215).toString(16); // Random Hex Color
+let myName = localStorage.getItem('playerName') || 'Guest';
+let myColor = localStorage.getItem('playerColor') || '#' + Math.floor(Math.random() * 16777215).toString(16);
+
+// Init Inputs
+const nameInput = document.getElementById('player-name');
+const colorInput = document.getElementById('player-color');
+
+if (nameInput) {
+    nameInput.value = myName === 'Guest' ? '' : myName;
+    nameInput.addEventListener('input', (e) => {
+        myName = e.target.value || 'Guest';
+        localStorage.setItem('playerName', myName);
+    });
+}
+
+if (colorInput) {
+    colorInput.value = myColor;
+    colorInput.addEventListener('input', (e) => {
+        myColor = e.target.value;
+        localStorage.setItem('playerColor', myColor);
+    });
+}
+
 const cursorContainer = document.createElement('div');
 cursorContainer.id = 'cursor-layer';
 cursorContainer.style.position = 'fixed';
@@ -23,7 +45,8 @@ document.addEventListener('mousemove', (e) => {
         socket.emit('mouse_move', {
             x: e.clientX / window.innerWidth,
             y: e.clientY / window.innerHeight,
-            color: myColor
+            color: myColor,
+            name: myName
         });
         lastEmit = now;
     }
@@ -32,6 +55,8 @@ document.addEventListener('mousemove', (e) => {
 // Render Remote Cursors
 socket.on('remote_mouse_move', (data) => {
     let cursor = document.getElementById(`cursor-${data.id}`);
+
+    // Create cursor if new
     if (!cursor) {
         cursor = document.createElement('div');
         cursor.id = `cursor-${data.id}`;
@@ -40,21 +65,39 @@ socket.on('remote_mouse_move', (data) => {
         cursor.style.width = '15px';
         cursor.style.height = '15px';
         cursor.style.borderRadius = '50%';
-        cursor.style.backgroundColor = data.color;
         cursor.style.border = '2px solid white';
         cursor.style.boxShadow = '0 0 5px rgba(0,0,0,0.5)';
         cursor.style.transition = 'top 0.1s linear, left 0.1s linear'; // Smooth movement
 
-        // Label (Optional)
-        // const label = document.createElement('span');
-        // label.innerText = 'Player';
-        // cursor.appendChild(label);
+        // Add Label
+        const label = document.createElement('span');
+        label.className = 'cursor-label';
+        label.style.position = 'absolute';
+        label.style.whiteSpace = 'nowrap';
+        label.style.fontSize = '12px';
+        label.style.backgroundColor = 'rgba(0,0,0,0.7)';
+        label.style.color = 'white';
+        label.style.padding = '2px 5px';
+        label.style.borderRadius = '3px';
+        label.style.left = '20px';
+        label.style.top = '0px';
+        cursor.appendChild(label);
 
         cursorContainer.appendChild(cursor);
     }
 
+    // Update visual properties
     cursor.style.left = (data.x * 100) + '%';
     cursor.style.top = (data.y * 100) + '%';
+    cursor.style.backgroundColor = data.color;
+
+    // Update Label
+    const label = cursor.querySelector('.cursor-label');
+    if (label) {
+        label.innerText = data.name || 'Guest';
+        // Optional: Hide label if it's strictly "Guest" to reduce clutter, or keep it.
+        // label.style.display = data.name ? 'block' : 'none'; 
+    }
 });
 
 socket.on('remote_mouse_remove', (data) => {
