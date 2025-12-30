@@ -58,12 +58,20 @@ window.app = {
         });
 
         // Step 2: Type Controls
-        document.getElementById('type-text').addEventListener('input', (e) => {
-            if (window.typeInstance) window.typeInstance.updateParams('text', e.target.value.toUpperCase());
-            // This 'type-text' ID might not be used anymore? The main text area is 'textArea'. 
-            // Leaving it just in case, but adding emit.
-            if (window.emitChange) window.emitChange('param', 'type-text', e.target.value);
-        });
+        const typeTextInput = document.getElementById('type-text');
+        if (typeTextInput) {
+            typeTextInput.addEventListener('input', (e) => {
+                if (window.typeInstance) window.typeInstance.updateParams('text', e.target.value.toUpperCase());
+                if (window.emitChange) window.emitChange('param', 'type-text', e.target.value);
+            });
+        }
+
+        const typeSizeInput = document.getElementById('type-size');
+        if (typeSizeInput) {
+            typeSizeInput.addEventListener('input', (e) => {
+                // ... legacy logic ...
+            });
+        }
         document.getElementById('type-size').addEventListener('input', (e) => {
             console.log('Type Size Input:', e.target.value);
             if (window.typeInstance) window.typeInstance.updateParams('size', parseInt(e.target.value));

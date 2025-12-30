@@ -6,36 +6,38 @@ let isRemoteUpdate = false;
 let myName = localStorage.getItem('playerName') || 'Guest';
 let myColor = localStorage.getItem('playerColor') || '#' + Math.floor(Math.random() * 16777215).toString(16);
 
-// Init Inputs
-const nameInput = document.getElementById('player-name');
-const colorInput = document.getElementById('player-color');
+// Init Inputs (Moved inside DOMContentLoaded)
+document.addEventListener('DOMContentLoaded', () => {
+    const nameInput = document.getElementById('player-name');
+    const colorInput = document.getElementById('player-color');
 
-if (nameInput) {
-    nameInput.value = myName === 'Guest' ? '' : myName;
-    nameInput.addEventListener('input', (e) => {
-        myName = e.target.value || 'Guest';
-        localStorage.setItem('playerName', myName);
-    });
-}
+    if (nameInput) {
+        nameInput.value = myName === 'Guest' ? '' : myName;
+        nameInput.addEventListener('input', (e) => {
+            myName = e.target.value || 'Guest';
+            localStorage.setItem('playerName', myName);
+        });
+    }
 
-if (colorInput) {
-    colorInput.value = myColor;
-    colorInput.addEventListener('input', (e) => {
-        myColor = e.target.value;
-        localStorage.setItem('playerColor', myColor);
-    });
-}
+    if (colorInput) {
+        colorInput.value = myColor;
+        colorInput.addEventListener('input', (e) => {
+            myColor = e.target.value;
+            localStorage.setItem('playerColor', myColor);
+        });
+    }
 
-const cursorContainer = document.createElement('div');
-cursorContainer.id = 'cursor-layer';
-cursorContainer.style.position = 'fixed';
-cursorContainer.style.top = '0';
-cursorContainer.style.left = '0';
-cursorContainer.style.width = '100%';
-cursorContainer.style.height = '100%';
-cursorContainer.style.pointerEvents = 'none'; // Click through
-cursorContainer.style.zIndex = '9999';
-document.body.appendChild(cursorContainer);
+    const cursorContainer = document.createElement('div');
+    cursorContainer.id = 'cursor-layer';
+    cursorContainer.style.position = 'fixed';
+    cursorContainer.style.top = '0';
+    cursorContainer.style.left = '0';
+    cursorContainer.style.width = '100%';
+    cursorContainer.style.height = '100%';
+    cursorContainer.style.pointerEvents = 'none'; // Click through
+    cursorContainer.style.zIndex = '9999';
+    document.body.appendChild(cursorContainer);
+});
 
 // Track and Emit Mouse Movement (Throttled)
 let lastEmit = 0;
@@ -167,7 +169,91 @@ function emitFunction(funcName, value) {
     });
 }
 
+// --- CHAT LOGIC ---
+document.addEventListener('DOMContentLoaded', () => {
+    const chatContainer = document.getElementById('chat-container');
+    const chatMessages = document.getElementById('chat-messages');
+    const chatInput = document.getElementById('chat-input');
+    const chatSend = document.getElementById('chat-send');
+    const toggleChatBtn = document.getElementById('toggle-chat');
+    const chatHeader = document.getElementById('chat-header');
+
+    // Toggle Chat
+    if (toggleChatBtn && chatContainer) {
+        const toggle = () => {
+            chatContainer.classList.toggle('minimized');
+            toggleChatBtn.innerText = chatContainer.classList.contains('minimized') ? 'square' : '_';
+        };
+        toggleChatBtn.addEventListener('click', toggle);
+        chatHeader.addEventListener('click', toggle);
+    }
+
+    // Send Message Logic
+    function sendMessage() {
+        const text = chatInput.value.trim();
+        if (text) {
+            const payload = {
+                text: text,
+                name: myName,
+                color: myColor
+            };
+
+            // Emit to server
+            socket.emit('chat_message', payload);
+
+            // Show locally immediately
+            appendMessage(payload, true);
+
+            chatInput.value = '';
+        }
+    }
+
+    if (chatSend) chatSend.addEventListener('click', sendMessage);
+    if (chatInput) {
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+    }
+
+    // Expose append function for socket event to use
+    window.appendChatMessage = function (data, isMe) {
+        if (!chatMessages) return;
+
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'chat-msg';
+        msgDiv.style.borderLeft = `3px solid ${data.color || 'white'}`;
+
+        const nameSpan = document.createElement('strong');
+        nameSpan.innerText = (data.name || 'Guest') + ':';
+        nameSpan.style.color = data.color || 'white';
+
+        const textSpan = document.createElement('span');
+        textSpan.innerText = data.text;
+
+        msgDiv.appendChild(nameSpan);
+        msgDiv.appendChild(textSpan);
+
+        chatMessages.appendChild(msgDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    };
+});
+
+// Receive Message (can be outside because socket object exists)
+socket.on('chat_message', (data) => {
+    if (window.appendChatMessage) {
+        window.appendChatMessage(data, false);
+    }
+});
+
+// Helper for local append (needs to wait for window.appendChatMessage to be ready)
+function appendMessage(data, isMe) {
+    if (window.appendChatMessage) {
+        window.appendChatMessage(data, isMe);
+    }
+}
+
+
 // Expose to window so other scripts can use it
 window.emitChange = emitChange;
 window.emitFunction = emitFunction;
-window.isRemoteUpdate = () => isRemoteUpdate;
+

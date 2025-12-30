@@ -49,6 +49,14 @@ io.on('connection', (socket) => {
         });
     });
 
+    // Handle Chat Messages
+    socket.on('chat_message', (data) => {
+        // Broadcast to EVERYONE (including sender, for simplicity or explicit sync)
+        // Or io.emit to send to sender too.
+        // Let's use broadcast so sender adds immediately, others receive.
+        socket.broadcast.emit('chat_message', data);
+    });
+
     socket.on('disconnect', () => {
         console.log('User disconnected:', socket.id);
         // Notify others to remove this user's cursor

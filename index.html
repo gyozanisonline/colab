@@ -21,6 +21,19 @@
 
         <!-- UI Overlay (Z-Index 10) -->
         <div id="ui-overlay">
+            <!-- Chat Widget (Moved to Global Scope) -->
+            <div id="chat-container">
+                <div id="chat-header">
+                    <span>💬 Live Chat</span>
+                    <button id="toggle-chat"
+                        style="background:none; border:none; color:white; cursor:pointer;">_</button>
+                </div>
+                <div id="chat-messages"></div>
+                <div id="chat-input-area">
+                    <input type="text" id="chat-input" placeholder="Type a message..." maxlength="140">
+                    <button id="chat-send">Send</button>
+                </div>
+            </div>
             <header>
                 <h1>TypeFlow</h1>
             </header>
@@ -95,6 +108,8 @@ Experiment Together</textarea>
                             <option value="">-- Choose an effect --</option>
                         </select>
                     </label>
+
+
 
                     <!-- Active Effects Display -->
                     <div id="active-effects" style="margin-top: 10px;">
