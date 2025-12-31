@@ -192,42 +192,81 @@ function checkCollisions() {
 
 // --- LISTEN FOR UPDATES FROM SERVER ---
 
-socket.on('update_state', (data) => {
-    // data = { type: 'text', value: '...', key: '...' }
-    // console.log('Remote update received:', data);
+// Receive Initial State (On Connection)
+socket.on('initial_state', (state) => {
+    console.log('Received initial state:', state);
+    if (state.text) {
+        // Update text area and type instance
+        const textArea = document.getElementById('textArea');
+        const typeInput = document.getElementById('type-text');
 
-    isRemoteUpdate = true; // Flag to prevent echo loops
+        if (textArea) textArea.value = state.text;
+        if (typeInput) typeInput.value = state.text;
 
-    try {
-        if (data.type === 'text') {
-            // Update Text Area
-            const textArea = document.getElementById("textArea");
-            if (textArea) {
-                textArea.value = data.value;
-                if (window.setText) window.setText(); // Trigger p5 update
-            }
-        } else if (data.type === 'param') {
-            // Update Sliders / Inputs
-            const input = document.getElementById(data.key);
-            if (input) {
-                input.value = data.value;
-                // Dispatch input event to trigger existing listeners
-                input.dispatchEvent(new Event('input'));
-                input.dispatchEvent(new Event('change'));
-            }
-        } else if (data.type === 'function') {
-            // Direct function call (e.g. toggles)
-            if (typeof window[data.name] === 'function') {
-                // For toggles that expect TRUE/FALSE
-                window[data.name](data.value);
-            }
-        }
-    } catch (e) {
-        console.error("Error applying remote update:", e);
+        if (window.typeInstance) window.typeInstance.updateParams('text', state.text);
     }
 
-    isRemoteUpdate = false; // Reset flag
+    if (state.params) {
+        // Update all stored parameters
+        Object.keys(state.params).forEach(key => {
+            const value = state.params[key];
+            updateParamFromSocket(key, value);
+        });
+    }
 });
+
+// Receive State Update
+socket.on('update_state', (data) => {
+    // console.log('Received update:', data);
+    isRemoteUpdate = true; // Flag to prevent echo loop
+
+    if (data.type === 'text') {
+        const textArea = document.getElementById('textArea');
+        if (textArea) {
+            textArea.value = data.value;
+            if (window.setText) window.setText();
+        }
+    } else if (data.type === 'param') {
+        updateParamFromSocket(data.key, data.value);
+    }
+
+    isRemoteUpdate = false;
+});
+
+// Helper function to update UI and Instances
+function updateParamFromSocket(key, value) {
+    // 1. Update UI Input
+    const input = document.getElementById(key);
+    if (input) {
+        if (input.type === 'checkbox') {
+            input.checked = (value === true || value === 'true');
+        } else {
+            input.value = value;
+        }
+    }
+
+    // 2. Update Instance
+
+    // Background Params (Using CORRECT keys from main.js/index.html)
+    if (key === 'bg-rows' && window.bgInstance) window.bgInstance.updateParams('rows', parseInt(value));
+    if (key === 'bg-cols' && window.bgInstance) window.bgInstance.updateParams('cols', parseInt(value));
+    if (key === 'bg-speed' && window.bgInstance) window.bgInstance.updateParams('speed', parseFloat(value));
+    if (key === 'bg-color' && window.bgInstance) window.bgInstance.updateParams('color', value);
+    if (key === 'grid-color' && window.bgInstance) window.bgInstance.updateParams('strokeColor', value);
+
+    // Type Params
+    if (key === 'type-text' && window.typeInstance) window.typeInstance.updateParams('text', value);
+    if (key === 'type-size' && window.typeInstance) window.typeInstance.updateParams('size', parseInt(value));
+    if (key === 'foreColor' && window.typeInstance) window.typeInstance.updateParams('color', value); // ID is foreColor
+    if (key === 'layerCount' && window.typeInstance) window.typeInstance.updateParams('layers', parseInt(value)); // ID is layerCount
+
+    if (key === 'motion-type' && window.typeInstance) window.typeInstance.updateParams('motionType', value);
+    if (key === 'intensity' && window.typeInstance) window.typeInstance.updateParams('intensity', parseFloat(value));
+    if (key === 'shape-type' && window.typeInstance) window.typeInstance.updateParams('shapeType', value);
+    if (key === 'poster-mode' && window.typeInstance) {
+        window.typeInstance.updateParams('posterMode', (value === true || value === 'true'));
+    }
+}
 
 // --- EMIT UPDATES TO SERVER ---
 

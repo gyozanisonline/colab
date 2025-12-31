@@ -21,20 +21,24 @@ let appState = {
 io.on('connection', (socket) => {
     console.log('A user connected:', socket.id);
 
-    // Send current text state to new user (optional, for now we rely on client defaults or active sync)
-    // socket.emit('initial_state', appState);
+    // Send current app state to new user
+    socket.emit('initial_state', appState);
 
     // Listen for state updates from a client
     socket.on('update_state', (data) => {
         // data format: { type: 'text', value: '...' } OR { type: 'param', key: '...', value: '...' }
 
-        // Log for debugging
-        // console.log('Update received:', data);
+        // Update server-side state
+        if (data.type === 'text') {
+            appState.text = data.value;
+        } else if (data.type === 'param') {
+            // Ensure params object exists
+            if (!appState.params) appState.params = {};
+            appState.params[data.key] = data.value;
+        }
 
         // Broadcast to ALL OTHER clients (excluding sender)
         socket.broadcast.emit('update_state', data);
-
-        // Optionally update server-side state storage here if persistence is needed later
     });
 
     // Handle Mouse Movement

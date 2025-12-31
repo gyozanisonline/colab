@@ -13,6 +13,10 @@ var pgTextSize = 90;
 var lineHeight = pgTextSize * 0.8;
 var bkgdColor, foreColor, fadeColor;
 
+var introScreen;
+var logoImg;
+
+
 var keyText;
 var keyArray = [];
 
@@ -136,9 +140,10 @@ function togglePosterMode(val) {
 }
 window.togglePosterMode = togglePosterMode;
 
-// function preload(){
-//   // Remote fonts might fail to load due to CORS or network. Switching to system fonts for reliability.
-// }
+function preload() {
+    // Remote fonts might fail to load due to CORS or network. Switching to system fonts for reliability.
+    logoImg = loadImage('assets/colab_logo.png');
+}
 
 function setup() {
     // Initialize fonts as system font strings
@@ -183,13 +188,26 @@ function setup() {
     noSmooth();
     textureMode(NORMAL);
 
+
+
     setText();
+
+    introScreen = new IntroScreen(logoImg);
 }
+
 
 function draw() {
     // Normal 2D rendering
     clear(); // Use clear() instead of background() to maintain transparency
+
+    if (introScreen && introScreen.isActive) {
+        introScreen.update();
+        introScreen.display();
+        return;
+    }
+
     if (recording) {
+
         scale(cScale);
     }
 
