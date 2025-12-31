@@ -1,0 +1,235 @@
+class KineticLetter {
+    constructor(x_, p_, m_, n_) {
+        this.p = p_
+        this.m = m_;
+        this.n = n_;
+
+        this.x0 = x_;
+        this.y0 = 0;
+        this.w = textWidth(keyArray[this.m].charAt(this.n));
+        this.h = pgTextSize * 0.7;
+
+        this.yA = 0;
+        this.xA = 0;
+
+        // Initialize to defaults first
+        this.yAmax = (1 - this.n % 2 * 2) * random(20, 140) * (animSpread / 100);
+        this.xAmax = 0;
+
+        // Apply motion pattern - this will override defaults for specific patterns
+        this.applyMotionPattern();
+
+        // Only apply first/last letter special positioning if motion pattern didn't override
+        if (animMotionType === 'original') {
+            if (this.n == 0) {
+                this.xAmax = -random(40, 160) * (animSpread / 100);
+                this.yAmax = 0;
+            } else if (this.n == keyArray[this.m].length - 1) {
+                this.xAmax = random(40, 160) * (animSpread / 100);
+                this.yAmax = 0;
+            }
+        }
+
+
+        applyMotionPattern() {
+            const wordWidth = keyArray[this.m].length * pgTextSize * 0.6; // Approximate word width
+
+            switch (animMotionType) {
+                case 'arc':
+                    this.applyArcMotion(wordWidth);
+                    break;
+                case 'diagonal':
+                    this.applyDiagonalMotion();
+                    break;
+                case 'zigzag':
+                    this.applyZigZagMotion();
+                    break;
+                case 'bolt':
+                    this.applyBoltMotion();
+                    break;
+                case 'bowtie':
+                    this.applyBowtieMotion();
+                    break;
+                case 'rays':
+                    this.applyRaysMotion();
+                    break;
+                case 'lean':
+                    this.applyLeanMotion();
+                    break;
+                default: // 'original'
+                    // Keep default values
+                    break;
+            }
+        }
+
+        applyArcMotion(wordWidth) {
+            const direct = 1;
+            const rad = wordWidth / (PI / 2);
+            const altSagitta = rad / (cos(PI / 4));
+            const letterCount = keyArray[this.m].length;
+
+            const ang = -direct * PI * 3 / 4 + direct * map(this.n, 0, letterCount - 1, 0, PI / 2);
+
+            this.xAmax = cos(ang) * (wordWidth / 2 + pgTextSize / 2) - this.x0;
+            this.yAmax = sin(ang) * (wordWidth / 2 + pgTextSize / 2) + rad - altSagitta / 8;
+            this.xShearMax = ang + direct * PI / 2;
+        }
+
+        applyDiagonalMotion() {
+            const letterCount = keyArray[this.m].length;
+            const ang = atan2(pgTextSize / 2, letterCount * pgTextSize * 0.6);
+            const spread = pgTextSize / 4 * (animSpread / 100);
+
+            this.yAmax = map(this.n, 0, letterCount - 1, -spread, spread);
+            this.xShearMax = ang;
+        }
+
+        applyZigZagMotion() {
+            this.yAmax = pgTextSize / 4 * (animSpread / 100);
+            if (this.n % 2 == 0) {
+                this.yAmax *= -1;
+            }
+        }
+
+        applyBoltMotion() {
+            const letterCount = keyArray[this.m].length;
+            const ang = atan2(pgTextSize / 2, letterCount * pgTextSize * 0.6);
+            const spread = pgTextSize / 4 * (animSpread / 100);
+
+            if (this.n < ((letterCount + 1) / 2)) {
+                this.yAmax = map(this.n, 0, letterCount / 2, -spread, spread);
+            } else {
+                this.yAmax = map(this.n, letterCount / 2, letterCount - 1, -spread, spread);
+            }
+            this.xShearMax = ang;
+        }
+
+        applyBowtieMotion() {
+            const letterCount = keyArray[this.m].length;
+
+            if (this.n == Math.floor((letterCount + 1) / 2 - 1)) {
+                this.xScaleMaxB = 1.5;
+            } else if (this.n < letterCount / 2) {
+                this.xScaleMaxB = map(this.n, 0, letterCount / 2 - 1, 1.1, 1.5);
+            } else if (this.n > letterCount / 2) {
+                this.xScaleMaxB = map(this.n, letterCount / 2, letterCount - 1, 1.5, 1.1);
+            }
+        }
+
+        applyRaysMotion() {
+            const letterCount = keyArray[this.m].length;
+
+            if (this.n == Math.floor((letterCount + 1) / 2 - 1)) {
+                this.xShearMax = 0;
+            } else if (this.n < letterCount / 2) {
+                this.xShearMax = map(this.n, 0, letterCount / 2 - 1, -PI / 8, 0);
+            } else if (this.n > letterCount / 2) {
+                this.xShearMax = map(this.n, letterCount / 2, letterCount - 1, 0, PI / 8);
+            }
+        }
+
+        applyLeanMotion() {
+            const letterCount = keyArray[this.m].length;
+
+            if (this.n == Math.floor((letterCount + 1) / 2 - 1)) {
+                this.xShearMaxB = 0;
+            } else if (this.n < letterCount / 2) {
+                this.xShearMaxB = map(this.n, 0, letterCount / 2 - 1, -PI / 8, 0);
+            } else if (this.n > letterCount / 2) {
+                this.xShearMaxB = map(this.n, letterCount / 2, letterCount - 1, 0, PI / 8);
+            }
+        }
+
+        update() {
+            if (this.ticker == 0) {
+                this.visible = true;
+            }
+
+            // if(this.ticker < this.anim34){
+            this.ticker++;
+            // }
+
+            if (this.ticker < this.anim01) {
+                var tick0 = map(this.ticker, 0, this.anim01, 0.5, 1);
+                var tick1 = aSet(tick0, this.influ);
+
+                this.xA = map(tick1, 0.5, 1, this.xAmax, 0);
+                this.yA = map(tick1, 0.5, 1, this.yAmax, 0);
+
+                this.xScale = map(tick1, 0.5, 1, this.xScaleMax, 1);
+                this.xShear = map(tick1, 0.5, 1, this.xShearMax, 0);
+            } else if (this.ticker < this.anim12) {
+                tick0 = map(this.ticker, this.anim01, this.anim12, 0, 1);
+                tick1 = aSet(tick0, this.influ);
+
+                this.xScale = map(tick1, 0, 1, 1, this.xScaleMaxB);
+                this.xBudgeScale = (this.xScale * this.w) - this.w;
+
+                this.xShear = map(tick1, 0, 1, 0, this.xShearMaxB);
+                if (this.xShear < 0) {
+                    this.xBudgePost = -tan(this.xShear) * pgTextSize * 0.65;
+                } else {
+                    this.xBudgePre = tan(this.xShear) * pgTextSize * 0.65;
+                }
+            } else {
+                tick0 = map(this.ticker, this.anim12, this.anim23, 0, 0.5);
+                tick1 = aSet(tick0, this.influ);
+
+                this.yA = map(tick1, 0, 0.5, 0, -20);
+
+                // if(this.ticker > this.anim23 - 4 && this.ticker%3 == 0){
+                //   this.flicker = 125;
+                // } else {
+                //   this.flicker = 255;
+                // }
+
+                this.xScale = map(tick1, 0, 0.5, this.xScaleMaxB, 1);
+                this.xBudgeScale = (this.xScale * this.w) - this.w;
+
+                this.xShear = map(tick1, 0, 0.5, this.xShearMaxB, 0);
+                if (this.xShear < 0) {
+                    this.xBudgePost = -tan(this.xShear) * pgTextSize * 0.65;
+                } else {
+                    this.xBudgePre = tan(this.xShear) * pgTextSize * 0.65;
+                }
+            }
+
+            if (this.n < keyArray[this.m].length - 1) {
+                kineticGroups[this.p].kineticWords[this.m].budgeCenter += (this.xBudgeScale + this.xBudgePost + this.xBudgePre);
+            }
+
+            if (this.ticker > this.anim23 - 1) {
+                this.visible = false;
+
+                if (this.m == keyArray.length - 1 &&
+                    this.n == keyArray[this.m].length - 1 &&
+                    this.p == groupCount - 1) {
+                    resetAnim();
+                }
+            }
+        }
+
+        display() {
+            translate(this.xBudgePre, 0);
+
+            if (this.visible) {
+                push();
+                translate(this.x0, this.y0);
+                translate(this.xA, this.yA);
+                // ellipse(0, 0, 3, 3);
+                shearX(this.xShear);
+                scale(this.xScale, 1);
+                noStroke();
+                fill(foreColor);
+                textFont(currentFont);
+                textSize(pgTextSize);
+                text(keyArray[this.m].charAt(this.n), 0, 0);
+                pop();
+            }
+            translate(this.xBudgeScale, 0);
+            translate(this.xBudgePost, 0);
+
+            translate(this.xTrack, 0);
+        }
+
+    }

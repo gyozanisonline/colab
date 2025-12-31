@@ -7,8 +7,9 @@ const path = require('path');
 
 const PORT = process.env.PORT || 3000;
 
-// Serve static files from the current directory
-app.use(express.static(__dirname));
+// Serve static files
+app.use(express.static(path.join(__dirname, 'dist'))); // Serve built React files first
+app.use(express.static(__dirname)); // Fallback to root for assets not bundled
 
 // Store current state to send to new clients
 let appState = {
