@@ -24,7 +24,8 @@ html {
 }
 
 #canvas-background,
-#canvas-type {
+#canvas-type,
+#react-root {
     position: absolute;
     top: 0;
     left: 0;
@@ -40,6 +41,11 @@ html {
     z-index: 1;
     pointer-events: none;
     /* Let clicks pass through to background if needed, or handle events */
+}
+
+#react-root {
+    z-index: 0;
+    pointer-events: none;
 }
 
 /* UI Overlay */
@@ -191,7 +197,8 @@ input[type="text"] {
 
 /* Force specific sizing on canvases in Poster Mode */
 .poster-active #canvas-background,
-.poster-active #canvas-type {
+.poster-active #canvas-type,
+.poster-active #react-root {
     position: absolute;
     width: 600px !important;
     height: 900px !important;

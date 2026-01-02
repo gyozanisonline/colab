@@ -21,6 +21,13 @@ window.app = {
             // We just ensure it's there.
         }
 
+        // Initialize Background State
+        const bgTypeSelect = document.getElementById('bg-type-select');
+        if (bgTypeSelect) {
+            // Trigger change to sync UI panels
+            bgTypeSelect.dispatchEvent(new Event('change'));
+        }
+
         this.setStep(1);
     },
 
@@ -31,6 +38,48 @@ window.app = {
 
     bindEvents: function () {
         // Step 1: Background Controls
+        const bgTypeSelect = document.getElementById('bg-type-select');
+        if (bgTypeSelect) {
+            bgTypeSelect.addEventListener('change', (e) => {
+                const type = e.target.value;
+                console.log('Background Type Changed:', type);
+
+                // 1. Notify React (Silk)
+                const event = new CustomEvent('change-background-type', { detail: type });
+                window.dispatchEvent(event);
+
+                // 2. Control p5.js (Wireframe) visibility
+                const p5Canvas = document.getElementById('canvas-background');
+                if (type === 'wireframe') {
+                    if (p5Canvas) p5Canvas.style.display = 'block';
+                    if (window.bgInstance) window.bgInstance.loop(); // Resume loop
+                } else {
+                    if (p5Canvas) p5Canvas.style.display = 'none';
+                    if (window.bgInstance) window.bgInstance.noLoop(); // Save performance
+                }
+
+                // 3. Toggle Control Panels
+                const silkControls = document.getElementById('bg-controls-silk');
+                const wireframeControls = document.getElementById('bg-controls-wireframe');
+                const splineControls = document.getElementById('bg-controls-spline');
+
+                // Hide all first
+                if (wireframeControls) wireframeControls.style.display = 'none';
+                if (silkControls) silkControls.style.display = 'none';
+                if (splineControls) splineControls.style.display = 'none';
+
+                if (type === 'wireframe') {
+                    if (wireframeControls) wireframeControls.style.display = 'block';
+                } else if (type === 'silk') {
+                    if (silkControls) silkControls.style.display = 'block';
+                } else if (type === 'spline' || type === 'spline_new') {
+                    if (splineControls) splineControls.style.display = 'block';
+                }
+
+                if (window.emitChange) window.emitChange('param', 'bg-type', type);
+            });
+        }
+
         document.getElementById('bg-cols').addEventListener('input', (e) => {
             console.log('BG Cols Input:', e.target.value);
             if (window.bgInstance) window.bgInstance.updateParams('cols', parseInt(e.target.value));
