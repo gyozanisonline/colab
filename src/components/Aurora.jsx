@@ -1,6 +1,15 @@
 import React from 'react';
+import { useControls } from 'leva';
 
 export default function Aurora() {
+    const { bg, color1, color2, color3, speed } = useControls('Aurora', {
+        bg: '#000000',
+        color1: '#ff00cc',
+        color2: '#3333ff',
+        color3: '#00ffcc',
+        speed: { value: 10, min: 2, max: 30 }
+    });
+
     const styles = {
         container: {
             width: '100%',
@@ -8,14 +17,14 @@ export default function Aurora() {
             position: 'absolute',
             top: 0,
             left: 0,
-            background: 'linear-gradient(45deg, #000000, #1a0b2e)',
+            background: `linear-gradient(45deg, ${bg}, #1a0b2e)`,
             overflow: 'hidden',
         },
         blob: {
             position: 'absolute',
             filter: 'blur(80px)',
             opacity: 0.6,
-            animation: 'float 10s infinite ease-in-out',
+            animation: `float ${speed}s infinite ease-in-out`,
             borderRadius: '50%',
         },
         blob1: {
@@ -23,7 +32,7 @@ export default function Aurora() {
             left: '-10%',
             width: '50vw',
             height: '50vw',
-            background: '#ff00cc',
+            background: color1,
             animationDelay: '0s',
         },
         blob2: {
@@ -31,7 +40,7 @@ export default function Aurora() {
             right: '-20%',
             width: '60vw',
             height: '60vw',
-            background: '#3333ff',
+            background: color2,
             animationDelay: '2s',
         },
         blob3: {
@@ -39,7 +48,7 @@ export default function Aurora() {
             left: '20%',
             width: '70vw',
             height: '70vw',
-            background: '#00ffcc',
+            background: color3,
             animationDelay: '4s',
         }
     };

@@ -1,8 +1,9 @@
 import React, { useRef, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { useControls } from 'leva';
 
-function ParticleSwarm({ count = 100 }) {
+function ParticleSwarm({ count = 100, color }) {
     const mesh = useRef();
     const dummy = useMemo(() => new THREE.Object3D(), []);
 
@@ -46,17 +47,22 @@ function ParticleSwarm({ count = 100 }) {
             <pointLight distance={40} intensity={8} color="lightblue" />
             <instancedMesh ref={mesh} args={[null, null, count]}>
                 <dodecahedronGeometry args={[0.2, 0]} />
-                <meshPhongMaterial color="#05c3dd" />
+                <meshPhongMaterial color={color} />
             </instancedMesh>
         </>
     );
 }
 
 export default function Particles() {
+    const { count, color } = useControls('Particles', {
+        count: { value: 500, min: 100, max: 2000, step: 50 },
+        color: '#05c3dd'
+    });
+
     return (
         <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, background: '#000' }}>
             <Canvas camera={{ fov: 75, position: [0, 0, 70] }}>
-                <ParticleSwarm count={500} />
+                <ParticleSwarm count={count} color={color} />
             </Canvas>
         </div>
     );

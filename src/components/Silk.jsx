@@ -1,6 +1,7 @@
 /* eslint-disable react/no-unknown-property */
 import React, { forwardRef, useMemo, useRef, useLayoutEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { useControls } from 'leva';
 import { Color } from 'three';
 
 const hexToNormalizedRGB = (hex) => {
@@ -91,8 +92,17 @@ const SilkPlane = forwardRef(function SilkPlane({ uniforms }, ref) {
     );
 });
 
-const Silk = ({ speed = 5, scale = 1, color = '#7B7481', noiseIntensity = 1.5, rotation = 0 }) => {
+const Silk = ({ speed: defaultSpeed = 5, scale: defaultScale = 1, color: defaultColor = '#7B7481', noiseIntensity: defaultNoise = 1.5, rotation: defaultRotation = 0 }) => {
     const meshRef = useRef(null);
+
+    // Leva Controls
+    const { speed, scale, color, noiseIntensity, rotation } = useControls('Silk', {
+        speed: { value: defaultSpeed, min: 0.1, max: 20 },
+        scale: { value: defaultScale, min: 0.1, max: 5 },
+        color: { value: defaultColor },
+        noiseIntensity: { value: defaultNoise, min: 0, max: 5 },
+        rotation: { value: defaultRotation, min: 0, max: 6.28 }
+    });
 
     const uniforms = useMemo(
         () => ({
@@ -105,6 +115,17 @@ const Silk = ({ speed = 5, scale = 1, color = '#7B7481', noiseIntensity = 1.5, r
         }),
         [speed, scale, noiseIntensity, color, rotation]
     );
+
+    useFrame((state) => {
+        if (meshRef.current) {
+            // Ensure uniforms update if memo changes ref (though R3F handles this usually, manual update is safer for uniforms)
+            meshRef.current.material.uniforms.uSpeed.value = speed;
+            meshRef.current.material.uniforms.uScale.value = scale;
+            meshRef.current.material.uniforms.uNoiseIntensity.value = noiseIntensity;
+            meshRef.current.material.uniforms.uColor.value.set(color);
+            meshRef.current.material.uniforms.uRotation.value = rotation;
+        }
+    });
 
     return (
         <Canvas dpr={[1, 2]} frameloop="always" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: -1 }}>
