@@ -67,6 +67,8 @@ window.app = {
                 if (wireframeControls) wireframeControls.style.display = 'none';
                 if (silkControls) silkControls.style.display = 'none';
                 if (splineControls) splineControls.style.display = 'none';
+                const genericReact = document.getElementById('bg-controls-react-generic');
+                if (genericReact) genericReact.style.display = 'none';
 
                 if (type === 'wireframe') {
                     if (wireframeControls) wireframeControls.style.display = 'block';
@@ -74,6 +76,8 @@ window.app = {
                     if (silkControls) silkControls.style.display = 'block';
                 } else if (type === 'spline' || type === 'spline_new') {
                     if (splineControls) splineControls.style.display = 'block';
+                } else if (['starfield', 'aurora', 'blocks', 'particles'].includes(type)) {
+                    document.getElementById('bg-controls-react-generic').style.display = 'block';
                 }
 
                 if (window.emitChange) window.emitChange('param', 'bg-type', type);

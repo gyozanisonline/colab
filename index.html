@@ -80,10 +80,14 @@
                         Background Type
                         <select id="bg-type-select"
                             style="width: 100%; margin-top: 5px; padding: 5px; background: rgba(0,0,0,0.5); color: white; border: 1px solid rgba(255,255,255,0.3);">
+                            <option value="wireframe" selected>Wireframe (p5.js)</option>
+                            <option value="starfield">StarField (React)</option>
+                            <option value="aurora">Aurora (React)</option>
+                            <option value="blocks">Blocks (React)</option>
+                            <option value="particles">Particles (React)</option>
                             <option value="silk">Silk (React)</option>
                             <option value="spline">Spline 3D (React)</option>
                             <option value="spline_new">Spline (New)</option>
-                            <option value="wireframe" selected>Wireframe (p5.js)</option>
                             <option value="none">None</option>
                         </select>
                     </label>
@@ -114,6 +118,13 @@
                             Spline Controls</h3>
                         <p style="font-size: 0.8rem; color: #aaa;">Interactive 3D Scene.<br>Click and drag to rotate!
                         </p>
+                    </div>
+
+                    <div id="bg-controls-react-generic" style="display: none;">
+                        <h3
+                            style="font-size: 0.9rem; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px;">
+                            React Background</h3>
+                        <p style="font-size: 0.8rem; color: #aaa;">Touch/Mouse interaction enabled.</p>
                     </div>
                 </div>
 
