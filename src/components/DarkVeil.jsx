@@ -70,7 +70,7 @@ const DarkVeilShader = {
 function VeilPlane() {
     const mesh = useRef();
     const { baseColor, veilColor, density, speed } = useControls('Dark Veil', {
-        baseColor: '#050505',
+        baseColor: '#d500ff',
         veilColor: '#1a1a1a',
         density: { value: 1.0, min: 0.1, max: 3.0 },
         speed: { value: 0.2, min: 0.0, max: 2.0 }
