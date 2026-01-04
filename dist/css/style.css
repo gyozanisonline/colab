@@ -34,11 +34,11 @@ html {
 }
 
 #canvas-background {
-    z-index: 0;
+    z-index: -1;
 }
 
 #canvas-type {
-    z-index: 1;
+    z-index: 50;
     pointer-events: none;
     /* Let clicks pass through to background if needed, or handle events */
 }

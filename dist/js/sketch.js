@@ -191,20 +191,12 @@ function setup() {
 
 
     setText();
-
-    introScreen = new IntroScreen(logoImg);
 }
 
 
 function draw() {
     // Normal 2D rendering
     clear(); // Use clear() instead of background() to maintain transparency
-
-    if (introScreen && introScreen.isActive) {
-        introScreen.update();
-        introScreen.display();
-        return;
-    }
 
     if (recording) {
 

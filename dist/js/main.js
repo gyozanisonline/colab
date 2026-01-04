@@ -71,10 +71,12 @@ window.app = {
                 if (type === 'wireframe') {
                     if (wireframeControls) wireframeControls.style.display = 'block';
                 } else if (type === 'silk') {
-                    if (silkControls) silkControls.style.display = 'block';
+                    // Silk now uses Leva, so we can hide or show specific HTML if needed, but Leva handles it.
+                    // if (silkControls) silkControls.style.display = 'block'; // Legacy controls hidden
                 } else if (type === 'spline' || type === 'spline_new') {
                     if (splineControls) splineControls.style.display = 'block';
                 }
+                // React backgrounds (StarField, etc.) show Leva automatically.
 
                 if (window.emitChange) window.emitChange('param', 'bg-type', type);
             });
