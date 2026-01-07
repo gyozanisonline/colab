@@ -228,6 +228,17 @@ socket.on('update_state', (data) => {
         }
     } else if (data.type === 'param') {
         updateParamFromSocket(data.key, data.value);
+    } else if (data.type === 'function') {
+        // Handle function calls
+        if (data.name === 'togglePosterMode') {
+            if (typeof window.togglePosterMode === 'function') {
+                // Update checkbox UI if it exists
+                const chk = document.getElementById('poster-mode-toggle');
+                if (chk) chk.checked = data.value;
+
+                window.togglePosterMode(data.value);
+            }
+        }
     }
 
     isRemoteUpdate = false;
@@ -242,6 +253,11 @@ function updateParamFromSocket(key, value) {
             input.checked = (value === true || value === 'true');
         } else {
             input.value = value;
+        }
+
+        // Special case: Background Type needs to trigger change event
+        if (key === 'bg-type-select') {
+            input.dispatchEvent(new Event('change'));
         }
     }
 
