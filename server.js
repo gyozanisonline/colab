@@ -1,9 +1,15 @@
-const express = require('express');
+import express from 'express';
+import http from 'http';
+import { Server } from 'socket.io';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
-const http = require('http');
 const server = http.createServer(app);
-const io = require('socket.io')(server);
-const path = require('path');
+const io = new Server(server);
 
 const PORT = process.env.PORT || 3000;
 
