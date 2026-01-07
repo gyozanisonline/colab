@@ -108,31 +108,32 @@ window.app = {
             });
         }
 
-        document.getElementById('bg-cols').addEventListener('input', (e) => {
-            console.log('BG Cols Input:', e.target.value);
-            if (window.bgInstance) window.bgInstance.updateParams('cols', parseInt(e.target.value));
-            if (window.emitChange) window.emitChange('param', 'bg-cols', e.target.value);
-        });
-        document.getElementById('bg-rows').addEventListener('input', (e) => {
-            console.log('BG Rows Input:', e.target.value);
-            if (window.bgInstance) window.bgInstance.updateParams('rows', parseInt(e.target.value));
-            if (window.emitChange) window.emitChange('param', 'bg-rows', e.target.value);
-        });
-        document.getElementById('bg-speed').addEventListener('input', (e) => {
-            console.log('BG Speed Input:', e.target.value);
-            if (window.bgInstance) window.bgInstance.updateParams('speed', parseFloat(e.target.value));
-            if (window.emitChange) window.emitChange('param', 'bg-speed', e.target.value);
-        });
-        document.getElementById('bg-color').addEventListener('input', (e) => {
-            console.log('BG Color Input:', e.target.value);
-            if (window.bgInstance) window.bgInstance.updateParams('color', e.target.value);
-            if (window.emitChange) window.emitChange('param', 'bg-color', e.target.value);
-        });
-        document.getElementById('grid-color').addEventListener('input', (e) => {
-            console.log('Grid Color Input:', e.target.value);
-            if (window.bgInstance) window.bgInstance.updateParams('strokeColor', e.target.value);
-            if (window.emitChange) window.emitChange('param', 'grid-color', e.target.value);
-        });
+        // Corrected Wireframe Controls (matching index.html)
+        const gridDensityInput = document.getElementById('grid-density');
+        if (gridDensityInput) {
+            gridDensityInput.addEventListener('input', (e) => {
+                const val = parseInt(e.target.value);
+                console.log('Grid Density Input:', val);
+                if (window.bgInstance) {
+                    window.bgInstance.updateParams('cols', val);
+                    window.bgInstance.updateParams('rows', val); // Keep square
+                }
+                if (window.emitChange) window.emitChange('param', 'grid-density', val);
+            });
+        }
+
+        const scrollSpeedInput = document.getElementById('scroll-speed');
+        if (scrollSpeedInput) {
+            scrollSpeedInput.addEventListener('input', (e) => {
+                const rawVal = parseInt(e.target.value);
+                const speedVal = rawVal * 0.005; // Map 1-20 to 0.005-0.1
+                console.log('Scroll Speed Input:', rawVal, '->', speedVal);
+                if (window.bgInstance) window.bgInstance.updateParams('speed', speedVal);
+                if (window.emitChange) window.emitChange('param', 'scroll-speed', rawVal);
+            });
+        }
+
+        // Removed broken listeners for non-existent IDs (bg-cols, bg-rows, bg-speed, bg-color, grid-color)
 
         // Step 2: Type Controls
         const typeTextInput = document.getElementById('type-text');
