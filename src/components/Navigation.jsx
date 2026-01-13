@@ -2,10 +2,7 @@ import React from 'react';
 
 const Navigation = ({ activeApp, onSwitchApp }) => {
     const apps = [
-        { id: 'typeflow', label: 'TypeFlow' },
-        { id: 'omnichord', label: 'Omnichord' },
-        { id: 'roulette', label: 'Roulette' },
-        { id: 'watertype', label: 'Water Type' }
+        { id: 'typeflow', label: 'TypeFlow' }
     ];
 
     return (

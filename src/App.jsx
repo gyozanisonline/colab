@@ -52,47 +52,7 @@ function App() {
                 </div>
             )}
 
-            {activeApp === 'omnichord' && (
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    height: '100vh',
-                    color: 'white',
-                    fontSize: '2rem',
-                    background: '#222'
-                }}>
-                    🎹 Omnichord App (Coming Soon)
-                </div>
-            )}
 
-            {activeApp === 'roulette' && (
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    height: '100vh',
-                    color: 'white',
-                    fontSize: '2rem',
-                    background: '#331133'
-                }}>
-                    🎰 Character Roulette (Coming Soon)
-                </div>
-            )}
-
-            {activeApp === 'watertype' && (
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    height: '100vh',
-                    color: 'white',
-                    fontSize: '2rem',
-                    background: '#112233'
-                }}>
-                    💧 Water Type (Coming Soon)
-                </div>
-            )}
         </div>
     );
 }
