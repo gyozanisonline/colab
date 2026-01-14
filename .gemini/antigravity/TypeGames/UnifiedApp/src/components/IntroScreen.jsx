@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './IntroScreen.css';
+import logoSvg from '/assets/Colab Logo White.svg';
 
 export default function IntroScreen({ onComplete }) {
     const [name, setName] = useState('');
@@ -50,7 +51,7 @@ export default function IntroScreen({ onComplete }) {
         <div className="intro-container">
             <div className="intro-content">
                 <img
-                    src="/assets/Colab%20Logo%20White.svg"
+                    src={logoSvg}
                     alt="Colab Logo"
                     className="intro-logo"
                 />
