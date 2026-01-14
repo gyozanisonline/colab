@@ -145,8 +145,48 @@ window.app = {
         });
         const activePanel = document.getElementById(`controls-step-${step}`);
         if (activePanel) activePanel.classList.remove('hidden');
+    },
+
+    savePoster: async function () {
+        const text = document.getElementById('textArea').value;
+        const author = localStorage.getItem('playerName') || 'Guest';
+        // Gather params
+        const params = {
+            // We can expand this to capture all detailed state
+            text: text,
+            foreColor: document.getElementById('foreColor').value,
+            bgType: document.getElementById('bg-type-select').value
+        };
+
+        const payload = {
+            text,
+            author,
+            params
+        };
+
+        console.log("Attempting to save poster:", payload);
+
+        try {
+            const res = await fetch('/api/posters', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            console.log("Save response status:", res.status);
+            if (res.ok) {
+                alert('Poster Saved to Community!');
+            } else {
+                alert('Failed to save poster.');
+            }
+        } catch (err) {
+            console.error("Save error:", err);
+            alert('Error saving poster.');
+        }
     }
 };
+
+// Global Exposure
+window.savePoster = () => window.app.savePoster();
 
 // Initialize App
 document.addEventListener('DOMContentLoaded', () => {
@@ -155,4 +195,30 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         console.error("App object not found or init is not a function");
     }
+
+    // Listen for App Switching from React
+    window.addEventListener('app-changed', (e) => {
+        const appId = e.detail.app;
+        const uiOverlay = document.getElementById('ui-overlay');
+        const p5Canvas = document.getElementById('canvas-background');
+
+        if (appId === 'community') {
+            if (uiOverlay) uiOverlay.style.display = 'none';
+            // Optional: Hide p5 canvas to save resources, though it acts as a nice background if visible? 
+            // The community gallery has its own specific background.
+            if (p5Canvas) p5Canvas.style.display = 'none';
+            const typeCanvas = document.getElementById('canvas-type');
+            if (typeCanvas) typeCanvas.style.display = 'none';
+        } else {
+            if (uiOverlay) uiOverlay.style.display = 'block';
+            // Restore p5 canvas if needed (check current bg type logic)
+            // A simple way is to trigger the bg change event again to reset state or just let the user interact.
+            // For now, let's just show it if active background is wireframe
+            const bgType = document.getElementById('bg-type-select').value;
+            if (bgType === 'wireframe' && p5Canvas) p5Canvas.style.display = 'block';
+            const typeCanvas = document.getElementById('canvas-type');
+            if (typeCanvas) typeCanvas.style.display = 'block';
+        }
+    });
 });
+

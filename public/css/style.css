@@ -15,6 +15,7 @@ html {
     font-family: 'Helvetica Neue', Arial, sans-serif;
     background: var(--dark);
     color: var(--light);
+    cursor: none;
 }
 
 #app-container {
@@ -38,13 +39,13 @@ html {
 }
 
 #canvas-type {
-    z-index: 50;
+    z-index: 5;
     pointer-events: none;
     /* Let clicks pass through to background if needed, or handle events */
 }
 
 #react-root {
-    z-index: 0;
+    z-index: auto;
     pointer-events: none;
 }
 
@@ -337,6 +338,23 @@ input[type="text"] {
         transform: translate(-50%, -50%) scale(2) translateY(-50px);
         opacity: 0;
     }
+}
+
+/* Inverted Mouse Cursor Effect */
+#inverted-cursor {
+    position: fixed;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: white;
+    pointer-events: none;
+    z-index: 99998;
+    transform: translate(-50%, -50%);
+    will-change: transform;
+}
+
+#inverted-cursor.active {
+    opacity: 1;
 }
 
 /* Utility to hide elements when switching apps */

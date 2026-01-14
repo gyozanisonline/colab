@@ -9,6 +9,7 @@ import ColorBends from './components/ColorBends';
 import DarkVeil from './components/DarkVeil';
 import Dither from './components/Dither';
 import Navigation from './components/Navigation';
+import CommunityGallery from './components/CommunityGallery';
 
 import VersionOverlay from './components/VersionOverlay';
 
@@ -52,6 +53,7 @@ function App() {
                 </div>
             )}
 
+            <CommunityGallery isActive={activeApp === 'community'} />
 
         </div>
     );

@@ -15,6 +15,9 @@
 
 <body>
     <div id="app-container">
+        <!-- Inverted Mouse Cursor -->
+        <div id="inverted-cursor"></div>
+
         <!-- React Root (New Layer: Z-index 0) -->
         <div id="react-root"></div>
 
@@ -60,6 +63,10 @@
                                 style="width: 30px; height: 30px; border: none; padding: 0; background: none; cursor: pointer;">
                         </div>
                     </label>
+                    <button onclick="savePoster()"
+                        style="width: 100%; margin-top: 10px; padding: 8px; background: #00ffcc; color: black; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">
+                        Save Poster to Community
+                    </button>
                 </div>
 
                 <div class="controls-group"
@@ -219,6 +226,7 @@ Experiment Together</textarea>
     <script src="js/BackgroundModule.js"></script>
     <script src="js/AudioModule.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/invertedCursor.js"></script>
 
     <!-- NEW: React Entry Point -->
     <script type="module" src="/src/main.jsx"></script>

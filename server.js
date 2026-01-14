@@ -76,6 +76,58 @@ io.on('connection', (socket) => {
     });
 });
 
+
+// --- POSTER COMMUNITY API ---
+import fs from 'fs/promises';
+
+const HAS_DB = await fs.access(path.join(__dirname, 'posters.json')).then(() => true).catch(() => false);
+if (!HAS_DB) {
+    await fs.writeFile(path.join(__dirname, 'posters.json'), '[]');
+}
+
+app.use(express.json()); // Enable JSON body parsing
+
+// Get all posters
+app.get('/api/posters', async (req, res) => {
+    try {
+        const data = await fs.readFile(path.join(__dirname, 'posters.json'), 'utf-8');
+        const posters = JSON.parse(data);
+        res.json(posters);
+    } catch (err) {
+        console.error("Error reading posters:", err);
+        res.status(500).json({ error: 'Failed to fetch posters' });
+    }
+});
+
+// Save a poster
+app.post('/api/posters', async (req, res) => {
+    try {
+        const newPoster = req.body;
+        // Basic Validation
+        if (!newPoster.text || !newPoster.author) {
+            return res.status(400).json({ error: 'Missing required fields' });
+        }
+
+        // Add Timestamp
+        newPoster.id = Date.now().toString();
+        newPoster.createdAt = new Date().toISOString();
+
+        const data = await fs.readFile(path.join(__dirname, 'posters.json'), 'utf-8');
+        const posters = JSON.parse(data);
+
+        // Add to beginning
+        posters.unshift(newPoster);
+
+        await fs.writeFile(path.join(__dirname, 'posters.json'), JSON.stringify(posters, null, 2));
+
+        console.log(`Saved new poster by ${newPoster.author}`);
+        res.status(201).json(newPoster);
+    } catch (err) {
+        console.error("Error saving poster:", err);
+        res.status(500).json({ error: 'Failed to save poster' });
+    }
+});
+
 server.listen(PORT, () => {
     console.log(`Server running locally at http://localhost:${PORT}`);
 });
