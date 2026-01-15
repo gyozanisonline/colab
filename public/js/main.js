@@ -26,6 +26,13 @@ window.app = {
                 if (stepNav) stepNav.classList.remove('hidden-app');
                 if (controlsPanel) controlsPanel.classList.remove('hidden-app');
                 if (typeCanvas) typeCanvas.style.display = 'block';
+
+                // Show p5 background canvas (if wireframe is selected)
+                const p5Canvas = document.getElementById('canvas-background');
+                const bgTypeSelect = document.getElementById('bg-type-select');
+                if (p5Canvas && bgTypeSelect && bgTypeSelect.value === 'wireframe') {
+                    p5Canvas.style.display = 'block';
+                }
             } else {
                 // Hide all TypeFlow UI elements (for intro, community, or other apps)
                 if (chatContainer) chatContainer.style.display = 'none';
