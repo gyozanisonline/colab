@@ -13,7 +13,10 @@ import CommunityGallery from './components/CommunityGallery';
 
 import VersionOverlay from './components/VersionOverlay';
 
+import IntroScreen from './components/IntroScreen';
+
 function App() {
+    const [showIntro, setShowIntro] = useState(true);
     const [activeBackground, setActiveBackground] = useState('wireframe'); // Default to Wireframe
     const [activeApp, setActiveApp] = useState('typeflow');
 
@@ -23,8 +26,14 @@ function App() {
             setActiveBackground(e.detail);
         };
         window.addEventListener('change-background-type', handleBgChange);
+
+        // Initial Sync: If Intro is showing, tell legacy system to hide its UI
+        if (showIntro) {
+            window.dispatchEvent(new CustomEvent('app-changed', { detail: { app: 'intro' } }));
+        }
+
         return () => window.removeEventListener('change-background-type', handleBgChange);
-    }, []);
+    }, []); // Run once on mount
 
     const handleSwitchApp = (appId) => {
         setActiveApp(appId);
@@ -32,29 +41,40 @@ function App() {
         window.dispatchEvent(new CustomEvent('app-changed', { detail: { app: appId } }));
     };
 
+    const handleIntroComplete = () => {
+        setShowIntro(false);
+        // Switch to main app mode
+        window.dispatchEvent(new CustomEvent('app-changed', { detail: { app: 'typeflow' } }));
+    };
+
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <VersionOverlay />
-            <Navigation activeApp={activeApp} onSwitchApp={handleSwitchApp} />
+            {showIntro ? (
+                <IntroScreen onComplete={handleIntroComplete} />
+            ) : (
+                <>
+                    <VersionOverlay />
+                    <Navigation activeApp={activeApp} onSwitchApp={handleSwitchApp} />
 
-            {/* Render TypeFlow Backgrounds only if in TypeFlow mode */}
-            {activeApp === 'typeflow' && (
-                <div style={{ width: '100%', height: '100%', pointerEvents: 'none' }}>
-                    {activeBackground === 'silk' && <Silk color="#00ffcc" speed={2.5} />}
-                    {activeBackground === 'spline' && <SplineBackground />}
-                    {activeBackground === 'spline_new' && <SplineBackground sceneUrl="https://prod.spline.design/Gc46LQNHKmMSkOyq/scene.splinecode" />}
-                    {activeBackground === 'starfield' && <StarField />}
-                    {activeBackground === 'aurora' && <Aurora />}
-                    {activeBackground === 'blocks' && <Blocks />}
-                    {activeBackground === 'particles' && <Particles />}
-                    {activeBackground === 'color_bends' && <ColorBends />}
-                    {activeBackground === 'dark_veil' && <DarkVeil />}
-                    {activeBackground === 'dither' && <Dither />}
-                </div>
+                    {/* Render TypeFlow Backgrounds only if in TypeFlow mode */}
+                    {activeApp === 'typeflow' && (
+                        <div style={{ width: '100%', height: '100%', pointerEvents: 'none' }}>
+                            {activeBackground === 'silk' && <Silk color="#00ffcc" speed={2.5} />}
+                            {activeBackground === 'spline' && <SplineBackground />}
+                            {activeBackground === 'spline_new' && <SplineBackground sceneUrl="https://prod.spline.design/Gc46LQNHKmMSkOyq/scene.splinecode" />}
+                            {activeBackground === 'starfield' && <StarField />}
+                            {activeBackground === 'aurora' && <Aurora />}
+                            {activeBackground === 'blocks' && <Blocks />}
+                            {activeBackground === 'particles' && <Particles />}
+                            {activeBackground === 'color_bends' && <ColorBends />}
+                            {activeBackground === 'dark_veil' && <DarkVeil />}
+                            {activeBackground === 'dither' && <Dither />}
+                        </div>
+                    )}
+
+                    <CommunityGallery isActive={activeApp === 'community'} />
+                </>
             )}
-
-            <CommunityGallery isActive={activeApp === 'community'} />
-
         </div>
     );
 }
