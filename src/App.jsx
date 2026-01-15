@@ -42,10 +42,13 @@ function App() {
     };
 
     const handleIntroComplete = () => {
+        console.log('🎬 handleIntroComplete called - Hiding intro screen');
         setShowIntro(false);
         // Switch to main app mode
         window.dispatchEvent(new CustomEvent('app-changed', { detail: { app: 'typeflow' } }));
     };
+
+    console.log('🎬 App render - showIntro:', showIntro);
 
     return (
         <div style={{ width: '100%', height: '100%' }}>

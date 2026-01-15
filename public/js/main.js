@@ -150,11 +150,6 @@ window.app = {
                 // ... legacy logic ...
             });
         }
-        document.getElementById('type-size').addEventListener('input', (e) => {
-            console.log('Type Size Input:', e.target.value);
-            if (window.typeInstance) window.typeInstance.updateParams('size', parseInt(e.target.value));
-            if (window.emitChange) window.emitChange('param', 'type-size', e.target.value);
-        });
     },
 
     setStep: function (step) {
@@ -179,9 +174,28 @@ window.app = {
 
 // Initialize App
 document.addEventListener('DOMContentLoaded', () => {
-    if (window.app && typeof window.app.init === 'function') {
-        window.app.init();
+    // Check if UI elements exist (they won't if intro is showing)
+    const uiOverlay = document.getElementById('ui-overlay');
+    const hasUIElements = uiOverlay && uiOverlay.querySelector('.step-btn');
+
+    if (hasUIElements) {
+        // UI is ready, initialize immediately
+        if (window.app && typeof window.app.init === 'function') {
+            window.app.init();
+        } else {
+            console.error("App object not found or init is not a function");
+        }
     } else {
-        console.error("App object not found or init is not a function");
+        console.log('🎬 UI elements not ready (intro showing), deferring app.init()');
+        // Listen for when the intro completes and UI becomes available
+        window.addEventListener('app-changed', (e) => {
+            if (e.detail.app === 'typeflow' && !window.app.initialized) {
+                console.log('🎬 Intro complete, initializing app now');
+                window.app.initialized = true;
+                if (window.app && typeof window.app.init === 'function') {
+                    window.app.init();
+                }
+            }
+        }, { once: false }); // Don't use once, in case we need to reinit
     }
 });

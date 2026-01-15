@@ -6,6 +6,11 @@ export default function IntroScreen({ onComplete }) {
     const [name, setName] = useState(() => localStorage.getItem('playerName') || '');
     const [color, setColor] = useState(() => localStorage.getItem('playerColor') || '#00ffcc');
 
+    useEffect(() => {
+        console.log('🎬 IntroScreen mounted');
+        return () => console.log('🎬 IntroScreen unmounted');
+    }, []);
+
     // Real-time sync with legacy input for cursor color update
     useEffect(() => {
         const colorInput = document.getElementById('player-color');
@@ -16,6 +21,7 @@ export default function IntroScreen({ onComplete }) {
     }, [color]);
 
     const handleCreate = () => {
+        console.log('🎬 handleCreate called - User clicked CREATE button');
         // 1. Save to localStorage
         const finalName = name.trim() || 'Guest';
         localStorage.setItem('playerName', finalName);
