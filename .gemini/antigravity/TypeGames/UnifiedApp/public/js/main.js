@@ -150,11 +150,6 @@ window.app = {
                 // ... legacy logic ...
             });
         }
-        document.getElementById('type-size').addEventListener('input', (e) => {
-            console.log('Type Size Input:', e.target.value);
-            if (window.typeInstance) window.typeInstance.updateParams('size', parseInt(e.target.value));
-            if (window.emitChange) window.emitChange('param', 'type-size', e.target.value);
-        });
     },
 
     setStep: function (step) {
