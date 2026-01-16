@@ -75,6 +75,7 @@ export default function IntroScreen({ onComplete }) {
                             className="intro-color-input"
                             value={color}
                             onChange={(e) => setColor(e.target.value)}
+                            style={{ backgroundColor: color }}
                         />
                     </div>
 
