@@ -35,6 +35,7 @@ window.app = {
                 }
             } else {
                 // Hide all TypeFlow UI elements (for intro, community, or other apps)
+                if (uiOverlay) uiOverlay.style.display = 'none';
                 if (chatContainer) chatContainer.style.display = 'none';
                 if (header) header.style.display = 'none';
                 if (stepNav) stepNav.classList.add('hidden-app');
