@@ -192,7 +192,7 @@ function setup() {
 
     setText();
 
-    introScreen = new IntroScreen(logoImg);
+    // introScreen = new IntroScreen(logoImg); // Disabled to prevent conflict with React Intro
 }
 
 

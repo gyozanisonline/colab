@@ -210,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const typeCanvas = document.getElementById('canvas-type');
             if (typeCanvas) typeCanvas.style.display = 'none';
         } else {
-            if (uiOverlay) uiOverlay.style.display = 'block';
+            // if (uiOverlay) uiOverlay.style.display = 'block'; // Kept hidden for React UI
             // Restore p5 canvas if needed (check current bg type logic)
             // A simple way is to trigger the bg change event again to reset state or just let the user interact.
             // For now, let's just show it if active background is wireframe
