@@ -228,6 +228,17 @@ socket.on('update_state', (data) => {
         }
     } else if (data.type === 'param') {
         updateParamFromSocket(data.key, data.value);
+    } else if (data.type === 'function') {
+        // Handle function calls
+        if (data.name === 'togglePosterMode') {
+            if (typeof window.togglePosterMode === 'function') {
+                // Update checkbox UI if it exists
+                const chk = document.getElementById('poster-mode-toggle');
+                if (chk) chk.checked = data.value;
+
+                window.togglePosterMode(data.value);
+            }
+        }
     }
 
     isRemoteUpdate = false;
@@ -243,14 +254,29 @@ function updateParamFromSocket(key, value) {
         } else {
             input.value = value;
         }
+
+        // Special case: Background Type needs to trigger change event
+        if (key === 'bg-type-select') {
+            input.dispatchEvent(new Event('change'));
+        }
     }
 
     // 2. Update Instance
 
     // Background Params (Using CORRECT keys from main.js/index.html)
-    if (key === 'bg-rows' && window.bgInstance) window.bgInstance.updateParams('rows', parseInt(value));
-    if (key === 'bg-cols' && window.bgInstance) window.bgInstance.updateParams('cols', parseInt(value));
-    if (key === 'bg-speed' && window.bgInstance) window.bgInstance.updateParams('speed', parseFloat(value));
+    // Background Params (Using CORRECT keys from main.js/index.html)
+    if (key === 'grid-density' && window.bgInstance) {
+        window.bgInstance.updateParams('cols', parseInt(value));
+        window.bgInstance.updateParams('rows', parseInt(value));
+    }
+    if (key === 'scroll-speed' && window.bgInstance) {
+        // value passed is raw slider value (1-20). 
+        // We need to re-convert it to speed (0.005-0.1) if the sender didn't send the converted value.
+        // main.js emits the RAW value: window.emitChange('param', 'scroll-speed', rawVal);
+        const speedVal = parseInt(value) * 0.005;
+        window.bgInstance.updateParams('speed', speedVal);
+    }
+    // Legacy/Other support (if needed, or just keeping for safety)
     if (key === 'bg-color' && window.bgInstance) window.bgInstance.updateParams('color', value);
     if (key === 'grid-color' && window.bgInstance) window.bgInstance.updateParams('strokeColor', value);
 

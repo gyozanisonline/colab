@@ -4,6 +4,32 @@ window.app = {
     init: function () {
         this.cacheDOM();
         this.bindEvents();
+
+        // Listen for App Switching from React
+        window.addEventListener('app-changed', (e) => {
+            const appId = e.detail.app;
+            console.log('App Changed to:', appId);
+            const uiOverlay = document.getElementById('controls-panel');
+            const stepNav = document.getElementById('step-nav');
+            const typeCanvas = document.getElementById('canvas-type');
+
+            if (appId === 'typeflow') {
+                if (uiOverlay) uiOverlay.classList.remove('hidden-app');
+                if (stepNav) stepNav.classList.remove('hidden-app');
+                if (typeCanvas) typeCanvas.style.display = 'block';
+                // Also ensure background (p5) state is restored if needed
+            } else {
+                if (uiOverlay) uiOverlay.classList.add('hidden-app');
+                if (stepNav) stepNav.classList.add('hidden-app');
+                if (typeCanvas) typeCanvas.style.display = 'none';
+
+                // If switching away, hide p5 background too, 
+                // but let React handle its own background visibility via activeApp check.
+                const p5Canvas = document.getElementById('canvas-background');
+                if (p5Canvas) p5Canvas.style.display = 'none';
+            }
+        });
+
         // Initialize preset buttons
         document.querySelectorAll('.presets button').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -82,31 +108,32 @@ window.app = {
             });
         }
 
-        document.getElementById('bg-cols').addEventListener('input', (e) => {
-            console.log('BG Cols Input:', e.target.value);
-            if (window.bgInstance) window.bgInstance.updateParams('cols', parseInt(e.target.value));
-            if (window.emitChange) window.emitChange('param', 'bg-cols', e.target.value);
-        });
-        document.getElementById('bg-rows').addEventListener('input', (e) => {
-            console.log('BG Rows Input:', e.target.value);
-            if (window.bgInstance) window.bgInstance.updateParams('rows', parseInt(e.target.value));
-            if (window.emitChange) window.emitChange('param', 'bg-rows', e.target.value);
-        });
-        document.getElementById('bg-speed').addEventListener('input', (e) => {
-            console.log('BG Speed Input:', e.target.value);
-            if (window.bgInstance) window.bgInstance.updateParams('speed', parseFloat(e.target.value));
-            if (window.emitChange) window.emitChange('param', 'bg-speed', e.target.value);
-        });
-        document.getElementById('bg-color').addEventListener('input', (e) => {
-            console.log('BG Color Input:', e.target.value);
-            if (window.bgInstance) window.bgInstance.updateParams('color', e.target.value);
-            if (window.emitChange) window.emitChange('param', 'bg-color', e.target.value);
-        });
-        document.getElementById('grid-color').addEventListener('input', (e) => {
-            console.log('Grid Color Input:', e.target.value);
-            if (window.bgInstance) window.bgInstance.updateParams('strokeColor', e.target.value);
-            if (window.emitChange) window.emitChange('param', 'grid-color', e.target.value);
-        });
+        // Corrected Wireframe Controls (matching index.html)
+        const gridDensityInput = document.getElementById('grid-density');
+        if (gridDensityInput) {
+            gridDensityInput.addEventListener('input', (e) => {
+                const val = parseInt(e.target.value);
+                console.log('Grid Density Input:', val);
+                if (window.bgInstance) {
+                    window.bgInstance.updateParams('cols', val);
+                    window.bgInstance.updateParams('rows', val); // Keep square
+                }
+                if (window.emitChange) window.emitChange('param', 'grid-density', val);
+            });
+        }
+
+        const scrollSpeedInput = document.getElementById('scroll-speed');
+        if (scrollSpeedInput) {
+            scrollSpeedInput.addEventListener('input', (e) => {
+                const rawVal = parseInt(e.target.value);
+                const speedVal = rawVal * 0.005; // Map 1-20 to 0.005-0.1
+                console.log('Scroll Speed Input:', rawVal, '->', speedVal);
+                if (window.bgInstance) window.bgInstance.updateParams('speed', speedVal);
+                if (window.emitChange) window.emitChange('param', 'scroll-speed', rawVal);
+            });
+        }
+
+        // Removed broken listeners for non-existent IDs (bg-cols, bg-rows, bg-speed, bg-color, grid-color)
 
         // Step 2: Type Controls
         const typeTextInput = document.getElementById('type-text');
@@ -123,11 +150,6 @@ window.app = {
                 // ... legacy logic ...
             });
         }
-        document.getElementById('type-size').addEventListener('input', (e) => {
-            console.log('Type Size Input:', e.target.value);
-            if (window.typeInstance) window.typeInstance.updateParams('size', parseInt(e.target.value));
-            if (window.emitChange) window.emitChange('param', 'type-size', e.target.value);
-        });
     },
 
     setStep: function (step) {
