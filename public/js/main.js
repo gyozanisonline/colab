@@ -10,21 +10,10 @@ window.app = {
             const appId = e.detail.app;
             console.log('App Changed to:', appId);
 
-            // Get all UI elements that should be hidden when not in typeflow
-            const uiOverlay = document.getElementById('ui-overlay');
-            const chatContainer = document.getElementById('chat-container');
-            const header = document.querySelector('#ui-overlay header');
-            const stepNav = document.getElementById('step-nav');
-            const controlsPanel = document.getElementById('controls-panel');
-            const typeCanvas = document.getElementById('canvas-type');
-
             if (appId === 'typeflow') {
                 // Show all TypeFlow UI elements
-                if (uiOverlay) uiOverlay.style.display = 'block';
+                // Legacy UI overlay is gone, React handles controls now.
                 if (chatContainer) chatContainer.style.display = 'block';
-                if (header) header.style.display = 'block';
-                if (stepNav) stepNav.classList.remove('hidden-app');
-                if (controlsPanel) controlsPanel.classList.remove('hidden-app');
                 if (typeCanvas) typeCanvas.style.display = 'block';
 
                 // Show p5 background canvas (if wireframe is selected)
@@ -35,11 +24,7 @@ window.app = {
                 }
             } else {
                 // Hide all TypeFlow UI elements (for intro, community, or other apps)
-                if (uiOverlay) uiOverlay.style.display = 'none';
                 if (chatContainer) chatContainer.style.display = 'none';
-                if (header) header.style.display = 'none';
-                if (stepNav) stepNav.classList.add('hidden-app');
-                if (controlsPanel) controlsPanel.classList.add('hidden-app');
                 if (typeCanvas) typeCanvas.style.display = 'none';
 
                 // If switching away, hide p5 background too
@@ -196,8 +181,9 @@ window.app = {
 // Initialize App
 document.addEventListener('DOMContentLoaded', () => {
     // Check if UI elements exist (they won't if intro is showing)
-    const uiOverlay = document.getElementById('ui-overlay');
-    const hasUIElements = uiOverlay && uiOverlay.querySelector('.step-btn');
+    // Check for critical elements (inputs for legacy state)
+    const legacyContainer = document.getElementById('legacy-state-container');
+    const hasUIElements = !!legacyContainer;
 
     if (hasUIElements) {
         // UI is ready, initialize immediately
