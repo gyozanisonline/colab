@@ -1,5 +1,5 @@
-/* eslint-disable react/no-unknown-property */
-import React, { forwardRef, useMemo, useRef, useLayoutEffect } from 'react';
+
+import { forwardRef, useMemo, useRef, useLayoutEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useControls } from 'leva';
 import { Color } from 'three';
@@ -116,7 +116,7 @@ const Silk = ({ speed: defaultSpeed = 5, scale: defaultScale = 1, color: default
         [speed, scale, noiseIntensity, color, rotation]
     );
 
-    useFrame((state) => {
+    useFrame(() => {
         if (meshRef.current) {
             // Ensure uniforms update if memo changes ref (though R3F handles this usually, manual update is safer for uniforms)
             meshRef.current.material.uniforms.uSpeed.value = speed;

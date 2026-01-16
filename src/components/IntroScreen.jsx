@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import './IntroScreen.css';
+import StarBorder from './StarBorder';
 
 export default function IntroScreen({ onComplete }) {
     // Initialize state from localStorage to avoid cascading renders
@@ -77,9 +78,18 @@ export default function IntroScreen({ onComplete }) {
                         />
                     </div>
 
-                    <button className="create-btn" onClick={handleCreate}>
-                        CREATE
-                    </button>
+                    <div style={{ marginTop: '20px' }}>
+                        <StarBorder
+                            as="button"
+                            className="create-btn-wrapper"
+                            color={color}
+                            speed="3s"
+                            onClick={handleCreate}
+                            style={{ width: '100%' }}
+                        >
+                            CREATE
+                        </StarBorder>
+                    </div>
                 </div>
             </div>
         </div>

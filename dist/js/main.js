@@ -9,22 +9,39 @@ window.app = {
         window.addEventListener('app-changed', (e) => {
             const appId = e.detail.app;
             console.log('App Changed to:', appId);
-            const uiOverlay = document.getElementById('controls-panel');
+
+            // Get all UI elements that should be hidden when not in typeflow
+            const uiOverlay = document.getElementById('ui-overlay');
+            const chatContainer = document.getElementById('chat-container');
+            const header = document.querySelector('#ui-overlay header');
             const stepNav = document.getElementById('step-nav');
+            const controlsPanel = document.getElementById('controls-panel');
             const typeCanvas = document.getElementById('canvas-type');
 
             if (appId === 'typeflow') {
-                if (uiOverlay) uiOverlay.classList.remove('hidden-app');
+                // Show all TypeFlow UI elements
+                if (uiOverlay) uiOverlay.style.display = 'block';
+                if (chatContainer) chatContainer.style.display = 'block';
+                if (header) header.style.display = 'block';
                 if (stepNav) stepNav.classList.remove('hidden-app');
+                if (controlsPanel) controlsPanel.classList.remove('hidden-app');
                 if (typeCanvas) typeCanvas.style.display = 'block';
-                // Also ensure background (p5) state is restored if needed
+
+                // Show p5 background canvas (if wireframe is selected)
+                const p5Canvas = document.getElementById('canvas-background');
+                const bgTypeSelect = document.getElementById('bg-type-select');
+                if (p5Canvas && bgTypeSelect && bgTypeSelect.value === 'wireframe') {
+                    p5Canvas.style.display = 'block';
+                }
             } else {
-                if (uiOverlay) uiOverlay.classList.add('hidden-app');
+                // Hide all TypeFlow UI elements (for intro, community, or other apps)
+                if (chatContainer) chatContainer.style.display = 'none';
+                if (header) header.style.display = 'none';
                 if (stepNav) stepNav.classList.add('hidden-app');
+                if (controlsPanel) controlsPanel.classList.add('hidden-app');
                 if (typeCanvas) typeCanvas.style.display = 'none';
 
-                // If switching away, hide p5 background too, 
-                // but let React handle its own background visibility via activeApp check.
+                // If switching away, hide p5 background too
                 const p5Canvas = document.getElementById('canvas-background');
                 if (p5Canvas) p5Canvas.style.display = 'none';
             }
@@ -155,6 +172,9 @@ window.app = {
     setStep: function (step) {
         this.currentStep = step;
 
+        // Notify React (App.jsx)
+        window.dispatchEvent(new CustomEvent('app-step-changed', { detail: { step: step } }));
+
         // Update Nav
         this.steps.forEach((btn, index) => {
             if (index + 1 === step) btn.classList.add('active');
@@ -174,9 +194,28 @@ window.app = {
 
 // Initialize App
 document.addEventListener('DOMContentLoaded', () => {
-    if (window.app && typeof window.app.init === 'function') {
-        window.app.init();
+    // Check if UI elements exist (they won't if intro is showing)
+    const uiOverlay = document.getElementById('ui-overlay');
+    const hasUIElements = uiOverlay && uiOverlay.querySelector('.step-btn');
+
+    if (hasUIElements) {
+        // UI is ready, initialize immediately
+        if (window.app && typeof window.app.init === 'function') {
+            window.app.init();
+        } else {
+            console.error("App object not found or init is not a function");
+        }
     } else {
-        console.error("App object not found or init is not a function");
+        console.log('🎬 UI elements not ready (intro showing), deferring app.init()');
+        // Listen for when the intro completes and UI becomes available
+        window.addEventListener('app-changed', (e) => {
+            if (e.detail.app === 'typeflow' && !window.app.initialized) {
+                console.log('🎬 Intro complete, initializing app now');
+                window.app.initialized = true;
+                if (window.app && typeof window.app.init === 'function') {
+                    window.app.init();
+                }
+            }
+        }, { once: false }); // Don't use once, in case we need to reinit
     }
 });

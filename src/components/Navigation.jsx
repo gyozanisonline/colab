@@ -1,5 +1,3 @@
-import React from 'react';
-
 const Navigation = ({ activeApp, onSwitchApp }) => {
     const apps = [
         { id: 'typeflow', label: 'TypeFlow' },

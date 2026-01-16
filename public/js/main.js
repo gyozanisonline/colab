@@ -172,6 +172,9 @@ window.app = {
     setStep: function (step) {
         this.currentStep = step;
 
+        // Notify React (App.jsx)
+        window.dispatchEvent(new CustomEvent('app-step-changed', { detail: { step: step } }));
+
         // Update Nav
         this.steps.forEach((btn, index) => {
             if (index + 1 === step) btn.classList.add('active');

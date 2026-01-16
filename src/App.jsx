@@ -10,6 +10,7 @@ import DarkVeil from './components/DarkVeil';
 import Dither from './components/Dither';
 import Navigation from './components/Navigation';
 import CommunityGallery from './components/CommunityGallery';
+import Controls from './components/Controls';
 
 import VersionOverlay from './components/VersionOverlay';
 
@@ -19,21 +20,35 @@ function App() {
     const [showIntro, setShowIntro] = useState(true);
     const [activeBackground, setActiveBackground] = useState('wireframe'); // Default to Wireframe
     const [activeApp, setActiveApp] = useState('typeflow');
+    const [activeStep, setActiveStep] = useState(1);
 
     useEffect(() => {
         const handleBgChange = (e) => {
             console.log("React received bg change:", e.detail);
             setActiveBackground(e.detail);
         };
+
+        // Listen for step changes from legacy app
+        const handleStepChange = (e) => {
+            if (e.detail && e.detail.step) {
+                setActiveStep(e.detail.step);
+            }
+        };
+
         window.addEventListener('change-background-type', handleBgChange);
+        window.addEventListener('app-step-changed', handleStepChange);
 
         // Initial Sync: If Intro is showing, tell legacy system to hide its UI
         if (showIntro) {
             window.dispatchEvent(new CustomEvent('app-changed', { detail: { app: 'intro' } }));
         }
 
-        return () => window.removeEventListener('change-background-type', handleBgChange);
+        return () => {
+            window.removeEventListener('change-background-type', handleBgChange);
+            window.removeEventListener('app-step-changed', handleStepChange);
+        };
     }, []); // Run once on mount
+
 
     const handleSwitchApp = (appId) => {
         setActiveApp(appId);
@@ -58,6 +73,9 @@ function App() {
                 <>
                     <VersionOverlay />
                     <Navigation activeApp={activeApp} onSwitchApp={handleSwitchApp} />
+
+                    {/* New React-based Controls */}
+                    {activeApp === 'typeflow' && <Controls activeStep={activeStep} activeBackground={activeBackground} />}
 
                     {/* Render TypeFlow Backgrounds only if in TypeFlow mode */}
                     {activeApp === 'typeflow' && (
