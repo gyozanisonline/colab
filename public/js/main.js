@@ -20,7 +20,7 @@ window.app = {
 
             if (appId === 'typeflow') {
                 // Show all TypeFlow UI elements
-                if (uiOverlay) uiOverlay.style.display = 'block';
+                // if (uiOverlay) uiOverlay.style.display = 'block'; // Legacy UI hidden in favor of React Controls
                 if (chatContainer) chatContainer.style.display = 'block';
                 if (header) header.style.display = 'block';
                 if (stepNav) stepNav.classList.remove('hidden-app');
