@@ -11,6 +11,7 @@ import Dither from './components/Dither';
 import Navigation from './components/Navigation';
 import CommunityGallery from './components/CommunityGallery';
 import Controls from './components/Controls';
+import BackgroundShapes from './components/BackgroundShapes';
 
 import VersionOverlay from './components/VersionOverlay';
 
@@ -21,6 +22,30 @@ function App() {
     const [activeBackground, setActiveBackground] = useState('wireframe'); // Default to Wireframe
     const [activeApp, setActiveApp] = useState('typeflow');
     const [activeStep, setActiveStep] = useState(1);
+
+    const [shapes, setShapes] = useState([]);
+
+    const [shapeSettings, setShapeSettings] = useState({
+        size: 1,
+        speed: 20, // seconds for full rotation (lower is faster)
+        fillOpacity: 0.1,
+        strokeWidth: 0.5
+    });
+
+    const [particleSettings, setParticleSettings] = useState({
+        count: 100,
+        color: '#05c3dd',
+        size: 0.2,
+        speed: 1
+    });
+
+    const [silkSettings, setSilkSettings] = useState({
+        speed: 5,
+        scale: 1,
+        color: '#00ffcc',
+        noiseIntensity: 1.5,
+        rotation: 0
+    });
 
     useEffect(() => {
         const handleBgChange = (e) => {
@@ -63,6 +88,21 @@ function App() {
         window.dispatchEvent(new CustomEvent('app-changed', { detail: { app: 'typeflow' } }));
     };
 
+    const addShape = (type) => {
+        const newShape = {
+            id: Date.now(),
+            type: type,
+            x: 0,
+            y: 0,
+            color: 'rgba(255, 255, 255, 0.8)'
+        };
+        setShapes([...shapes, newShape]);
+    };
+
+    const clearShapes = () => {
+        setShapes([]);
+    };
+
     console.log('🎬 App render - showIntro:', showIntro);
 
     return (
@@ -75,18 +115,35 @@ function App() {
                     <Navigation activeApp={activeApp} onSwitchApp={handleSwitchApp} />
 
                     {/* New React-based Controls */}
-                    {activeApp === 'typeflow' && <Controls activeStep={activeStep} activeBackground={activeBackground} />}
+                    {activeApp === 'typeflow' && (
+                        <Controls
+                            activeStep={activeStep}
+                            activeBackground={activeBackground}
+                            shapes={shapes}
+                            addShape={addShape}
+                            clearShapes={clearShapes}
+                            shapeSettings={shapeSettings}
+                            setShapeSettings={setShapeSettings}
+                            particleSettings={particleSettings}
+                            setParticleSettings={setParticleSettings}
+                            silkSettings={silkSettings}
+                            setSilkSettings={setSilkSettings}
+                        />
+                    )}
 
                     {/* Render TypeFlow Backgrounds only if in TypeFlow mode */}
                     {activeApp === 'typeflow' && (
                         <div style={{ width: '100%', height: '100%', pointerEvents: 'none' }}>
-                            {activeBackground === 'silk' && <Silk color="#00ffcc" speed={2.5} />}
+                            {/* Background Shapes: Z-index managed by CSS or default stacking. Should be above bg, below type. */}
+                            <BackgroundShapes shapes={shapes} settings={shapeSettings} />
+
+                            {activeBackground === 'silk' && <Silk {...silkSettings} />}
                             {activeBackground === 'spline' && <SplineBackground />}
                             {activeBackground === 'spline_new' && <SplineBackground sceneUrl="https://prod.spline.design/Gc46LQNHKmMSkOyq/scene.splinecode" />}
                             {activeBackground === 'starfield' && <StarField />}
                             {activeBackground === 'aurora' && <Aurora />}
                             {activeBackground === 'blocks' && <Blocks />}
-                            {activeBackground === 'particles' && <Particles />}
+                            {activeBackground === 'particles' && <Particles {...particleSettings} />}
                             {activeBackground === 'color_bends' && <ColorBends />}
                             {activeBackground === 'dark_veil' && <DarkVeil />}
                             {activeBackground === 'dither' && <Dither />}

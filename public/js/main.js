@@ -95,8 +95,21 @@ window.app = {
                 // 2. Control p5.js (Wireframe) visibility
                 const p5Canvas = document.getElementById('canvas-background');
                 if (type === 'wireframe') {
-                    if (p5Canvas) p5Canvas.style.display = 'block';
-                    if (window.bgInstance) window.bgInstance.loop(); // Resume loop
+                    // Lazy-load BackgroundModule.js on first use
+                    if (!window.bgInstance && !window._bgModuleLoading) {
+                        window._bgModuleLoading = true;
+                        console.log('[main.js] Lazy-loading BackgroundModule.js...');
+                        const script = document.createElement('script');
+                        script.src = '/js/BackgroundModule.js';
+                        script.onload = () => {
+                            console.log('[main.js] BackgroundModule.js loaded');
+                            if (p5Canvas) p5Canvas.style.display = 'block';
+                        };
+                        document.body.appendChild(script);
+                    } else {
+                        if (p5Canvas) p5Canvas.style.display = 'block';
+                        if (window.bgInstance) window.bgInstance.loop(); // Resume loop
+                    }
                 } else {
                     if (p5Canvas) p5Canvas.style.display = 'none';
                     if (window.bgInstance) window.bgInstance.noLoop(); // Save performance

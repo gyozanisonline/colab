@@ -7,41 +7,25 @@ import StaggeredMenu from './StaggeredMenu';
 import { RiText, RiFontSize2, RiStackLine, RiSpeedLine, RiExpandWidthLine } from 'react-icons/ri';
 import { MdAnimation, MdGridOn } from 'react-icons/md';
 
+const shapeButtonStyle = {
+    background: 'rgba(255,255,255,0.1)',
+    border: '1px solid rgba(255,255,255,0.2)',
+    color: 'white',
+    padding: '8px',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '0.8rem',
+    transition: 'all 0.2s'
+};
+
 // Effect Categories Data (Mirrored from js/update.js)
 const effectCategories = {
     classic: [
-        { id: 'arc', name: 'Arc', toggle: 'toggleMotionArc', intensity: 'setMotionArcIntensity', flag: 'motionArc', intensityVar: 'motionArcIntensity' },
-        { id: 'diagonal', name: 'Diagonal', toggle: 'toggleMotionDiagonal', intensity: 'setMotionDiagonalIntensity', flag: 'motionDiagonal', intensityVar: 'motionDiagonalIntensity' },
-        { id: 'zigzag', name: 'ZigZag', toggle: 'toggleMotionZigZag', intensity: 'setMotionZigZagIntensity', flag: 'motionZigZag', intensityVar: 'motionZigZagIntensity' },
-        { id: 'bolt', name: 'Bolt', toggle: 'toggleMotionBolt', intensity: 'setMotionBoltIntensity', flag: 'motionBolt', intensityVar: 'motionBoltIntensity' },
-        { id: 'bowtie', name: 'Bowtie', toggle: 'toggleMotionBowtie', intensity: 'setMotionBowtieIntensity', flag: 'motionBowtie', intensityVar: 'motionBowtieIntensity' },
-        { id: 'rays', name: 'Rays', toggle: 'toggleMotionRays', intensity: 'setMotionRaysIntensity', flag: 'motionRays', intensityVar: 'motionRaysIntensity' },
-        { id: 'lean', name: 'Lean', toggle: 'toggleMotionLean', intensity: 'setMotionLeanIntensity', flag: 'motionLean', intensityVar: 'motionLeanIntensity' }
-    ],
-    wave: [
-        { id: 'spiral', name: 'Spiral', toggle: 'toggleMotionSpiral', intensity: 'setMotionSpiralIntensity', flag: 'motionSpiral', intensityVar: 'motionSpiralIntensity' },
-        { id: 'wave', name: 'Wave', toggle: 'toggleMotionWave', intensity: 'setMotionWaveIntensity', flag: 'motionWave', intensityVar: 'motionWaveIntensity' },
-        { id: 'ripple', name: 'Ripple', toggle: 'toggleMotionRipple', intensity: 'setMotionRippleIntensity', flag: 'motionRipple', intensityVar: 'motionRippleIntensity' },
-        { id: 'twist', name: 'Twist', toggle: 'toggleMotionTwist', intensity: 'setMotionTwistIntensity', flag: 'motionTwist', intensityVar: 'motionTwistIntensity' },
-        { id: 'rotate', name: 'Rotate', toggle: 'toggleMotionRotate', intensity: 'setMotionRotateIntensity', flag: 'motionRotate', intensityVar: 'motionRotateIntensity' },
-        { id: 'orbit', name: 'Orbit', toggle: 'toggleMotionOrbit', intensity: 'setMotionOrbitIntensity', flag: 'motionOrbit', intensityVar: 'motionOrbitIntensity' }
-    ],
-    explosive: [
-        { id: 'explode', name: 'Explode', toggle: 'toggleMotionExplode', intensity: 'setMotionExplodeIntensity', flag: 'motionExplode', intensityVar: 'motionExplodeIntensity' },
-        { id: 'implode', name: 'Implode', toggle: 'toggleMotionImplode', intensity: 'setMotionImplodeIntensity', flag: 'motionImplode', intensityVar: 'motionImplodeIntensity' },
-        { id: 'scatter', name: 'Scatter', toggle: 'toggleMotionScatter', intensity: 'setMotionScatterIntensity', flag: 'motionScatter', intensityVar: 'motionScatterIntensity' },
-        { id: 'bounce', name: 'Bounce', toggle: 'toggleMotionBounce', intensity: 'setMotionBounceIntensity', flag: 'motionBounce', intensityVar: 'motionBounceIntensity' },
-        { id: 'slide', name: 'Slide', toggle: 'toggleMotionSlide', intensity: 'setMotionSlideIntensity', flag: 'motionSlide', intensityVar: 'motionSlideIntensity' },
-        { id: 'flip', name: 'Flip', toggle: 'toggleMotionFlip', intensity: 'setMotionFlipIntensity', flag: 'motionFlip', intensityVar: 'motionFlipIntensity' }
-    ],
-    distortion: [
-        { id: 'pulse', name: 'Pulse', toggle: 'toggleMotionPulse', intensity: 'setMotionPulseIntensity', flag: 'motionPulse', intensityVar: 'motionPulseIntensity' },
-        { id: 'shake', name: 'Shake', toggle: 'toggleMotionShake', intensity: 'setMotionShakeIntensity', flag: 'motionShake', intensityVar: 'motionShakeIntensity' },
-        { id: 'glitch', name: 'Glitch', toggle: 'toggleMotionGlitch', intensity: 'setMotionGlitchIntensity', flag: 'motionGlitch', intensityVar: 'motionGlitchIntensity' }
+        { id: 'arc', name: 'Arc', toggle: 'toggleMotionArc', intensity: 'setMotionArcIntensity', flag: 'motionArc', intensityVar: 'motionArcIntensity' }
     ]
 };
 
-export default function Controls({ activeStep, onUpdate, activeBackground }) {
+export default function Controls({ activeStep, onUpdate, activeBackground, shapes, addShape, clearShapes, shapeSettings, setShapeSettings, particleSettings, setParticleSettings, silkSettings, setSilkSettings }) {
     // Local state to track control values for UI feedback
     const [fontSize, setFontSize] = useState(70);
     const [layerCount, setLayerCount] = useState(7);
@@ -395,6 +379,212 @@ export default function Controls({ activeStep, onUpdate, activeBackground }) {
                                     </div>
                                 </>
                             )}
+
+                            {/* Particle Controls */}
+                            {activeBackground === 'particles' && particleSettings && (
+                                <>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span style={{ minWidth: '80px', fontSize: '0.8rem' }}>Count</span>
+                                        <ElasticSlider
+                                            defaultValue={particleSettings.count}
+                                            startingValue={50}
+                                            maxValue={500}
+                                            stepSize={25}
+                                            isStepped
+                                            leftIcon={<RiStackLine size={16} />}
+                                            rightIcon={<RiStackLine size={24} />}
+                                            onChange={(val) => setParticleSettings({ ...particleSettings, count: val })}
+                                            className="custom-slider"
+                                        />
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span style={{ minWidth: '80px', fontSize: '0.8rem' }}>Size</span>
+                                        <ElasticSlider
+                                            defaultValue={particleSettings.size * 100}
+                                            startingValue={5}
+                                            maxValue={100}
+                                            stepSize={5}
+                                            leftIcon={<RiExpandWidthLine size={16} />}
+                                            rightIcon={<RiExpandWidthLine size={24} />}
+                                            onChange={(val) => setParticleSettings({ ...particleSettings, size: val / 100 })}
+                                            className="custom-slider"
+                                        />
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span style={{ minWidth: '80px', fontSize: '0.8rem' }}>Speed</span>
+                                        <ElasticSlider
+                                            defaultValue={particleSettings.speed * 20}
+                                            startingValue={2}
+                                            maxValue={100}
+                                            stepSize={2}
+                                            leftIcon={<RiSpeedLine size={16} />}
+                                            rightIcon={<RiSpeedLine size={24} />}
+                                            onChange={(val) => setParticleSettings({ ...particleSettings, speed: val / 20 })}
+                                            className="custom-slider"
+                                        />
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '5px' }}>
+                                        <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>Color</span>
+                                        <input
+                                            type="color"
+                                            value={particleSettings.color}
+                                            onChange={(e) => setParticleSettings({ ...particleSettings, color: e.target.value })}
+                                            style={{
+                                                background: 'none',
+                                                border: 'none',
+                                                width: '40px',
+                                                height: '40px',
+                                                cursor: 'pointer'
+                                            }}
+                                        />
+                                    </div>
+                                </>
+                            )}
+
+                            {/* Silk Controls */}
+                            {activeBackground === 'silk' && silkSettings && (
+                                <>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span style={{ minWidth: '80px', fontSize: '0.8rem' }}>Speed</span>
+                                        <ElasticSlider
+                                            defaultValue={silkSettings.speed}
+                                            startingValue={0.1}
+                                            maxValue={20}
+                                            stepSize={0.5}
+                                            leftIcon={<RiSpeedLine size={16} />}
+                                            rightIcon={<RiSpeedLine size={24} />}
+                                            onChange={(val) => setSilkSettings({ ...silkSettings, speed: val })}
+                                            className="custom-slider"
+                                        />
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span style={{ minWidth: '80px', fontSize: '0.8rem' }}>Scale</span>
+                                        <ElasticSlider
+                                            defaultValue={silkSettings.scale * 10}
+                                            startingValue={1}
+                                            maxValue={50}
+                                            stepSize={1}
+                                            leftIcon={<RiExpandWidthLine size={16} />}
+                                            rightIcon={<RiExpandWidthLine size={24} />}
+                                            onChange={(val) => setSilkSettings({ ...silkSettings, scale: val / 10 })}
+                                            className="custom-slider"
+                                        />
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span style={{ minWidth: '80px', fontSize: '0.8rem' }}>Noise</span>
+                                        <ElasticSlider
+                                            defaultValue={silkSettings.noiseIntensity * 20}
+                                            startingValue={0}
+                                            maxValue={100}
+                                            stepSize={5}
+                                            leftIcon={<MdAnimation size={16} />}
+                                            rightIcon={<MdAnimation size={24} />}
+                                            onChange={(val) => setSilkSettings({ ...silkSettings, noiseIntensity: val / 20 })}
+                                            className="custom-slider"
+                                        />
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '5px' }}>
+                                        <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>Color</span>
+                                        <input
+                                            type="color"
+                                            value={silkSettings.color}
+                                            onChange={(e) => setSilkSettings({ ...silkSettings, color: e.target.value })}
+                                            style={{
+                                                background: 'none',
+                                                border: 'none',
+                                                width: '40px',
+                                                height: '40px',
+                                                cursor: 'pointer'
+                                            }}
+                                        />
+                                    </div>
+                                </>
+                            )}
+                        </div>
+
+                        <div style={{ marginTop: '20px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '15px' }}>
+                            <h3 style={{ fontSize: '0.9rem', marginBottom: '10px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '1px' }}>Background Shapes</h3>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '15px' }}>
+                                <button onClick={() => addShape('circle')} style={shapeButtonStyle}>+ Circle</button>
+                                <button onClick={() => addShape('rectangle')} style={shapeButtonStyle}>+ Rect</button>
+                                <button onClick={() => addShape('triangle')} style={shapeButtonStyle}>+ Triangle</button>
+                                <button onClick={() => addShape('star')} style={shapeButtonStyle}>+ Star</button>
+                                <button onClick={() => addShape('spiral')} style={shapeButtonStyle}>+ Spiral</button>
+                            </div>
+
+                            {shapes.length > 0 && (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '15px', padding: '10px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px' }}>
+
+                                    {/* Shape Speed */}
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span style={{ minWidth: '60px', fontSize: '0.8rem' }}>Speed</span>
+                                        <ElasticSlider
+                                            defaultValue={shapeSettings.speed}
+                                            startingValue={5} // Fast rotation
+                                            maxValue={60} // Slow rotation
+                                            stepSize={1}
+                                            leftIcon={<RiSpeedLine size={16} />}
+                                            rightIcon={<RiSpeedLine size={24} />}
+                                            // Inverted logic: faster speed means lower duration. 
+                                            // But slider usually means "More Speed" -> "Less Duration".
+                                            // Currently storing 'speed' as DURATION (seconds).
+                                            // So let's treat this slider as "Duration" for now or invert it. 
+                                            // User asked for "Speed".
+                                            // Let's keep it simple: Slider Value = Duration in Seconds. Low value = Fast.
+                                            onChange={(val) => setShapeSettings({ ...shapeSettings, speed: val })}
+                                        />
+                                    </div>
+
+                                    {/* Shape Size */}
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span style={{ minWidth: '60px', fontSize: '0.8rem' }}>Size</span>
+                                        <ElasticSlider
+                                            defaultValue={shapeSettings.size * 100}
+                                            startingValue={20}
+                                            maxValue={300}
+                                            stepSize={10}
+                                            leftIcon={<RiExpandWidthLine size={16} />}
+                                            rightIcon={<RiExpandWidthLine size={24} />}
+                                            onChange={(val) => setShapeSettings({ ...shapeSettings, size: val / 100 })}
+                                        />
+                                    </div>
+
+                                    {/* Shape Fill */}
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span style={{ minWidth: '60px', fontSize: '0.8rem' }}>Fill</span>
+                                        <ElasticSlider
+                                            defaultValue={shapeSettings.fillOpacity * 100}
+                                            startingValue={0}
+                                            maxValue={100}
+                                            stepSize={5}
+                                            leftIcon={<RiStackLine size={16} />}
+                                            rightIcon={<RiStackLine size={24} />}
+                                            onChange={(val) => setShapeSettings({ ...shapeSettings, fillOpacity: val / 100 })}
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            {shapes.length > 0 && (
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>
+                                    <span style={{ fontSize: '0.8rem', opacity: 0.6 }}>{shapes.length} active shapes</span>
+                                    <button
+                                        onClick={clearShapes}
+                                        style={{
+                                            background: 'rgba(242, 62, 46, 0.2)',
+                                            color: '#f23e2e',
+                                            border: '1px solid #f23e2e',
+                                            padding: '4px 8px',
+                                            borderRadius: '4px',
+                                            fontSize: '0.75rem',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        Clear All
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}
@@ -483,28 +673,7 @@ export default function Controls({ activeStep, onUpdate, activeBackground }) {
 
                         {/* Effects & Shapes */}
                         <div style={{ marginBottom: '20px' }}>
-                            <h3 style={{ fontSize: '0.9rem', marginBottom: '10px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '1px' }}>Shape & Effects</h3>
-
-                            <label style={{ fontSize: '0.8rem', display: 'block', marginBottom: '5px', opacity: 0.8 }}>Shape Layout</label>
-                            <select
-                                onChange={(e) => window.setShapeMode && window.setShapeMode(e.target.value)}
-                                style={{
-                                    width: '100%',
-                                    padding: '8px',
-                                    background: 'rgba(0,0,0,0.5)',
-                                    color: 'white',
-                                    border: '1px solid rgba(255,255,255,0.3)',
-                                    borderRadius: '4px',
-                                    marginBottom: '15px'
-                                }}
-                            >
-                                <option value="none">None (Linear)</option>
-                                <option value="circle">Circle</option>
-                                <option value="rectangle">Rectangle Grid</option>
-                                <option value="triangle">Triangle</option>
-                                <option value="star">Star</option>
-                                <option value="spiral">Spiral</option>
-                            </select>
+                            <h3 style={{ fontSize: '0.9rem', marginBottom: '10px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '1px' }}>Effects</h3>
 
                             {/* React-Driven Effects Controls */}
                             <label style={{ fontSize: '0.8rem', display: 'block', marginBottom: '5px', opacity: 0.8 }}>Effect Category</label>
