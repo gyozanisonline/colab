@@ -167,12 +167,12 @@ function setup() {
     lineHeight = pgTextSize * 0.8;
 
     if (document.getElementById("textArea")) {
-        document.getElementById("textArea").value = "Colab.\nDesign Together.";
+        document.getElementById("textArea").value = "Colab\nExperiment Together";
     }
 
     bkgdColor = color(0, 0, 0, 0); // Transparent background for layering
-    foreColor = color('#FFFFFF');
-    fadeColor = color('#FFFFFF');
+    foreColor = color('#FFC933'); // Mustard Yellow
+    fadeColor = color('#FFC933');
     currentFont = tFont[0];
     newWidth = widthHold;
     newHeight = heightHold;

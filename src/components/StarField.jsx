@@ -24,11 +24,11 @@ function Stars({ count, radius, color, size, speed, ...props }) {
 
 export default function StarField() {
     const { count, radius, color, size, speed } = useControls('StarField', {
-        count: { value: 5000, min: 1000, max: 20000, step: 100 },
+        count: { value: 100, min: 50, max: 5000, step: 10 },
         radius: { value: 1.5, min: 0.5, max: 5.0 },
-        color: '#f272c8',
-        size: { value: 0.005, min: 0.001, max: 0.05, step: 0.001 },
-        speed: { value: 1, min: 0, max: 5 }
+        color: '#e5068c',
+        size: { value: 8.0, min: 0.1, max: 10.0, step: 0.1 },
+        speed: { value: 0.9, min: 0, max: 5 }
     });
 
     return (
