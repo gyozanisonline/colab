@@ -208,7 +208,7 @@
     margin: 0;
     font-size: 1rem;
     font-weight: 500;
-    color: var(--sm-accent, #ff0000);
+    color: var(--sm-accent, #E5B020);
 }
 
 .sm-socials-list {
@@ -235,7 +235,7 @@
 }
 
 .sm-socials-link:focus-visible {
-    outline: 2px solid var(--sm-accent, #ff0000);
+    outline: 2px solid var(--sm-accent, #E5B020);
     outline-offset: 3px;
 }
 
@@ -261,7 +261,7 @@
 }
 
 .sm-socials-link:hover {
-    color: var(--sm-accent, #ff0000);
+    color: var(--sm-accent, #E5B020);
 }
 
 .sm-panel-title {

@@ -19,7 +19,7 @@ import IntroScreen from './components/IntroScreen';
 
 function App() {
     const [showIntro, setShowIntro] = useState(true);
-    const [activeBackground, setActiveBackground] = useState('wireframe'); // Default to Wireframe
+    const [activeBackground, setActiveBackground] = useState('starfield'); // Default to StarField (lighter on GPU)
     const [activeApp, setActiveApp] = useState('typeflow');
     const [activeStep, setActiveStep] = useState(1);
 

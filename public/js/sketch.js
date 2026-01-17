@@ -159,19 +159,15 @@ function setup() {
     widthHold = width;
     heightHold = height;
 
-    pgTextSize = width / 11;
+    pgTextSize = 50; // Fixed size instead of dynamic
     // Check if element exists before accessing value to prevent errors if UI not fully ready? No, should be fine.
     if (document.getElementById("fontSize")) {
         document.getElementById("fontSize").value = pgTextSize;
     }
     lineHeight = pgTextSize * 0.8;
 
-    if (width < 600) {
-        document.getElementById("textArea").value = "Colab\nExperiment Together";
-    } else if (width > 1300) {
-        document.getElementById("textArea").value = "Colab\nExperiment Together";
-    } else {
-        document.getElementById("textArea").value = "Colab\nExperiment Together";
+    if (document.getElementById("textArea")) {
+        document.getElementById("textArea").value = "Colab.\nDesign Together.";
     }
 
     bkgdColor = color(0, 0, 0, 0); // Transparent background for layering

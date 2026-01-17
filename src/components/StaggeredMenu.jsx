@@ -13,7 +13,7 @@ const StaggeredMenu = ({
     className,
     menuButtonColor = '#fff',
     openMenuButtonColor = '#fff',
-    accentColor = '#f23e2e',
+    accentColor = '#E5B020',
     changeMenuColorOnOpen = true,
     isFixed = true, // Default to fixed overlay
     closeOnClickAway = true,

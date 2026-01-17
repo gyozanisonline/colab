@@ -40,19 +40,24 @@ function Slider({ defaultValue, startingValue, maxValue, isStepped, stepSize, le
     const overflow = useMotionValue(0);
     const scale = useMotionValue(1);
 
-    // Added logic to only trigger onChange when value actually changes, preventing loop
+    // Track if this is an internal change (user drag) vs external prop sync
+    const isInternalChange = useRef(false);
+
     useEffect(() => {
-        if (value !== defaultValue) {
-            // This effect was resetting value when defaultValue prop changed
-            // We might want this if the parent controls the state
+        // Only update if defaultValue changed significantly AND it wasn't from our own onChange
+        if (!isInternalChange.current && Math.abs(defaultValue - value) > 0.01) {
             // eslint-disable-next-line
             setValue(defaultValue);
         }
+        isInternalChange.current = false;
     }, [defaultValue]);
 
-    useEffect(() => {
-        onChange(value);
-    }, [value]);
+    // Notify parent of changes, but mark as internal
+    const handleValueChange = (newValue) => {
+        isInternalChange.current = true;
+        setValue(newValue);
+        onChange(newValue);
+    };
 
     useMotionValueEvent(clientX, 'change', latest => {
         if (sliderRef.current) {
@@ -89,7 +94,7 @@ function Slider({ defaultValue, startingValue, maxValue, isStepped, stepSize, le
 
             newValue = Math.min(Math.max(newValue, startingValue), maxValue);
 
-            setValue(newValue);
+            handleValueChange(newValue);
 
             clientX.jump(e.clientX);
         }

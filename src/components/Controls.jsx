@@ -171,7 +171,7 @@ export default function Controls({ activeStep, onUpdate, activeBackground, shape
         <StaggeredMenu
             colors={['#0d0d0d', '#1a1a1a', '#262626']}
             menuButtonColor="#ffffff"
-            openMenuButtonColor="#f23e2e"
+            openMenuButtonColor="#E5B020"
         >
             {/* Logo Section */}
             <div style={{
@@ -233,7 +233,7 @@ export default function Controls({ activeStep, onUpdate, activeBackground, shape
                     <button
                         onClick={() => handleStepClick(1)}
                         style={{
-                            background: activeStep === 1 ? '#f23e2e' : 'transparent',
+                            background: activeStep === 1 ? '#E5B020' : 'transparent',
                             color: activeStep === 1 ? 'white' : '#aaa',
                             border: 'none',
                             padding: '8px 16px',
@@ -249,7 +249,7 @@ export default function Controls({ activeStep, onUpdate, activeBackground, shape
                     <button
                         onClick={() => handleStepClick(2)}
                         style={{
-                            background: activeStep === 2 ? '#f23e2e' : 'transparent',
+                            background: activeStep === 2 ? '#E5B020' : 'transparent',
                             color: activeStep === 2 ? 'white' : '#aaa',
                             border: 'none',
                             padding: '8px 16px',
@@ -265,7 +265,7 @@ export default function Controls({ activeStep, onUpdate, activeBackground, shape
                     <button
                         onClick={() => handleStepClick(3)}
                         style={{
-                            background: activeStep === 3 ? '#f23e2e' : 'transparent',
+                            background: activeStep === 3 ? '#E5B020' : 'transparent',
                             color: activeStep === 3 ? 'white' : '#aaa',
                             border: 'none',
                             padding: '8px 16px',
@@ -573,8 +573,8 @@ export default function Controls({ activeStep, onUpdate, activeBackground, shape
                                         onClick={clearShapes}
                                         style={{
                                             background: 'rgba(242, 62, 46, 0.2)',
-                                            color: '#f23e2e',
-                                            border: '1px solid #f23e2e',
+                                            color: '#E5B020',
+                                            border: '1px solid #E5B020',
                                             padding: '4px 8px',
                                             borderRadius: '4px',
                                             fontSize: '0.75rem',
@@ -727,7 +727,7 @@ export default function Controls({ activeStep, onUpdate, activeBackground, shape
                                         onClick={() => setCurrentEffectForIntensity(eff)}
                                         style={{
                                             background: currentEffectForIntensity?.id === eff.id ? 'rgba(242, 62, 46, 0.4)' : 'rgba(255,255,255,0.1)',
-                                            border: currentEffectForIntensity?.id === eff.id ? '1px solid #f23e2e' : '1px solid transparent',
+                                            border: currentEffectForIntensity?.id === eff.id ? '1px solid #E5B020' : '1px solid transparent',
                                             padding: '4px 8px',
                                             borderRadius: '4px',
                                             fontSize: '0.75rem',
@@ -740,7 +740,7 @@ export default function Controls({ activeStep, onUpdate, activeBackground, shape
                                         {eff.name}
                                         <span
                                             onClick={(e) => { e.stopPropagation(); handleRemoveEffect(eff.id); }}
-                                            style={{ color: '#f23e2e', fontWeight: 'bold' }}
+                                            style={{ color: '#E5B020', fontWeight: 'bold' }}
                                         >×</span>
                                     </div>
                                 ))}
@@ -761,7 +761,7 @@ export default function Controls({ activeStep, onUpdate, activeBackground, shape
                                         max="200"
                                         value={currentIntensity}
                                         onChange={(e) => handleIntensityChange(e.target.value)}
-                                        style={{ width: '100%', accentColor: '#f23e2e' }}
+                                        style={{ width: '100%', accentColor: '#E5B020' }}
                                     />
                                 </div>
                             )}
@@ -823,7 +823,7 @@ export default function Controls({ activeStep, onUpdate, activeBackground, shape
 
                             <StarBorder
                                 as="button"
-                                color="#f23e2e"
+                                color="#E5B020"
                                 speed="5s"
                                 onClick={() => {
                                     // Toggle audio using existing logic
