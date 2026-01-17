@@ -56,27 +56,29 @@ export default function IntroScreen({ onComplete }) {
                 />
 
                 <div className="intro-form">
-                    <div className="input-group">
-                        {/* <label className="intro-label">NAME</label> */}
-                        <input
-                            type="text"
-                            className="intro-name-input"
-                            placeholder="YOUR NAME"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            maxLength={15}
-                        />
-                    </div>
+                    <div className="intro-row">
+                        <div className="input-group">
+                            {/* <label className="intro-label">NAME</label> */}
+                            <input
+                                type="text"
+                                className="intro-name-input"
+                                placeholder="YOUR NAME"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                maxLength={15}
+                            />
+                        </div>
 
-                    <div className="input-group color-picker-section">
-                        <label className="intro-label">COLOR</label>
-                        <input
-                            type="color"
-                            className="intro-color-input"
-                            value={color}
-                            onChange={(e) => setColor(e.target.value)}
-                            style={{ backgroundColor: color }}
-                        />
+                        <div className="input-group color-picker-section">
+                            <label className="intro-label">COLOR</label>
+                            <input
+                                type="color"
+                                className="intro-color-input"
+                                value={color}
+                                onChange={(e) => setColor(e.target.value)}
+                                style={{ backgroundColor: color }}
+                            />
+                        </div>
                     </div>
 
                     <div style={{ marginTop: '20px' }}>
