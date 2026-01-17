@@ -58,7 +58,7 @@ export default function IntroScreen({ onComplete }) {
                 <div className="intro-form">
                     <div className="intro-row">
                         <div className="input-group">
-                            <label className="intro-label">NAME</label>
+                            {/* <label className="intro-label">NAME</label> */}
                             <input
                                 type="text"
                                 className="intro-name-input"
@@ -70,7 +70,7 @@ export default function IntroScreen({ onComplete }) {
                         </div>
 
                         <div className="input-group color-picker-section">
-                            <label className="intro-label">COLOR</label>
+                            {/* <label className="intro-label">COLOR</label> */}
                             <input
                                 type="color"
                                 className="intro-color-input"

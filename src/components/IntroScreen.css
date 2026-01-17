@@ -51,8 +51,8 @@
 .intro-row {
     display: flex;
     flex-direction: row;
-    align-items: flex-start;
-    /* Align labels across the top */
+    align-items: center;
+    /* Center inputs vertically */
     justify-content: center;
     gap: 2rem;
     width: 100%;
