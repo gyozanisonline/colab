@@ -252,6 +252,10 @@ export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp,
                                 highlight2: '#777',
                                 highlight3: '#999',
                                 vator: '#333',
+                            },
+                            fonts: {
+                                mono: "'Helvetica Neue', Arial, sans-serif",
+                                sans: "'Helvetica Neue', Arial, sans-serif"
                             }
                         }}
                     />

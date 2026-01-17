@@ -46,6 +46,13 @@ html {
     cursor: none;
 }
 
+button,
+input,
+select,
+textarea {
+    font-family: inherit;
+}
+
 #app-container {
     position: relative;
     width: 100vw;
@@ -246,7 +253,11 @@ input[type="text"] {
 }
 
 .poster-active #canvas-type {
-    z-index: 1;
+    z-index: 20;
+}
+
+.poster-active #react-root {
+    z-index: 10;
 }
 
 /* Ensure UI remains accessible and on top */
