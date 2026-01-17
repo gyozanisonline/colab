@@ -231,7 +231,7 @@ export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp,
             }}>
 
                 {/* Leva Controls Panel */}
-                <div style={{
+                <div id="leva-custom-container" style={{
                     position: 'relative',
                     minHeight: '100px', // Ensure it has space
                     marginBottom: '10px'

@@ -53,6 +53,11 @@ textarea {
     font-family: inherit;
 }
 
+/* Force Leva to use the app font via wrapper ID */
+#leva-custom-container * {
+    font-family: 'Helvetica Neue', Arial, sans-serif !important;
+}
+
 #app-container {
     position: relative;
     width: 100vw;
