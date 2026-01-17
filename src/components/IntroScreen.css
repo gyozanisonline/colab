@@ -17,7 +17,7 @@
     z-index: 99999;
     /* Ensure it stays on top */
     color: white;
-    font-family: 'Milker', sans-serif;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
     cursor: default !important;
     /* Force system default cursor */
     pointer-events: auto !important;
@@ -72,7 +72,7 @@
     border: none;
     border-bottom: 2px solid rgba(255, 255, 255, 0.5);
     color: white;
-    font-family: 'Milker', sans-serif;
+    font-family: inherit;
     font-size: 2rem;
     text-align: center;
     padding: 0.5rem;
@@ -118,7 +118,7 @@
 .create-btn {
     background: white;
     color: black;
-    font-family: 'Milker', sans-serif;
+    font-family: inherit;
     font-size: 1.5rem;
     padding: 10px 40px;
     border: none;
