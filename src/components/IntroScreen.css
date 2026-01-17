@@ -51,8 +51,8 @@
 .intro-row {
     display: flex;
     flex-direction: row;
-    align-items: flex-end;
-    /* Align input with bottom of color stack */
+    align-items: flex-start;
+    /* Align labels across the top */
     justify-content: center;
     gap: 2rem;
     width: 100%;
@@ -97,11 +97,12 @@
     border-color: #fff;
 }
 
-.color-picker-section {
+.input-group {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
+    gap: 1rem;
+    /* More breathing room between label and input */
 }
 
 .intro-color-input {

@@ -58,7 +58,7 @@ export default function IntroScreen({ onComplete }) {
                 <div className="intro-form">
                     <div className="intro-row">
                         <div className="input-group">
-                            {/* <label className="intro-label">NAME</label> */}
+                            <label className="intro-label">NAME</label>
                             <input
                                 type="text"
                                 className="intro-name-input"
