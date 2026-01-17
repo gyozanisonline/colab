@@ -118,6 +118,8 @@ function App() {
                     {activeApp === 'typeflow' && (
                         <Controls
                             activeStep={activeStep}
+                            activeApp={activeApp}
+                            onSwitchApp={handleSwitchApp}
                             activeBackground={activeBackground}
                             shapes={shapes}
                             addShape={addShape}

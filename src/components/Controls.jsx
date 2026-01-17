@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ElasticSlider from './ElasticSlider';
 import StarBorder from './StarBorder';
 import StaggeredMenu from './StaggeredMenu';
+import { Leva } from 'leva';
 
 // Icons for sliders
 import { RiText, RiFontSize2, RiStackLine, RiSpeedLine, RiExpandWidthLine } from 'react-icons/ri';
@@ -25,7 +26,7 @@ const effectCategories = {
     ]
 };
 
-export default function Controls({ activeStep, onUpdate, activeBackground, shapes, addShape, clearShapes, shapeSettings, setShapeSettings, particleSettings, setParticleSettings, silkSettings, setSilkSettings }) {
+export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp, activeBackground, shapes, addShape, clearShapes, shapeSettings, setShapeSettings, particleSettings, setParticleSettings, silkSettings, setSilkSettings }) {
     // Local state to track control values for UI feedback
     const [fontSize, setFontSize] = useState(70);
     const [layerCount, setLayerCount] = useState(7);
@@ -173,25 +174,48 @@ export default function Controls({ activeStep, onUpdate, activeBackground, shape
             menuButtonColor="#ffffff"
             openMenuButtonColor="#E5B020"
         >
-            {/* Logo Section */}
+            {/* Navigation Buttons (Replaces Logo) */}
             <div style={{
                 padding: '15px 20px',
                 borderBottom: '1px solid rgba(255,255,255,0.05)',
                 display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center'
+                gap: '10px',
+                justifyContent: 'center'
             }}>
-                <img
-                    src="/assets/Colab Logo White.svg"
-                    alt="Colab"
+                <button
+                    onClick={() => onSwitchApp('typeflow')}
                     style={{
-                        width: '85%',
-                        height: 'auto',
-                        objectFit: 'contain',
-                        display: 'block',
-                        opacity: 0.95
+                        background: activeApp === 'typeflow' ? '#E5B020' : 'rgba(255,255,255,0.1)',
+                        color: activeApp === 'typeflow' ? '#000' : '#fff',
+                        border: 'none',
+                        padding: '8px 16px',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontWeight: 'bold',
+                        flex: 1,
+                        fontSize: '0.9rem',
+                        transition: 'all 0.2s'
                     }}
-                />
+                >
+                    Create
+                </button>
+                <button
+                    onClick={() => onSwitchApp('community')}
+                    style={{
+                        background: activeApp === 'community' ? '#E5B020' : 'rgba(255,255,255,0.1)',
+                        color: activeApp === 'community' ? '#000' : '#fff',
+                        border: 'none',
+                        padding: '8px 16px',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontWeight: 'bold',
+                        flex: 1,
+                        fontSize: '0.9rem',
+                        transition: 'all 0.2s'
+                    }}
+                >
+                    Community
+                </button>
             </div>
 
             {/* Scrollable Main Area (Controls) */}
@@ -205,6 +229,33 @@ export default function Controls({ activeStep, onUpdate, activeBackground, shape
                 // Space for the chat widget at the bottom (which is fixed ~250-300px height)
                 paddingBottom: '300px'
             }}>
+
+                {/* Leva Controls Panel */}
+                <div style={{
+                    position: 'relative',
+                    minHeight: '100px', // Ensure it has space
+                    marginBottom: '10px'
+                }}>
+                    <Leva
+                        fill
+                        flat
+                        titleBar={false}
+                        theme={{
+                            colors: {
+                                elevation1: '#1a1a1a', // Match sidebar
+                                elevation2: '#262626',
+                                elevation3: '#333333',
+                                accent1: '#E5B020',
+                                accent2: '#E5B020',
+                                accent3: '#E5B020',
+                                highlight1: '#555',
+                                highlight2: '#777',
+                                highlight3: '#999',
+                                vator: '#333',
+                            }
+                        }}
+                    />
+                </div>
 
                 {/* Global Controls Section */}
                 <div style={{ paddingBottom: '15px', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', flexDirection: 'column', gap: '10px' }}>
