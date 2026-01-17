@@ -12,32 +12,91 @@ const CommunityGallery = ({ isActive }) => {
         }
     }, [isActive]);
 
+    // Static items from video-gallery
+    const videoItems = [
+        {
+            image: '/Sources/In Edit.png',
+            video: '/Sources/5.mp4',
+            link: '#',
+            title: 'Video 5',
+            description: 'Dynamic content'
+        },
+        {
+            image: '/Sources/MOTIONO.jpg',
+            video: '/Sources/8.mp4',
+            link: '#',
+            title: 'Video 8',
+            description: 'High energy'
+        },
+        {
+            image: '/Sources/No Fucking Way-02.png',
+            video: '/Sources/19573402-uhd_2160_3840_60fps (1).mp4',
+            link: '#',
+            title: 'UHD Video',
+            description: '4K Content'
+        },
+        {
+            image: '/Sources/PHOTO-2024-12-26-21-52-41.jpg',
+            video: '/Sources/310351041_837190630653178_3491063964510673308_n.mp4',
+            link: '#',
+            title: 'Social Clip',
+            description: 'Viral moment'
+        },
+        {
+            image: '/Sources/POST POSTER scanned and re edited.jpg',
+            video: '/Sources/Aceite-De-Oliva-(feat.-Mayan-Green,-Yair-Divshi-&-Omri-Alon)---Single_coverImagePortraitMotionV2_2024-10-22T19_32.mp4',
+            link: '#',
+            title: 'Music Video',
+            description: 'Aceite De Oliva'
+        },
+        {
+            image: '/Sources/Poster Sized Puzzle pre lighting.png',
+            video: '/Sources/6021FD78-4901-4735-B7A1-6C07A087FA11.MP4',
+            link: '#',
+            title: 'Video 6021',
+            description: 'Raw footage'
+        },
+        {
+            image: '/Sources/Ran Poster Draft.png',
+            video: '/Sources/6151AFC9-9317-402F-BFD8-136304135786.MP4',
+            link: '#',
+            title: 'Video 6151',
+            description: 'Creative draft'
+        },
+        {
+            image: '/Sources/Road Safety-01.png',
+            video: '/Sources/7cda882cf3e04386a7af53221c55a0ee.mp4',
+            link: '#',
+            title: 'Video 7cda',
+            description: 'Safety first'
+        },
+        // Adding duplicates to fill out the grid if needed
+        {
+            image: '/Sources/WATER GONG.jpg',
+            video: '/Sources/5.mp4',
+            link: '#',
+            title: 'Water Gong',
+            description: 'Relaxing sounds'
+        },
+        {
+            image: '/Sources/Yes Thats A chair.png',
+            video: '/Sources/8.mp4',
+            link: '#',
+            title: 'Chair Study',
+            description: 'Modern art'
+        }
+    ];
+
     const fetchPosters = async () => {
         setLoading(true);
         try {
-            const res = await fetch('/api/posters');
-            const data = await res.json();
+            // For now, use static video items instead of API
+            // const res = await fetch('/api/posters');
+            // const data = await res.json();
 
-            // Map posters to InfiniteMenu items format
-            const menuItems = data.map(poster => ({
-                // Dynamic placeholder image with text
-                image: `https://placehold.co/600x900/111/fff?text=${encodeURIComponent(poster.text.replace(/\n/g, ' '))}`,
-                title: poster.author || 'Anonymous',
-                description: new Date(poster.createdAt).toLocaleDateString(),
-                link: '' // No link for now
-            }));
+            // Just set the static items
+            setItems(videoItems);
 
-            // If no items, add a default one or InfiniteMenu might break/be empty
-            if (menuItems.length === 0) {
-                menuItems.push({
-                    image: 'https://placehold.co/600x900/111/fff?text=No+Posters+Yet',
-                    title: 'Empty',
-                    description: 'Be the first to share!',
-                    link: ''
-                });
-            }
-
-            setItems(menuItems);
         } catch (err) {
             console.error("Failed to load posters", err);
         } finally {
