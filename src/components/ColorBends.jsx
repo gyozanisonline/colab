@@ -97,7 +97,7 @@ function GradientPlane() {
 
 export default function ColorBends() {
     return (
-        <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}>
+        <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, background: '#111', zIndex: -1 }}>
             <Canvas>
                 <GradientPlane />
             </Canvas>
