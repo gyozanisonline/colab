@@ -86,13 +86,14 @@ function App() {
         };
     }, []); // Run once on mount
 
-    // Toggle legacy canvas based on activeTypeMode
+    // Toggle legacy canvas based on activeTypeMode (and intro state)
     useEffect(() => {
         const legacyCanvas = document.getElementById('canvas-type');
         if (legacyCanvas) {
-            legacyCanvas.style.display = activeTypeMode === 'classic' ? 'block' : 'none';
+            // Only show if typeflow mode is classic AND intro is NOT showing
+            legacyCanvas.style.display = (!showIntro && activeTypeMode === 'classic') ? 'block' : 'none';
         }
-    }, [activeTypeMode]);
+    }, [activeTypeMode, showIntro]);
 
 
     const handleSwitchApp = (appId) => {
