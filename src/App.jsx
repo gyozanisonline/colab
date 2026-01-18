@@ -12,6 +12,7 @@ import Navigation from './components/Navigation';
 import CommunityGallery from './components/CommunityGallery';
 import Controls from './components/Controls';
 import BackgroundShapes from './components/BackgroundShapes';
+import ASCIIText from './components/ASCIIText';
 
 import VersionOverlay from './components/VersionOverlay';
 
@@ -47,6 +48,17 @@ function App() {
         rotation: 0
     });
 
+    const [activeTypeMode, setActiveTypeMode] = useState('classic'); // 'classic' or 'ascii'
+    const [textContent, setTextContent] = useState(''); // Start empty, user types their own text
+    const [asciiSettings, setAsciiSettings] = useState({
+        asciiFontSize: 8,
+        textFontSize: 200,
+        planeBaseHeight: 8,
+        enableWaves: true,
+        isMonochrome: false,
+        textColor: '#ffffff'
+    });
+
     useEffect(() => {
         const handleBgChange = (e) => {
             console.log("React received bg change:", e.detail);
@@ -73,6 +85,14 @@ function App() {
             window.removeEventListener('app-step-changed', handleStepChange);
         };
     }, []); // Run once on mount
+
+    // Toggle legacy canvas based on activeTypeMode
+    useEffect(() => {
+        const legacyCanvas = document.getElementById('canvas-type');
+        if (legacyCanvas) {
+            legacyCanvas.style.display = activeTypeMode === 'classic' ? 'block' : 'none';
+        }
+    }, [activeTypeMode]);
 
 
     const handleSwitchApp = (appId) => {
@@ -130,8 +150,17 @@ function App() {
                             setParticleSettings={setParticleSettings}
                             silkSettings={silkSettings}
                             setSilkSettings={setSilkSettings}
+                            activeTypeMode={activeTypeMode}
+                            setActiveTypeMode={setActiveTypeMode}
+                            textContent={textContent}
+                            setTextContent={setTextContent}
+                            asciiSettings={asciiSettings}
+                            setAsciiSettings={setAsciiSettings}
                         />
                     )}
+
+                    {/* New Type Effects */}
+
 
                     {/* Render TypeFlow Backgrounds only if in TypeFlow mode */}
                     {activeApp === 'typeflow' && (
@@ -149,6 +178,21 @@ function App() {
                             {activeBackground === 'color_bends' && <ColorBends />}
                             {activeBackground === 'dark_veil' && <DarkVeil />}
                             {activeBackground === 'dither' && <Dither />}
+                        </div>
+                    )}
+
+                    {/* New Type Effects Layer (Rendered on top of backgrounds) */}
+                    {activeApp === 'typeflow' && activeTypeMode === 'ascii' && (
+                        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 10 }}>
+                            <ASCIIText
+                                text={textContent}
+                                enableWaves={asciiSettings.enableWaves}
+                                asciiFontSize={asciiSettings.asciiFontSize}
+                                textFontSize={asciiSettings.textFontSize}
+                                textColor={asciiSettings.textColor}
+                                planeBaseHeight={asciiSettings.planeBaseHeight}
+                                isMonochrome={asciiSettings.isMonochrome}
+                            />
                         </div>
                     )}
 

@@ -59,7 +59,7 @@ const effectCategories = {
     ]
 };
 
-export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp, activeBackground, shapes, addShape, clearShapes, shapeSettings, setShapeSettings, particleSettings, setParticleSettings, silkSettings, setSilkSettings }) {
+export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp, activeBackground, shapes, addShape, clearShapes, shapeSettings, setShapeSettings, particleSettings, setParticleSettings, silkSettings, setSilkSettings, activeTypeMode, setActiveTypeMode, textContent, setTextContent, asciiSettings, setAsciiSettings }) {
     // Local state to track control values for UI feedback
     const [fontSize, setFontSize] = useState(70);
     const [layerCount, setLayerCount] = useState(7);
@@ -674,17 +674,36 @@ export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp,
                     <div className="controls-section">
                         <h3 style={uiStyles.sectionTitle}>Typography Settings</h3>
 
+                        {/* Type Mode Selector */}
+                        <div style={{ marginBottom: '20px' }}>
+                            <label style={uiStyles.label}>Mode</label>
+                            <select
+                                value={activeTypeMode || 'classic'}
+                                onChange={(e) => setActiveTypeMode(e.target.value)}
+                                style={uiStyles.control}
+                            >
+                                <option value="classic">Classic (2D)</option>
+                                <option value="ascii">ASCII (3D)</option>
+                            </select>
+                        </div>
+
                         {/* Text Input */}
                         <div style={{ marginBottom: '15px' }}>
                             <textarea
-                                defaultValue={`Colab\nExperiment Together`}
+                                value={textContent || ''} // Controlled component
                                 onChange={(e) => {
-                                    // Sync with existing logic
-                                    const textArea = document.getElementById('textArea');
-                                    if (textArea) {
-                                        textArea.value = e.target.value;
-                                        // Manually trigger the setText global function
-                                        if (window.setText) window.setText();
+                                    const val = e.target.value;
+                                    setTextContent(val);
+
+                                    // Sync with legacy system ONLY in classic mode
+                                    // In ASCII mode, React state is the source of truth
+                                    if (activeTypeMode === 'classic') {
+                                        const textArea = document.getElementById('textArea');
+                                        if (textArea) {
+                                            textArea.value = val;
+                                            // Manually trigger the setText global function
+                                            if (window.setText) window.setText();
+                                        }
                                     }
                                 }}
                                 rows="2"
@@ -692,180 +711,275 @@ export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp,
                             />
                         </div>
 
-                        {/* Foreground Color */}
-                        <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>Foreground Color</span>
-                            <input
-                                type="color"
-                                defaultValue="#ffffff"
-                                onChange={(e) => {
-                                    window.setForeColor && window.setForeColor(e.target.value);
-                                }}
-                                style={{
-                                    background: 'none',
-                                    border: 'none',
-                                    width: '40px',
-                                    height: '40px',
-                                    cursor: 'pointer'
-                                }}
-                            />
-                        </div>
+                        {/* Foreground Color (Classic Only) */}
+                        {activeTypeMode === 'classic' && (
+                            <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>Foreground Color</span>
+                                <input
+                                    type="color"
+                                    defaultValue="#ffffff"
+                                    onChange={(e) => {
+                                        window.setForeColor && window.setForeColor(e.target.value);
+                                    }}
+                                    style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        width: '40px',
+                                        height: '40px',
+                                        cursor: 'pointer'
+                                    }}
+                                />
+                            </div>
+                        )}
 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
-                            {/* Size */}
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                                <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Size</label>
-                                <ElasticSlider
-                                    defaultValue={fontSize}
-                                    startingValue={10}
-                                    maxValue={200}
-                                    leftIcon={<RiFontSize2 size={16} />}
-                                    rightIcon={<RiFontSize2 size={24} />}
-                                    onChange={(val) => handleUpdate('fontSize', val)}
-                                />
-                            </div>
+                            {activeTypeMode === 'classic' ? (
+                                <>
+                                    {/* Size */}
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                        <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Size</label>
+                                        <ElasticSlider
+                                            defaultValue={fontSize}
+                                            startingValue={10}
+                                            maxValue={200}
+                                            leftIcon={<RiFontSize2 size={16} />}
+                                            rightIcon={<RiFontSize2 size={24} />}
+                                            onChange={(val) => handleUpdate('fontSize', val)}
+                                        />
+                                    </div>
 
-                            {/* Layers */}
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                                <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Depth</label>
-                                <ElasticSlider
-                                    defaultValue={layerCount}
-                                    startingValue={1}
-                                    maxValue={15}
-                                    isStepped
-                                    stepSize={1}
-                                    leftIcon={<RiStackLine size={16} />}
-                                    rightIcon={<RiStackLine size={24} />}
-                                    onChange={(val) => handleUpdate('layerCount', val)}
-                                />
-                            </div>
-                        </div>
+                                    {/* Layers */}
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                        <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Depth</label>
+                                        <ElasticSlider
+                                            defaultValue={layerCount}
+                                            startingValue={1}
+                                            maxValue={15}
+                                            isStepped
+                                            stepSize={1}
+                                            leftIcon={<RiStackLine size={16} />}
+                                            rightIcon={<RiStackLine size={24} />}
+                                            onChange={(val) => handleUpdate('layerCount', val)}
+                                        />
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    {/* ASCII Controls */}
+                                    {/* Scale (Plane Height) */}
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                        <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Scale</label>
+                                        <ElasticSlider
+                                            defaultValue={asciiSettings.planeBaseHeight}
+                                            startingValue={2}
+                                            maxValue={20}
+                                            stepSize={0.5}
+                                            leftIcon={<RiExpandWidthLine size={16} />}
+                                            rightIcon={<RiExpandWidthLine size={24} />}
+                                            onChange={(val) => setAsciiSettings({ ...asciiSettings, planeBaseHeight: val })}
+                                        />
+                                    </div>
 
-                        <div style={{ height: '1px', background: 'rgba(255,255,255,0.1)', margin: '15px 0' }}></div>
+                                    {/* Density (ASCII Font Size) - Inverted logic (smaller font = higher density) */}
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                        <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Density</label>
+                                        <ElasticSlider
+                                            defaultValue={20 - asciiSettings.asciiFontSize} // Abstract mapping
+                                            startingValue={1}
+                                            maxValue={18}
+                                            stepSize={1}
+                                            leftIcon={<MdGridOn size={16} />}
+                                            rightIcon={<MdGridOn size={24} />}
+                                            onChange={(val) => {
+                                                // val goes 1 -> 18.
+                                                // fontSize should go 19 -> 2?
+                                                // Let's simple map: font size
+                                                const fontSize = Math.max(2, 20 - val);
+                                                setAsciiSettings({ ...asciiSettings, asciiFontSize: fontSize });
+                                            }}
+                                        />
+                                    </div>
 
-                        {/* Effects & Shapes */}
-                        <div style={{ marginBottom: '20px' }}>
-                            <h3 style={uiStyles.sectionTitle}>Effects</h3>
+                                    {/* Wave Toggle */}
+                                    <div style={{ gridColumn: 'span 2', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        <div style={{ gridColumn: 'span 2', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '0.9rem' }}>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={asciiSettings.enableWaves}
+                                                        onChange={(e) => setAsciiSettings({ ...asciiSettings, enableWaves: e.target.checked })}
+                                                        style={{ accentColor: '#E5B020', width: '16px', height: '16px' }}
+                                                    />
+                                                    Enable Waves
+                                                </label>
 
-                            {/* React-Driven Effects Controls */}
-                            <label style={uiStyles.label}>Effect Category</label>
-                            <select
-                                value={selectedCategory}
-                                onChange={handleCategoryChange}
-                                style={{ ...uiStyles.control, marginBottom: '10px' }}
-                            >
-                                <option value="">-- Select Category --</option>
-                                <option value="classic">Classic Patterns</option>
-                                <option value="wave">Wave & Rotation</option>
-                                <option value="explosive">Explosive & Dynamic</option>
-                                <option value="distortion">Distortion</option>
-                            </select>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                    <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>Color</span>
+                                                    <input
+                                                        type="color"
+                                                        value={asciiSettings.textColor}
+                                                        onChange={(e) => setAsciiSettings({ ...asciiSettings, textColor: e.target.value })}
+                                                        style={{
+                                                            background: 'none',
+                                                            border: 'none',
+                                                            width: '40px',
+                                                            height: '40px',
+                                                            cursor: 'pointer'
+                                                        }}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '0.9rem' }}>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={asciiSettings.isMonochrome}
+                                                        onChange={(e) => setAsciiSettings({ ...asciiSettings, isMonochrome: e.target.checked })}
+                                                        style={{ accentColor: '#E5B020', width: '16px', height: '16px' }}
+                                                    />
+                                                    Monochrome Mode
+                                                </label>
 
-                            <label style={uiStyles.label}>Select Effect</label>
-                            <select
-                                onChange={handleEffectSelect}
-                                disabled={availableEffects.length === 0}
-                                style={{
-                                    ...uiStyles.control,
-                                    background: availableEffects.length === 0 ? 'rgba(255,255,255,0.02)' : uiStyles.control.background,
-                                    color: availableEffects.length === 0 ? '#666' : uiStyles.control.color,
-                                    cursor: availableEffects.length === 0 ? 'not-allowed' : 'pointer'
-                                }}
-                            >
-                                <option value="">-- Choose to Add/Remove --</option>
-                                {availableEffects.map(eff => (
-                                    <option key={eff.id} value={eff.id}>
-                                        {activeEffects.find(a => a.id === eff.id) ? '✓ ' : ''}{eff.name}
-                                    </option>
-                                ))}
-                            </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
 
-                            {/* Active Effects Tags */}
-                            <div style={{ marginTop: '15px', display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
-                                {activeEffects.length === 0 && <span style={{ fontSize: '0.8rem', color: '#666' }}>No active effects</span>}
-                                {activeEffects.map(eff => (
-                                    <div
-                                        key={eff.id}
-                                        onClick={() => setCurrentEffectForIntensity(eff)}
+
+                            <div style={{ height: '1px', background: 'rgba(255,255,255,0.1)', margin: '15px 0' }}></div>
+
+                            {/* Effects & Shapes (Classic Only) */}
+                            {activeTypeMode === 'classic' && (
+                                <div style={{ marginBottom: '20px' }}>
+                                    <h3 style={uiStyles.sectionTitle}>Effects</h3>
+
+                                    {/* React-Driven Effects Controls */}
+                                    <label style={uiStyles.label}>Effect Category</label>
+                                    <select
+                                        value={selectedCategory}
+                                        onChange={handleCategoryChange}
+                                        style={{ ...uiStyles.control, marginBottom: '10px' }}
+                                    >
+                                        <option value="">-- Select Category --</option>
+                                        <option value="classic">Classic Patterns</option>
+                                        <option value="wave">Wave & Rotation</option>
+                                        <option value="explosive">Explosive & Dynamic</option>
+                                        <option value="distortion">Distortion</option>
+                                    </select>
+
+                                    <label style={uiStyles.label}>Select Effect</label>
+                                    <select
+                                        onChange={handleEffectSelect}
+                                        disabled={availableEffects.length === 0}
                                         style={{
-                                            background: currentEffectForIntensity?.id === eff.id ? 'rgba(242, 62, 46, 0.4)' : 'rgba(255,255,255,0.1)',
-                                            border: currentEffectForIntensity?.id === eff.id ? '1px solid #E5B020' : '1px solid transparent',
-                                            padding: '4px 8px',
-                                            borderRadius: '4px',
-                                            fontSize: '0.75rem',
-                                            cursor: 'pointer',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '5px'
+                                            ...uiStyles.control,
+                                            background: availableEffects.length === 0 ? 'rgba(255,255,255,0.02)' : uiStyles.control.background,
+                                            color: availableEffects.length === 0 ? '#666' : uiStyles.control.color,
+                                            cursor: availableEffects.length === 0 ? 'not-allowed' : 'pointer'
                                         }}
                                     >
-                                        {eff.name}
-                                        <span
-                                            onClick={(e) => { e.stopPropagation(); handleRemoveEffect(eff.id); }}
-                                            style={{ color: '#E5B020', fontWeight: 'bold' }}
-                                        >×</span>
-                                    </div>
-                                ))}
-                            </div>
+                                        <option value="">-- Choose to Add/Remove --</option>
+                                        {availableEffects.map(eff => (
+                                            <option key={eff.id} value={eff.id}>
+                                                {activeEffects.find(a => a.id === eff.id) ? '✓ ' : ''}{eff.name}
+                                            </option>
+                                        ))}
+                                    </select>
 
-                            {/* Dynamic Intensity Slider */}
-                            {currentEffectForIntensity && (
-                                <div style={{ marginTop: '15px', padding: '10px', background: 'rgba(0,0,0,0.3)', borderRadius: '4px' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                                        <span style={{ fontSize: '0.8rem', color: '#aaa' }}>{currentEffectForIntensity.name} Intensity</span>
-                                        <span style={{ fontSize: '0.8rem' }}>{currentIntensity}%</span>
+                                    {/* Active Effects Tags */}
+                                    <div style={{ marginTop: '15px', display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+                                        {activeEffects.length === 0 && <span style={{ fontSize: '0.8rem', color: '#666' }}>No active effects</span>}
+                                        {activeEffects.map(eff => (
+                                            <div
+                                                key={eff.id}
+                                                onClick={() => setCurrentEffectForIntensity(eff)}
+                                                style={{
+                                                    background: currentEffectForIntensity?.id === eff.id ? 'rgba(242, 62, 46, 0.4)' : 'rgba(255,255,255,0.1)',
+                                                    border: currentEffectForIntensity?.id === eff.id ? '1px solid #E5B020' : '1px solid transparent',
+                                                    padding: '4px 8px',
+                                                    borderRadius: '4px',
+                                                    fontSize: '0.75rem',
+                                                    cursor: 'pointer',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '5px'
+                                                }}
+                                            >
+                                                {eff.name}
+                                                <span
+                                                    onClick={(e) => { e.stopPropagation(); handleRemoveEffect(eff.id); }}
+                                                    style={{ color: '#E5B020', fontWeight: 'bold' }}
+                                                >×</span>
+                                            </div>
+                                        ))}
                                     </div>
 
-                                    {/* Using standard range input here for simplicity and fine control matching legacy */}
-                                    <input
-                                        type="range"
-                                        min="0"
-                                        max="200"
-                                        value={currentIntensity}
-                                        onChange={(e) => handleIntensityChange(e.target.value)}
-                                        style={{ width: '100%', accentColor: '#E5B020' }}
-                                    />
+                                    {/* Dynamic Intensity Slider */}
+                                    {currentEffectForIntensity && (
+                                        <div style={{ marginTop: '15px', padding: '10px', background: 'rgba(0,0,0,0.3)', borderRadius: '4px' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                                                <span style={{ fontSize: '0.8rem', color: '#aaa' }}>{currentEffectForIntensity.name} Intensity</span>
+                                                <span style={{ fontSize: '0.8rem' }}>{currentIntensity}%</span>
+                                            </div>
+
+                                            {/* Using standard range input here for simplicity and fine control matching legacy */}
+                                            <input
+                                                type="range"
+                                                min="0"
+                                                max="200"
+                                                value={currentIntensity}
+                                                onChange={(e) => handleIntensityChange(e.target.value)}
+                                                style={{ width: '100%', accentColor: '#E5B020' }}
+                                            />
+                                        </div>
+                                    )}
                                 </div>
                             )}
-                        </div>
 
-                        <h3 style={uiStyles.sectionTitle}>Animation</h3>
-
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <span style={{ minWidth: '60px', fontSize: '0.8rem' }}>Speed</span>
-                                <ElasticSlider
-                                    defaultValue={animSpeed}
-                                    startingValue={0.5}
-                                    maxValue={3}
-                                    stepSize={0.1}
-                                    leftIcon={<RiSpeedLine size={16} />}
-                                    rightIcon={<RiSpeedLine size={24} />}
-                                    onChange={(val) => handleUpdate('animSpeed', val)}
-                                />
-                            </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <span style={{ minWidth: '60px', fontSize: '0.8rem' }}>Spread</span>
-                                <ElasticSlider
-                                    defaultValue={animSpread}
-                                    startingValue={0}
-                                    maxValue={200}
-                                    leftIcon={<RiExpandWidthLine size={16} />}
-                                    rightIcon={<RiExpandWidthLine size={24} />}
-                                    onChange={(val) => handleUpdate('animSpread', val)}
-                                />
-                            </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <span style={{ minWidth: '60px', fontSize: '0.8rem' }}>Intensity</span>
-                                <ElasticSlider
-                                    defaultValue={animIntensity}
-                                    startingValue={1}
-                                    maxValue={10}
-                                    leftIcon={<MdAnimation size={16} />}
-                                    rightIcon={<MdAnimation size={24} />}
-                                    onChange={(val) => handleUpdate('animIntensity', val)}
-                                />
-                            </div>
+                            {/* Classic Animation Controls */}
+                            {activeTypeMode === 'classic' && (
+                                <>
+                                    <h3 style={uiStyles.sectionTitle}>Animation</h3>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <span style={{ minWidth: '60px', fontSize: '0.8rem' }}>Speed</span>
+                                            <ElasticSlider
+                                                defaultValue={animSpeed}
+                                                startingValue={0.5}
+                                                maxValue={3}
+                                                stepSize={0.1}
+                                                leftIcon={<RiSpeedLine size={16} />}
+                                                rightIcon={<RiSpeedLine size={24} />}
+                                                onChange={(val) => handleUpdate('animSpeed', val)}
+                                            />
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <span style={{ minWidth: '60px', fontSize: '0.8rem' }}>Spread</span>
+                                            <ElasticSlider
+                                                defaultValue={animSpread}
+                                                startingValue={0}
+                                                maxValue={200}
+                                                leftIcon={<RiExpandWidthLine size={16} />}
+                                                rightIcon={<RiExpandWidthLine size={24} />}
+                                                onChange={(val) => handleUpdate('animSpread', val)}
+                                            />
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <span style={{ minWidth: '60px', fontSize: '0.8rem' }}>Intensity</span>
+                                            <ElasticSlider
+                                                defaultValue={animIntensity}
+                                                startingValue={1}
+                                                maxValue={10}
+                                                leftIcon={<MdAnimation size={16} />}
+                                                rightIcon={<MdAnimation size={24} />}
+                                                onChange={(val) => handleUpdate('animIntensity', val)}
+                                            />
+                                        </div>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
                 )}
@@ -907,3 +1021,5 @@ export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp,
         </StaggeredMenu>
     );
 }
+
+
