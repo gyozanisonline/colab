@@ -8,15 +8,48 @@ import { Leva } from 'leva';
 import { RiText, RiFontSize2, RiStackLine, RiSpeedLine, RiExpandWidthLine } from 'react-icons/ri';
 import { MdAnimation, MdGridOn } from 'react-icons/md';
 
-const shapeButtonStyle = {
-    background: 'rgba(255,255,255,0.1)',
-    border: '1px solid rgba(255,255,255,0.2)',
-    color: 'white',
-    padding: '8px',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontSize: '0.8rem',
-    transition: 'all 0.2s'
+const uiStyles = {
+    control: {
+        background: 'rgba(255, 255, 255, 0.05)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        color: '#eee',
+        padding: '10px 12px',
+        borderRadius: '6px',
+        fontSize: '0.85rem',
+        width: '100%',
+        outline: 'none',
+        transition: 'border-color 0.2s',
+        fontFamily: 'inherit'
+    },
+    button: {
+        background: 'rgba(255, 255, 255, 0.05)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        color: '#eee',
+        padding: '8px 12px',
+        borderRadius: '6px',
+        cursor: 'pointer',
+        fontSize: '0.8rem',
+        transition: 'all 0.2s',
+        textAlign: 'center'
+    },
+    label: {
+        fontSize: '0.8rem',
+        color: '#888',
+        marginBottom: '6px',
+        display: 'block',
+        textTransform: 'uppercase',
+        letterSpacing: '0.5px'
+    },
+    sectionTitle: {
+        fontSize: '0.9rem',
+        fontWeight: '600',
+        marginBottom: '15px',
+        color: '#ccc',
+        textTransform: 'uppercase',
+        letterSpacing: '1px',
+        borderBottom: '1px solid rgba(255,255,255,0.05)',
+        paddingBottom: '8px'
+    }
 };
 
 // Effect Categories Data (Mirrored from js/update.js)
@@ -286,7 +319,7 @@ export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp,
                 <div style={{ paddingBottom: '15px', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     <StarBorder
                         as="button"
-                        color="#00ffcc"
+                        color="#E5B020"
                         speed="3s"
                         onClick={() => window.savePoster && window.savePoster()}
                         style={{ width: '100%', fontSize: '0.9rem' }}
@@ -298,7 +331,7 @@ export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp,
                         <input
                             type="checkbox"
                             onChange={(e) => window.togglePosterMode && window.togglePosterMode(e.target.checked)}
-                            style={{ accentColor: '#00ffcc', width: '16px', height: '16px' }}
+                            style={{ accentColor: '#E5B020', width: '16px', height: '16px' }}
                         />
                         Poster Mode
                     </label>
@@ -337,11 +370,11 @@ export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp,
 
                 {activeStep === 1 && (
                     <div className="controls-section">
-                        <h3 style={{ fontSize: '0.9rem', marginBottom: '15px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '1px' }}>Background Settings</h3>
+                        <h3 style={uiStyles.sectionTitle}>Background Settings</h3>
 
                         {/* Background Selector */}
                         <div style={{ marginBottom: '20px' }}>
-                            <label style={{ fontSize: '0.8rem', display: 'block', marginBottom: '5px', opacity: 0.8 }}>Type</label>
+                            <label style={uiStyles.label}>Type</label>
                             <select
                                 onChange={(e) => {
                                     const legacySelect = document.getElementById('bg-type-select');
@@ -351,15 +384,7 @@ export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp,
                                     }
                                 }}
                                 value={activeBackground || 'wireframe'} // Controlled component
-                                style={{
-                                    width: '100%',
-                                    padding: '8px',
-                                    background: 'rgba(0,0,0,0.5)',
-                                    color: 'white',
-                                    border: '1px solid rgba(255,255,255,0.3)',
-                                    borderRadius: '4px',
-                                    fontSize: '0.9rem'
-                                }}
+                                style={uiStyles.control}
                             >
                                 <option value="wireframe">Wireframe (p5.js)</option>
                                 <option value="color_bends">Color Bends (React)</option>
@@ -384,15 +409,7 @@ export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp,
                                         const btn = document.getElementById('toggle-distortion');
                                         if (btn) btn.click();
                                     }}
-                                    style={{
-                                        width: '100%',
-                                        padding: '8px',
-                                        background: 'rgba(255,255,255,0.1)',
-                                        border: '1px solid rgba(255,255,255,0.2)',
-                                        color: 'white',
-                                        borderRadius: '4px',
-                                        cursor: 'pointer'
-                                    }}
+                                    style={{ ...uiStyles.button, width: '100%' }}
                                 >
                                     Toggle Wireframe Distortion
                                 </button>
@@ -558,14 +575,14 @@ export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp,
                         </div>
 
                         <div style={{ marginTop: '20px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '15px' }}>
-                            <h3 style={{ fontSize: '0.9rem', marginBottom: '10px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '1px' }}>Background Shapes</h3>
+                            <h3 style={uiStyles.sectionTitle}>Background Shapes</h3>
 
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '15px' }}>
-                                <button onClick={() => addShape('circle')} style={shapeButtonStyle}>+ Circle</button>
-                                <button onClick={() => addShape('rectangle')} style={shapeButtonStyle}>+ Rect</button>
-                                <button onClick={() => addShape('triangle')} style={shapeButtonStyle}>+ Triangle</button>
-                                <button onClick={() => addShape('star')} style={shapeButtonStyle}>+ Star</button>
-                                <button onClick={() => addShape('spiral')} style={shapeButtonStyle}>+ Spiral</button>
+                                <button onClick={() => addShape('circle')} style={uiStyles.button}>+ Circle</button>
+                                <button onClick={() => addShape('rectangle')} style={uiStyles.button}>+ Rect</button>
+                                <button onClick={() => addShape('triangle')} style={uiStyles.button}>+ Triangle</button>
+                                <button onClick={() => addShape('star')} style={uiStyles.button}>+ Star</button>
+                                <button onClick={() => addShape('spiral')} style={uiStyles.button}>+ Spiral</button>
                             </div>
 
                             {shapes.length > 0 && (
@@ -627,13 +644,10 @@ export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp,
                                     <button
                                         onClick={clearShapes}
                                         style={{
-                                            background: 'rgba(242, 62, 46, 0.2)',
+                                            ...uiStyles.button,
+                                            background: 'rgba(229, 176, 32, 0.1)',
                                             color: '#E5B020',
-                                            border: '1px solid #E5B020',
-                                            padding: '4px 8px',
-                                            borderRadius: '4px',
-                                            fontSize: '0.75rem',
-                                            cursor: 'pointer'
+                                            borderColor: '#E5B020'
                                         }}
                                     >
                                         Clear All
@@ -646,7 +660,7 @@ export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp,
 
                 {activeStep === 2 && (
                     <div className="controls-section">
-                        <h3 style={{ fontSize: '0.9rem', marginBottom: '15px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '1px' }}>Typography Settings</h3>
+                        <h3 style={uiStyles.sectionTitle}>Typography Settings</h3>
 
                         {/* Text Input */}
                         <div style={{ marginBottom: '15px' }}>
@@ -662,16 +676,7 @@ export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp,
                                     }
                                 }}
                                 rows="2"
-                                style={{
-                                    width: '100%',
-                                    background: 'rgba(0,0,0,0.5)',
-                                    border: '1px solid rgba(255,255,255,0.3)',
-                                    color: 'white',
-                                    padding: '8px',
-                                    borderRadius: '4px',
-                                    resize: 'vertical',
-                                    fontFamily: 'inherit'
-                                }}
+                                style={{ ...uiStyles.control, resize: 'vertical' }}
                             />
                         </div>
 
@@ -728,22 +733,14 @@ export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp,
 
                         {/* Effects & Shapes */}
                         <div style={{ marginBottom: '20px' }}>
-                            <h3 style={{ fontSize: '0.9rem', marginBottom: '10px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '1px' }}>Effects</h3>
+                            <h3 style={uiStyles.sectionTitle}>Effects</h3>
 
                             {/* React-Driven Effects Controls */}
-                            <label style={{ fontSize: '0.8rem', display: 'block', marginBottom: '5px', opacity: 0.8 }}>Effect Category</label>
+                            <label style={uiStyles.label}>Effect Category</label>
                             <select
                                 value={selectedCategory}
                                 onChange={handleCategoryChange}
-                                style={{
-                                    width: '100%',
-                                    padding: '8px',
-                                    background: 'rgba(0,0,0,0.5)',
-                                    color: 'white',
-                                    border: '1px solid rgba(255,255,255,0.3)',
-                                    borderRadius: '4px',
-                                    marginBottom: '10px'
-                                }}
+                                style={{ ...uiStyles.control, marginBottom: '10px' }}
                             >
                                 <option value="">-- Select Category --</option>
                                 <option value="classic">Classic Patterns</option>
@@ -752,17 +749,15 @@ export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp,
                                 <option value="distortion">Distortion</option>
                             </select>
 
-                            <label style={{ fontSize: '0.8rem', display: 'block', marginBottom: '5px', opacity: 0.8 }}>Select Effect</label>
+                            <label style={uiStyles.label}>Select Effect</label>
                             <select
                                 onChange={handleEffectSelect}
                                 disabled={availableEffects.length === 0}
                                 style={{
-                                    width: '100%',
-                                    padding: '8px',
-                                    background: availableEffects.length === 0 ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.5)',
-                                    color: availableEffects.length === 0 ? '#666' : 'white',
-                                    border: '1px solid rgba(255,255,255,0.3)',
-                                    borderRadius: '4px'
+                                    ...uiStyles.control,
+                                    background: availableEffects.length === 0 ? 'rgba(255,255,255,0.02)' : uiStyles.control.background,
+                                    color: availableEffects.length === 0 ? '#666' : uiStyles.control.color,
+                                    cursor: availableEffects.length === 0 ? 'not-allowed' : 'pointer'
                                 }}
                             >
                                 <option value="">-- Choose to Add/Remove --</option>
@@ -822,7 +817,7 @@ export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp,
                             )}
                         </div>
 
-                        <h3 style={{ fontSize: '0.9rem', marginBottom: '10px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '1px' }}>Animation</h3>
+                        <h3 style={uiStyles.sectionTitle}>Animation</h3>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -864,7 +859,7 @@ export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp,
                 )}
                 {activeStep === 3 && (
                     <div className="controls-section">
-                        <h3 style={{ fontSize: '0.9rem', marginBottom: '15px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '1px' }}>Audio Controls</h3>
+                        <h3 style={uiStyles.sectionTitle}>Audio Controls</h3>
 
                         <div style={{
                             display: 'flex',
