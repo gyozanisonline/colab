@@ -357,17 +357,17 @@ export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp,
                                 value={activeBackground || 'wireframe'} // Controlled component
                                 style={uiStyles.control}
                             >
-                                <option value="wireframe">Wireframe (p5.js)</option>
-                                <option value="color_bends">Color Bends (React)</option>
-                                <option value="dark_veil">Dark Veil (React)</option>
-                                <option value="dither">Dither (React)</option>
-                                <option value="starfield">StarField (React)</option>
-                                <option value="aurora">Aurora (React)</option>
-                                <option value="blocks">Blocks (React)</option>
-                                <option value="particles">Particles (React)</option>
-                                <option value="silk">Silk (React)</option>
-                                <option value="spline">Spline 3D (React)</option>
-                                <option value="spline_new">Spline (New)</option>
+                                <option value="starfield">Starfield</option>
+                                <option value="wireframe">Wireframe</option>
+                                <option value="color_bends">Color Bends</option>
+                                <option value="dark_veil">Dark Veil</option>
+                                <option value="dither">Dither</option>
+                                <option value="aurora">Aurora</option>
+                                <option value="blocks">Blocks</option>
+                                <option value="particles">Particles</option>
+                                <option value="silk">Silk</option>
+                                <option value="spline">Spline 3D</option>
+                                <option value="spline_new">Spline New</option>
                                 <option value="none">None</option>
                             </select>
                         </div>
