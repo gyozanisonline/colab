@@ -230,59 +230,6 @@ export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp,
                 paddingBottom: '300px'
             }}>
 
-                {/* Leva Controls Panel */}
-                <div id="leva-custom-container" style={{
-                    position: 'relative',
-                    minHeight: '100px', // Ensure it has space
-                    marginBottom: '10px'
-                }}>
-                    <Leva
-                        fill
-                        flat
-                        titleBar={false}
-                        theme={{
-                            colors: {
-                                elevation1: '#1a1a1a', // Match sidebar
-                                elevation2: '#262626',
-                                elevation3: '#333333',
-                                accent1: '#E5B020',
-                                accent2: '#E5B020',
-                                accent3: '#E5B020',
-                                highlight1: '#555',
-                                highlight2: '#777',
-                                highlight3: '#999',
-                                vator: '#333',
-                            },
-                            fonts: {
-                                mono: "'Helvetica Neue', Arial, sans-serif",
-                                sans: "'Helvetica Neue', Arial, sans-serif"
-                            }
-                        }}
-                    />
-                </div>
-
-                {/* Global Controls Section */}
-                <div style={{ paddingBottom: '15px', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    <StarBorder
-                        as="button"
-                        color="#00ffcc"
-                        speed="3s"
-                        onClick={() => window.savePoster && window.savePoster()}
-                        style={{ width: '100%', fontSize: '0.9rem' }}
-                    >
-                        SAVE POSTER
-                    </StarBorder>
-
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '0.9rem' }}>
-                        <input
-                            type="checkbox"
-                            onChange={(e) => window.togglePosterMode && window.togglePosterMode(e.target.checked)}
-                            style={{ accentColor: '#00ffcc', width: '16px', height: '16px' }}
-                        />
-                        Poster Mode
-                    </label>
-                </div>
-
                 {/* Step Navigation Tabs */}
                 <div style={{ display: 'flex', gap: '10px', paddingBottom: '10px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
                     <button
@@ -333,6 +280,59 @@ export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp,
                     >
                         AUDIO
                     </button>
+                </div>
+
+                {/* Global Controls Section */}
+                <div style={{ paddingBottom: '15px', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <StarBorder
+                        as="button"
+                        color="#00ffcc"
+                        speed="3s"
+                        onClick={() => window.savePoster && window.savePoster()}
+                        style={{ width: '100%', fontSize: '0.9rem' }}
+                    >
+                        SAVE POSTER
+                    </StarBorder>
+
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '0.9rem' }}>
+                        <input
+                            type="checkbox"
+                            onChange={(e) => window.togglePosterMode && window.togglePosterMode(e.target.checked)}
+                            style={{ accentColor: '#00ffcc', width: '16px', height: '16px' }}
+                        />
+                        Poster Mode
+                    </label>
+                </div>
+
+                {/* Leva Controls Panel */}
+                <div id="leva-custom-container" style={{
+                    position: 'relative',
+                    minHeight: '100px', // Ensure it has space
+                    marginBottom: '10px'
+                }}>
+                    <Leva
+                        fill
+                        flat
+                        titleBar={false}
+                        theme={{
+                            colors: {
+                                elevation1: '#1a1a1a', // Match sidebar
+                                elevation2: '#262626',
+                                elevation3: '#333333',
+                                accent1: '#E5B020',
+                                accent2: '#E5B020',
+                                accent3: '#E5B020',
+                                highlight1: '#555',
+                                highlight2: '#777',
+                                highlight3: '#999',
+                                vator: '#333',
+                            },
+                            fonts: {
+                                mono: "'Helvetica Neue', Arial, sans-serif",
+                                sans: "'Helvetica Neue', Arial, sans-serif"
+                            }
+                        }}
+                    />
                 </div>
 
                 {activeStep === 1 && (
