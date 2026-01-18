@@ -732,6 +732,40 @@ export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp,
                             </div>
                         )}
 
+                        {/* Font Selector (Classic Only) */}
+                        {activeTypeMode === 'classic' && (
+                            <div style={{ marginBottom: '20px' }}>
+                                <label style={{ fontSize: '0.75rem', opacity: 0.7, display: 'block', marginBottom: '8px' }}>Font</label>
+                                <select
+                                    defaultValue="0"
+                                    onChange={(e) => {
+                                        window.setFont && window.setFont(parseInt(e.target.value));
+                                    }}
+                                    style={uiStyles.control}
+                                >
+                                    <optgroup label="Display Fonts">
+                                        <option value="0">Bebas Neue</option>
+                                        <option value="1">Staatliches</option>
+                                        <option value="2">Orbitron</option>
+                                        <option value="3">Monoton</option>
+                                        <option value="4">Rubik Mono One</option>
+                                        <option value="5">Fredoka</option>
+                                        <option value="6">Permanent Marker</option>
+                                        <option value="7">Lobster</option>
+                                        <option value="8">Dela Gothic One</option>
+                                        <option value="9">Ultra</option>
+                                    </optgroup>
+                                    <optgroup label="System Fonts">
+                                        <option value="10">Inter</option>
+                                        <option value="11">Arial Black</option>
+                                        <option value="12">Times New Roman</option>
+                                        <option value="13">Courier New</option>
+                                        <option value="14">Helvetica</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                        )}
+
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
                             {activeTypeMode === 'classic' ? (
                                 <>

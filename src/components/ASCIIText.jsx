@@ -293,9 +293,12 @@ class CanvAscii {
             // Font loading failed, continue with fallback
         }
         await document.fonts.ready;
+    }
 
+    start() {
         this.setMesh();
         this.setRenderer();
+        this.load();
     }
 
     setMesh() {
@@ -393,8 +396,12 @@ class CanvAscii {
     }
 
     updateRotation() {
-        const x = Math.map(this.mouse.y, 0, this.height, 0.5, -0.5);
-        const y = Math.map(this.mouse.x, 0, this.width, -0.5, 0.5);
+        const map = (value, start1, stop1, start2, stop2) => {
+            return start2 + (stop2 - start2) * ((value - start1) / (stop1 - start1));
+        };
+
+        const x = map(this.mouse.y, 0, this.height, 0.5, -0.5);
+        const y = map(this.mouse.x, 0, this.width, -0.5, 0.5);
 
         this.mesh.rotation.x += (x - this.mesh.rotation.x) * 0.05;
         this.mesh.rotation.y += (y - this.mesh.rotation.y) * 0.05;
@@ -522,6 +529,12 @@ export default function ASCIIText({
     const containerRef = useRef(null);
     const asciiRef = useRef(null);
 
+    // Ref to always have access to latest props during async init
+    const propsRef = useRef({ text, asciiFontSize, textFontSize, textColor, planeBaseHeight, enableWaves, isMonochrome });
+    useEffect(() => {
+        propsRef.current = { text, asciiFontSize, textFontSize, textColor, planeBaseHeight, enableWaves, isMonochrome };
+    }, [text, asciiFontSize, textFontSize, textColor, planeBaseHeight, enableWaves, isMonochrome]);
+
     useEffect(() => {
         if (!containerRef.current) return;
 
@@ -530,8 +543,10 @@ export default function ASCIIText({
         let ro = null;
 
         const createAndInit = async (container, w, h) => {
+            // Use propsRef to get the LATEST props, not stale closure values
+            const currentProps = propsRef.current;
             const instance = new CanvAscii(
-                { text, asciiFontSize, textFontSize, textColor, planeBaseHeight, enableWaves, isMonochrome },
+                currentProps,
                 container,
                 w,
                 h
@@ -553,9 +568,19 @@ export default function ASCIIText({
                             observer = null;
 
                             if (!cancelled) {
-                                asciiRef.current = await createAndInit(containerRef.current, w, h);
-                                if (!cancelled && asciiRef.current) {
-                                    asciiRef.current.load();
+                                const instance = await createAndInit(containerRef.current, w, h);
+                                if (cancelled) {
+                                    instance.dispose();
+                                    return;
+                                }
+
+                                // Safe to attach to DOM now
+                                instance.start();
+                                asciiRef.current = instance;
+
+                                if (asciiRef.current) {
+                                    // Immediately update with latest props after init
+                                    asciiRef.current.update(propsRef.current);
                                 }
                             }
                         }
@@ -566,11 +591,21 @@ export default function ASCIIText({
                 return;
             }
 
-            asciiRef.current = await createAndInit(containerRef.current, width, height);
-            if (!cancelled && asciiRef.current) {
-                asciiRef.current.load();
+            const instance = await createAndInit(containerRef.current, width, height);
+            if (cancelled) {
+                instance.dispose();
+                return;
+            }
+
+            // Safe to attach to DOM now
+            instance.start();
+            asciiRef.current = instance;
+
+            if (asciiRef.current) {
+                // Immediately update with latest props after init
+                asciiRef.current.update(propsRef.current);
                 // Initial color set based on monochrome setting
-                asciiRef.current.filter.setColor(isMonochrome ? textColor : null);
+                asciiRef.current.filter.setColor(propsRef.current.isMonochrome ? propsRef.current.textColor : null);
 
                 ro = new ResizeObserver(entries => {
                     if (!entries[0] || !asciiRef.current) return;

@@ -422,34 +422,7 @@ function setShapeMode(val) {
 // Effect categories and their effects
 const effectCategories = {
     classic: [
-        { id: 'arc', name: 'Arc', toggle: 'toggleMotionArc', intensity: 'setMotionArcIntensity', flag: 'motionArc', intensityVar: 'motionArcIntensity' },
-        { id: 'diagonal', name: 'Diagonal', toggle: 'toggleMotionDiagonal', intensity: 'setMotionDiagonalIntensity', flag: 'motionDiagonal', intensityVar: 'motionDiagonalIntensity' },
-        { id: 'zigzag', name: 'ZigZag', toggle: 'toggleMotionZigZag', intensity: 'setMotionZigZagIntensity', flag: 'motionZigZag', intensityVar: 'motionZigZagIntensity' },
-        { id: 'bolt', name: 'Bolt', toggle: 'toggleMotionBolt', intensity: 'setMotionBoltIntensity', flag: 'motionBolt', intensityVar: 'motionBoltIntensity' },
-        { id: 'bowtie', name: 'Bowtie', toggle: 'toggleMotionBowtie', intensity: 'setMotionBowtieIntensity', flag: 'motionBowtie', intensityVar: 'motionBowtieIntensity' },
-        { id: 'rays', name: 'Rays', toggle: 'toggleMotionRays', intensity: 'setMotionRaysIntensity', flag: 'motionRays', intensityVar: 'motionRaysIntensity' },
-        { id: 'lean', name: 'Lean', toggle: 'toggleMotionLean', intensity: 'setMotionLeanIntensity', flag: 'motionLean', intensityVar: 'motionLeanIntensity' }
-    ],
-    wave: [
-        { id: 'spiral', name: 'Spiral', toggle: 'toggleMotionSpiral', intensity: 'setMotionSpiralIntensity', flag: 'motionSpiral', intensityVar: 'motionSpiralIntensity' },
-        { id: 'wave', name: 'Wave', toggle: 'toggleMotionWave', intensity: 'setMotionWaveIntensity', flag: 'motionWave', intensityVar: 'motionWaveIntensity' },
-        { id: 'ripple', name: 'Ripple', toggle: 'toggleMotionRipple', intensity: 'setMotionRippleIntensity', flag: 'motionRipple', intensityVar: 'motionRippleIntensity' },
-        { id: 'twist', name: 'Twist', toggle: 'toggleMotionTwist', intensity: 'setMotionTwistIntensity', flag: 'motionTwist', intensityVar: 'motionTwistIntensity' },
-        { id: 'rotate', name: 'Rotate', toggle: 'toggleMotionRotate', intensity: 'setMotionRotateIntensity', flag: 'motionRotate', intensityVar: 'motionRotateIntensity' },
-        { id: 'orbit', name: 'Orbit', toggle: 'toggleMotionOrbit', intensity: 'setMotionOrbitIntensity', flag: 'motionOrbit', intensityVar: 'motionOrbitIntensity' }
-    ],
-    explosive: [
-        { id: 'explode', name: 'Explode', toggle: 'toggleMotionExplode', intensity: 'setMotionExplodeIntensity', flag: 'motionExplode', intensityVar: 'motionExplodeIntensity' },
-        { id: 'implode', name: 'Implode', toggle: 'toggleMotionImplode', intensity: 'setMotionImplodeIntensity', flag: 'motionImplode', intensityVar: 'motionImplodeIntensity' },
-        { id: 'scatter', name: 'Scatter', toggle: 'toggleMotionScatter', intensity: 'setMotionScatterIntensity', flag: 'motionScatter', intensityVar: 'motionScatterIntensity' },
-        { id: 'bounce', name: 'Bounce', toggle: 'toggleMotionBounce', intensity: 'setMotionBounceIntensity', flag: 'motionBounce', intensityVar: 'motionBounceIntensity' },
-        { id: 'slide', name: 'Slide', toggle: 'toggleMotionSlide', intensity: 'setMotionSlideIntensity', flag: 'motionSlide', intensityVar: 'motionSlideIntensity' },
-        { id: 'flip', name: 'Flip', toggle: 'toggleMotionFlip', intensity: 'setMotionFlipIntensity', flag: 'motionFlip', intensityVar: 'motionFlipIntensity' }
-    ],
-    distortion: [
-        { id: 'pulse', name: 'Pulse', toggle: 'toggleMotionPulse', intensity: 'setMotionPulseIntensity', flag: 'motionPulse', intensityVar: 'motionPulseIntensity' },
-        { id: 'shake', name: 'Shake', toggle: 'toggleMotionShake', intensity: 'setMotionShakeIntensity', flag: 'motionShake', intensityVar: 'motionShakeIntensity' },
-        { id: 'glitch', name: 'Glitch', toggle: 'toggleMotionGlitch', intensity: 'setMotionGlitchIntensity', flag: 'motionGlitch', intensityVar: 'motionGlitchIntensity' }
+        { id: 'arc', name: 'Arc', toggle: 'toggleMotionArc', intensity: 'setMotionArcIntensity', flag: 'motionArc', intensityVar: 'motionArcIntensity' }
     ]
 };
 

@@ -146,8 +146,26 @@ function preload() {
 }
 
 function setup() {
-    // Initialize fonts as system font strings
-    tFont = ['Inter', 'Arial Black', 'Times New Roman', 'Courier New', 'Courier', 'Helvetica'];
+    // Initialize fonts - Google Fonts + System fonts
+    tFont = [
+        // Google Fonts (bold display fonts)
+        'Bebas Neue',
+        'Staatliches',
+        'Orbitron',
+        'Monoton',
+        'Rubik Mono One',
+        'Fredoka',
+        'Permanent Marker',
+        'Lobster',
+        'Dela Gothic One',
+        'Ultra',
+        // System fonts (fallbacks)
+        'Inter',
+        'Arial Black',
+        'Times New Roman',
+        'Courier New',
+        'Helvetica'
+    ];
 
     let canvas = createCanvas(windowWidth, windowHeight);
     canvas.parent('canvas-type'); // Parent to the type layer
