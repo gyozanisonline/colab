@@ -49,7 +49,7 @@ function App() {
     });
 
     const [activeTypeMode, setActiveTypeMode] = useState('classic'); // 'classic' or 'ascii'
-    const [textContent, setTextContent] = useState(''); // Start empty, user types their own text
+    const [textContent, setTextContent] = useState('Colab\nExperiment Together');
     const [asciiSettings, setAsciiSettings] = useState({
         asciiFontSize: 8,
         textFontSize: 200,

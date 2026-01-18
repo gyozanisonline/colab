@@ -316,13 +316,6 @@ class CanvAscii {
         const planeH = baseH;
 
         this.geometry = new THREE.PlaneGeometry(planeW, planeH, 36, 36);
-
-        // Adjust camera distance to fit the plane in view
-        // With FOV=45°, visible half-width at distance z is: z * tan(22.5°) ≈ z * 0.414
-        // We need planeW/2 to fit, so z = (planeW/2) / 0.414 ≈ planeW * 1.21
-        // Add some margin (1.5x) for rotation effects
-        const requiredZ = Math.max(30, planeW * 1.5);
-        this.camera.position.z = requiredZ;
         this.material = new THREE.ShaderMaterial({
             vertexShader,
             fragmentShader,
@@ -444,10 +437,8 @@ class CanvAscii {
 
         // Always update text if provided - removed comparison to fix stale closure issues
         if (text !== undefined) {
-            // Handle empty text - use space to prevent zero-size canvas
-            const displayText = text.trim() === '' ? ' ' : text;
-            this.textString = displayText;
-            this.textCanvas.txt = displayText;
+            this.textString = text;
+            this.textCanvas.txt = text;
             this.textCanvas.resize();
             needsRender = true;
             geometryNeedsUpdate = true;
@@ -491,10 +482,6 @@ class CanvAscii {
                 this.geometry.dispose();
                 this.geometry = new THREE.PlaneGeometry(planeW, planeH, 36, 36);
                 this.mesh.geometry = this.geometry;
-
-                // Adjust camera distance to fit the plane in view
-                const requiredZ = Math.max(30, planeW * 1.5);
-                this.camera.position.z = requiredZ;
             }
         }
 
