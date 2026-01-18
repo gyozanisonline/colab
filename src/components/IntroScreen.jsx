@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import './IntroScreen.css';
-import Lanyard from './Lanyard';
+import StarBorder from './StarBorder';
 
 export default function IntroScreen({ onComplete }) {
     // Initialize state from localStorage to avoid cascading renders
@@ -48,45 +48,53 @@ export default function IntroScreen({ onComplete }) {
 
     return (
         <div className="intro-container">
-            {/* Physics Lanyard with Embedded Form */}
-            <Lanyard
-                name={name}
-                setName={setName}
-                color={color}
-                setColor={setColor}
-                handleCreate={handleCreate}
-                gravity={[0, -40, 0]}
-                position={[0, 0, 20]}
-            />
-
-            {/* Logo Overlay - Commented out as logo is now on the card */}
-            {/* <div className="intro-content-overlay" style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                pointerEvents: 'none',
-                display: 'flex',
-                alignItems: 'flex-start',
-                justifyContent: 'center',
-                paddingTop: '5vh',
-                zIndex: 10
-            }}>
+            <div className="intro-content">
                 <img
                     src="./assets/Colab Logo White.svg"
                     alt="Colab Logo"
                     className="intro-logo"
-                    style={{
-                        width: '70vw',
-                        height: 'auto',
-                        maxHeight: '40vh',
-                        objectFit: 'contain',
-                        margin: 0,
-                        transform: 'none'
-                    }}
                 />
-            </div> */}
+
+                <div className="intro-form">
+                    <div className="intro-row">
+                        <div className="input-group">
+                            {/* <label className="intro-label">NAME</label> */}
+                            <input
+                                type="text"
+                                className="intro-name-input"
+                                placeholder="YOUR NAME"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                maxLength={15}
+                            />
+                        </div>
+
+                        <div className="input-group color-picker-section">
+                            {/* <label className="intro-label">COLOR</label> */}
+                            <input
+                                type="color"
+                                className="intro-color-input"
+                                value={color}
+                                onChange={(e) => setColor(e.target.value)}
+                                style={{ backgroundColor: color }}
+                            />
+                        </div>
+                    </div>
+
+                    <div style={{ marginTop: '20px' }}>
+                        <StarBorder
+                            as="button"
+                            className="create-btn-wrapper"
+                            color={color}
+                            speed="3s"
+                            onClick={handleCreate}
+                            style={{ width: '100%' }}
+                        >
+                            CREATE
+                        </StarBorder>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }

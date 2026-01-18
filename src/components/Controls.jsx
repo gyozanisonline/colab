@@ -349,9 +349,9 @@ export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp,
                         titleBar={false}
                         theme={{
                             colors: {
-                                elevation1: '#1a1a1a', // Match sidebar
-                                elevation2: '#262626',
-                                elevation3: '#333333',
+                                elevation1: '#1a1a1a', // Transparent/Match sidebar
+                                elevation2: '#1a1a1a', // Flatten hierarchy
+                                elevation3: '#1a1a1a',
                                 accent1: '#E5B020',
                                 accent2: '#E5B020',
                                 accent3: '#E5B020',
@@ -359,10 +359,20 @@ export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp,
                                 highlight2: '#777',
                                 highlight3: '#999',
                                 vator: '#333',
+                                label: '#bbb',
+                            },
+                            sizes: {
+                                fontSize: '13px',
+                                rowHeight: '36px', // Taller rows
+                                titleBarHeight: '36px',
                             },
                             fonts: {
                                 mono: "'Helvetica Neue', Arial, sans-serif",
                                 sans: "'Helvetica Neue', Arial, sans-serif"
+                            },
+                            radii: {
+                                grid: 6,
+                                row: 6
                             }
                         }}
                     />

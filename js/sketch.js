@@ -195,6 +195,16 @@ function setup() {
     // introScreen = new IntroScreen(logoImg); // Disabled to prevent conflict with React Intro
 }
 
+window.pauseType = function () {
+    console.log("Pausing Kinetic Type");
+    noLoop();
+};
+
+window.resumeType = function () {
+    console.log("Resuming Kinetic Type");
+    loop();
+};
+
 
 function draw() {
     // Normal 2D rendering

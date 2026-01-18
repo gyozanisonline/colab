@@ -91,7 +91,6 @@
     outline: none;
     width: 300px;
     transition: border-color 0.3s;
-    text-transform: uppercase;
 }
 
 .intro-name-input:focus {

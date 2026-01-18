@@ -204,20 +204,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (appId === 'community') {
             if (uiOverlay) uiOverlay.style.display = 'none';
-            // Optional: Hide p5 canvas to save resources, though it acts as a nice background if visible? 
-            // The community gallery has its own specific background.
+
+            // Pause Legacy Backgrounds
             if (p5Canvas) p5Canvas.style.display = 'none';
+            if (window.bgInstance) {
+                console.log("Pausing Background Sketch");
+                window.bgInstance.noLoop();
+            }
+
+            // Pause Kinetic Type
             const typeCanvas = document.getElementById('canvas-type');
             if (typeCanvas) typeCanvas.style.display = 'none';
+            if (window.pauseType) window.pauseType();
+
         } else {
-            // if (uiOverlay) uiOverlay.style.display = 'block'; // Kept hidden for React UI
-            // Restore p5 canvas if needed (check current bg type logic)
-            // A simple way is to trigger the bg change event again to reset state or just let the user interact.
-            // For now, let's just show it if active background is wireframe
+            // Restore p5 canvas if needed
             const bgType = document.getElementById('bg-type-select').value;
-            if (bgType === 'wireframe' && p5Canvas) p5Canvas.style.display = 'block';
+            if (bgType === 'wireframe') {
+                if (p5Canvas) p5Canvas.style.display = 'block';
+                if (window.bgInstance) {
+                    console.log("Resuming Background Sketch");
+                    window.bgInstance.loop();
+                }
+            }
+
+            // Restore Kinetic Type
             const typeCanvas = document.getElementById('canvas-type');
             if (typeCanvas) typeCanvas.style.display = 'block';
+            if (window.resumeType) window.resumeType();
         }
     });
 });
