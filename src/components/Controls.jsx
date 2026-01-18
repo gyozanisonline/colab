@@ -337,46 +337,7 @@ export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp,
                     </label>
                 </div>
 
-                {/* Leva Controls Panel */}
-                <div id="leva-custom-container" style={{
-                    position: 'relative',
-                    minHeight: '100px', // Ensure it has space
-                    marginBottom: '10px'
-                }}>
-                    <Leva
-                        fill
-                        flat
-                        titleBar={false}
-                        theme={{
-                            colors: {
-                                elevation1: '#1a1a1a', // Transparent/Match sidebar
-                                elevation2: '#1a1a1a', // Flatten hierarchy
-                                elevation3: '#1a1a1a',
-                                accent1: '#E5B020',
-                                accent2: '#E5B020',
-                                accent3: '#E5B020',
-                                highlight1: '#555',
-                                highlight2: '#777',
-                                highlight3: '#999',
-                                vator: '#333',
-                                label: '#bbb',
-                            },
-                            sizes: {
-                                fontSize: '13px',
-                                rowHeight: '36px', // Taller rows
-                                titleBarHeight: '36px',
-                            },
-                            fonts: {
-                                mono: "'Helvetica Neue', Arial, sans-serif",
-                                sans: "'Helvetica Neue', Arial, sans-serif"
-                            },
-                            radii: {
-                                grid: 6,
-                                row: 6
-                            }
-                        }}
-                    />
-                </div>
+
 
                 {activeStep === 1 && (
                     <div className="controls-section">
@@ -409,6 +370,47 @@ export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp,
                                 <option value="spline_new">Spline (New)</option>
                                 <option value="none">None</option>
                             </select>
+                        </div>
+
+                        {/* Leva Controls Panel */}
+                        <div id="leva-custom-container" style={{
+                            position: 'relative',
+                            minHeight: '50px',
+                            marginBottom: '20px'
+                        }}>
+                            <Leva
+                                fill
+                                flat
+                                titleBar={false}
+                                theme={{
+                                    colors: {
+                                        elevation1: '#1a1a1a', // Transparent/Match sidebar
+                                        elevation2: '#1a1a1a', // Flatten hierarchy
+                                        elevation3: '#1a1a1a',
+                                        accent1: '#E5B020',
+                                        accent2: '#E5B020',
+                                        accent3: '#E5B020',
+                                        highlight1: '#555',
+                                        highlight2: '#777',
+                                        highlight3: '#999',
+                                        vator: '#333',
+                                        label: '#bbb',
+                                    },
+                                    sizes: {
+                                        fontSize: '13px',
+                                        rowHeight: '36px',
+                                        titleBarHeight: '36px',
+                                    },
+                                    fonts: {
+                                        mono: "'Helvetica Neue', Arial, sans-serif",
+                                        sans: "'Helvetica Neue', Arial, sans-serif"
+                                    },
+                                    radii: {
+                                        grid: 6,
+                                        row: 6
+                                    }
+                                }}
+                            />
                         </div>
 
                         {/* Wireframe Distortion Toggle */}
