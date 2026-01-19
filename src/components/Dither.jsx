@@ -47,14 +47,8 @@ const DitherShader = {
   `
 };
 
-function DitherPlane() {
+function DitherPlane({ color1, color2, pixelSize }) {
     const mesh = useRef();
-
-    const { color1, color2, pixelSize } = useControls('Dither', {
-        color1: '#ffffff',
-        color2: '#000000',
-        pixelSize: { value: 64.0, min: 2.0, max: 256.0, step: 2.0 }
-    });
 
     useFrame((state, delta) => {
         if (mesh.current) {
@@ -73,11 +67,11 @@ function DitherPlane() {
     );
 }
 
-export default function Dither() {
+export default function Dither({ color1 = '#ffffff', color2 = '#000000', pixelSize = 64.0 }) {
     return (
         <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}>
             <Canvas>
-                <DitherPlane />
+                <DitherPlane color1={color1} color2={color2} pixelSize={pixelSize} />
             </Canvas>
         </div>
     );

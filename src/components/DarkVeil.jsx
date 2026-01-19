@@ -67,14 +67,8 @@ const DarkVeilShader = {
   `
 };
 
-function VeilPlane() {
+function VeilPlane({ baseColor, veilColor, density, speed }) {
     const mesh = useRef();
-    const { baseColor, veilColor, density, speed } = useControls('Dark Veil', {
-        baseColor: '#d500ff',
-        veilColor: '#1a1a1a',
-        density: { value: 1.0, min: 0.1, max: 3.0 },
-        speed: { value: 0.2, min: 0.0, max: 2.0 }
-    });
 
     useFrame((state, delta) => {
         if (mesh.current) {
@@ -94,11 +88,11 @@ function VeilPlane() {
     );
 }
 
-export default function DarkVeil() {
+export default function DarkVeil({ baseColor = '#d500ff', veilColor = '#1a1a1a', density = 1.0, speed = 0.2 }) {
     return (
         <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}>
             <Canvas>
-                <VeilPlane />
+                <VeilPlane baseColor={baseColor} veilColor={veilColor} density={density} speed={speed} />
             </Canvas>
         </div>
     );

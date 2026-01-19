@@ -59,7 +59,7 @@ const effectCategories = {
     ]
 };
 
-export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp, activeBackground, shapes, addShape, clearShapes, shapeSettings, setShapeSettings, particleSettings, setParticleSettings, silkSettings, setSilkSettings, activeTypeMode, setActiveTypeMode, textContent, setTextContent, asciiSettings, setAsciiSettings }) {
+export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp, activeBackground, shapes, addShape, clearShapes, shapeSettings, setShapeSettings, particleSettings, setParticleSettings, silkSettings, setSilkSettings, starfieldSettings, setStarfieldSettings, auroraSettings, setAuroraSettings, darkVeilSettings, setDarkVeilSettings, ditherSettings, setDitherSettings, blocksSettings, setBlocksSettings, activeTypeMode, setActiveTypeMode, textContent, setTextContent, asciiSettings, setAsciiSettings }) {
     // Local state to track control values for UI feedback
     const [fontSize, setFontSize] = useState(70);
     const [layerCount, setLayerCount] = useState(7);
@@ -379,6 +379,7 @@ export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp,
                             marginBottom: '20px'
                         }}>
                             <Leva
+                                hidden
                                 fill
                                 flat
                                 titleBar={false}
@@ -581,6 +582,271 @@ export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp,
                                                 cursor: 'pointer'
                                             }}
                                         />
+                                    </div>
+                                </>
+                            )}
+                            {/* Starfield Controls */}
+                            {activeBackground === 'starfield' && starfieldSettings && (
+                                <>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span style={{ minWidth: '80px', fontSize: '0.8rem' }}>Count</span>
+                                        <ElasticSlider
+                                            defaultValue={starfieldSettings.count}
+                                            startingValue={1000}
+                                            maxValue={20000}
+                                            stepSize={100}
+                                            isStepped
+                                            leftIcon={<RiStackLine size={16} />}
+                                            rightIcon={<RiStackLine size={24} />}
+                                            onChange={(val) => setStarfieldSettings({ ...starfieldSettings, count: val })}
+                                            className="custom-slider"
+                                        />
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span style={{ minWidth: '80px', fontSize: '0.8rem' }}>Radius</span>
+                                        <ElasticSlider
+                                            defaultValue={starfieldSettings.radius * 10}
+                                            startingValue={5}
+                                            maxValue={50}
+                                            stepSize={1}
+                                            leftIcon={<RiExpandWidthLine size={16} />}
+                                            rightIcon={<RiExpandWidthLine size={24} />}
+                                            onChange={(val) => setStarfieldSettings({ ...starfieldSettings, radius: val / 10 })}
+                                            className="custom-slider"
+                                        />
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span style={{ minWidth: '80px', fontSize: '0.8rem' }}>Speed</span>
+                                        <ElasticSlider
+                                            defaultValue={starfieldSettings.speed * 10}
+                                            startingValue={0}
+                                            maxValue={50}
+                                            stepSize={1}
+                                            leftIcon={<RiSpeedLine size={16} />}
+                                            rightIcon={<RiSpeedLine size={24} />}
+                                            onChange={(val) => setStarfieldSettings({ ...starfieldSettings, speed: val / 10 })}
+                                            className="custom-slider"
+                                        />
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span style={{ minWidth: '80px', fontSize: '0.8rem' }}>Size</span>
+                                        <ElasticSlider
+                                            defaultValue={starfieldSettings.size * 1000}
+                                            startingValue={1}
+                                            maxValue={50}
+                                            stepSize={1}
+                                            leftIcon={<RiExpandWidthLine size={16} />}
+                                            rightIcon={<RiExpandWidthLine size={24} />}
+                                            onChange={(val) => setStarfieldSettings({ ...starfieldSettings, size: val / 1000 })}
+                                            className="custom-slider"
+                                        />
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '5px' }}>
+                                        <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>Color</span>
+                                        <input
+                                            type="color"
+                                            value={starfieldSettings.color}
+                                            onChange={(e) => setStarfieldSettings({ ...starfieldSettings, color: e.target.value })}
+                                            style={{ background: 'none', border: 'none', width: '40px', height: '40px', cursor: 'pointer' }}
+                                        />
+                                    </div>
+                                </>
+                            )}
+                            {/* Aurora Controls */}
+                            {activeBackground === 'aurora' && auroraSettings && (
+                                <>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span style={{ minWidth: '80px', fontSize: '0.8rem' }}>Speed</span>
+                                        <ElasticSlider
+                                            defaultValue={auroraSettings.speed}
+                                            startingValue={2}
+                                            maxValue={30}
+                                            stepSize={1}
+                                            leftIcon={<RiSpeedLine size={16} />}
+                                            rightIcon={<RiSpeedLine size={24} />}
+                                            onChange={(val) => setAuroraSettings({ ...auroraSettings, speed: val })}
+                                            className="custom-slider"
+                                        />
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span style={{ minWidth: '80px', fontSize: '0.8rem' }}>Blob Size</span>
+                                        <ElasticSlider
+                                            defaultValue={auroraSettings.blobSize}
+                                            startingValue={30}
+                                            maxValue={100}
+                                            stepSize={5}
+                                            isStepped
+                                            leftIcon={<RiExpandWidthLine size={16} />}
+                                            rightIcon={<RiExpandWidthLine size={24} />}
+                                            onChange={(val) => setAuroraSettings({ ...auroraSettings, blobSize: val })}
+                                            className="custom-slider"
+                                        />
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px' }}>
+                                        {[1, 2, 3].map(i => (
+                                            <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
+                                                <span style={{ fontSize: '0.7em', color: '#888' }}>Color {i}</span>
+                                                <input
+                                                    type="color"
+                                                    value={auroraSettings[`color${i}`]}
+                                                    onChange={(e) => setAuroraSettings({ ...auroraSettings, [`color${i}`]: e.target.value })}
+                                                    style={{ background: 'none', border: 'none', width: '30px', height: '30px', cursor: 'pointer' }}
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '5px' }}>
+                                        <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>Background</span>
+                                        <input
+                                            type="color"
+                                            value={auroraSettings.bg}
+                                            onChange={(e) => setAuroraSettings({ ...auroraSettings, bg: e.target.value })}
+                                            style={{ background: 'none', border: 'none', width: '40px', height: '40px', cursor: 'pointer' }}
+                                        />
+                                    </div>
+                                </>
+                            )}
+
+                            {/* Dark Veil Controls */}
+                            {activeBackground === 'dark_veil' && darkVeilSettings && (
+                                <>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span style={{ minWidth: '80px', fontSize: '0.8rem' }}>Density</span>
+                                        <ElasticSlider
+                                            defaultValue={darkVeilSettings.density * 10}
+                                            startingValue={1}
+                                            maxValue={30}
+                                            stepSize={1}
+                                            leftIcon={<RiStackLine size={16} />}
+                                            rightIcon={<RiStackLine size={24} />}
+                                            onChange={(val) => setDarkVeilSettings({ ...darkVeilSettings, density: val / 10 })}
+                                            className="custom-slider"
+                                        />
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span style={{ minWidth: '80px', fontSize: '0.8rem' }}>Speed</span>
+                                        <ElasticSlider
+                                            defaultValue={darkVeilSettings.speed * 10}
+                                            startingValue={0}
+                                            maxValue={20}
+                                            stepSize={1}
+                                            leftIcon={<RiSpeedLine size={16} />}
+                                            rightIcon={<RiSpeedLine size={24} />}
+                                            onChange={(val) => setDarkVeilSettings({ ...darkVeilSettings, speed: val / 10 })}
+                                            className="custom-slider"
+                                        />
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '10px' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
+                                            <span style={{ fontSize: '0.7em', color: '#888' }}>Base</span>
+                                            <input
+                                                type="color"
+                                                value={darkVeilSettings.baseColor}
+                                                onChange={(e) => setDarkVeilSettings({ ...darkVeilSettings, baseColor: e.target.value })}
+                                                style={{ background: 'none', border: 'none', width: '30px', height: '30px', cursor: 'pointer' }}
+                                            />
+                                        </div>
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
+                                            <span style={{ fontSize: '0.7em', color: '#888' }}>Veil</span>
+                                            <input
+                                                type="color"
+                                                value={darkVeilSettings.veilColor}
+                                                onChange={(e) => setDarkVeilSettings({ ...darkVeilSettings, veilColor: e.target.value })}
+                                                style={{ background: 'none', border: 'none', width: '30px', height: '30px', cursor: 'pointer' }}
+                                            />
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+
+                            {/* Dither Controls */}
+                            {activeBackground === 'dither' && ditherSettings && (
+                                <>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span style={{ minWidth: '80px', fontSize: '0.8rem' }}>Pixel Size</span>
+                                        <ElasticSlider
+                                            defaultValue={ditherSettings.pixelSize}
+                                            startingValue={2}
+                                            maxValue={256}
+                                            stepSize={2}
+                                            isStepped
+                                            leftIcon={<MdGridOn size={16} />}
+                                            rightIcon={<MdGridOn size={24} />}
+                                            onChange={(val) => setDitherSettings({ ...ditherSettings, pixelSize: val })}
+                                            className="custom-slider"
+                                        />
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '10px' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
+                                            <span style={{ fontSize: '0.7em', color: '#888' }}>Color A</span>
+                                            <input
+                                                type="color"
+                                                value={ditherSettings.color1}
+                                                onChange={(e) => setDitherSettings({ ...ditherSettings, color1: e.target.value })}
+                                                style={{ background: 'none', border: 'none', width: '30px', height: '30px', cursor: 'pointer' }}
+                                            />
+                                        </div>
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
+                                            <span style={{ fontSize: '0.7em', color: '#888' }}>Color B</span>
+                                            <input
+                                                type="color"
+                                                value={ditherSettings.color2}
+                                                onChange={(e) => setDitherSettings({ ...ditherSettings, color2: e.target.value })}
+                                                style={{ background: 'none', border: 'none', width: '30px', height: '30px', cursor: 'pointer' }}
+                                            />
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+
+                            {/* Blocks Controls */}
+                            {activeBackground === 'blocks' && blocksSettings && (
+                                <>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span style={{ minWidth: '80px', fontSize: '0.8rem' }}>Scale</span>
+                                        <ElasticSlider
+                                            defaultValue={blocksSettings.scale * 10}
+                                            startingValue={5}
+                                            maxValue={30}
+                                            stepSize={1}
+                                            leftIcon={<RiExpandWidthLine size={16} />}
+                                            rightIcon={<RiExpandWidthLine size={24} />}
+                                            onChange={(val) => setBlocksSettings({ ...blocksSettings, scale: val / 10 })}
+                                            className="custom-slider"
+                                        />
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span style={{ minWidth: '80px', fontSize: '0.8rem' }}>Speed</span>
+                                        <ElasticSlider
+                                            defaultValue={blocksSettings.speed * 10}
+                                            startingValue={1}
+                                            maxValue={50}
+                                            stepSize={1}
+                                            leftIcon={<RiSpeedLine size={16} />}
+                                            rightIcon={<RiSpeedLine size={24} />}
+                                            onChange={(val) => setBlocksSettings({ ...blocksSettings, speed: val / 10 })}
+                                            className="custom-slider"
+                                        />
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '10px' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
+                                            <span style={{ fontSize: '0.7em', color: '#888' }}>Default</span>
+                                            <input
+                                                type="color"
+                                                value={blocksSettings.defaultColor}
+                                                onChange={(e) => setBlocksSettings({ ...blocksSettings, defaultColor: e.target.value })}
+                                                style={{ background: 'none', border: 'none', width: '30px', height: '30px', cursor: 'pointer' }}
+                                            />
+                                        </div>
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
+                                            <span style={{ fontSize: '0.7em', color: '#888' }}>Hover</span>
+                                            <input
+                                                type="color"
+                                                value={blocksSettings.hoveredColor}
+                                                onChange={(e) => setBlocksSettings({ ...blocksSettings, hoveredColor: e.target.value })}
+                                                style={{ background: 'none', border: 'none', width: '30px', height: '30px', cursor: 'pointer' }}
+                                            />
+                                        </div>
                                     </div>
                                 </>
                             )}

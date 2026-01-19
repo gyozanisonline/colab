@@ -22,15 +22,7 @@ function Stars({ count, radius, color, size, speed, ...props }) {
     );
 }
 
-export default function StarField() {
-    const { count, radius, color, size, speed } = useControls('StarField', {
-        count: { value: 5000, min: 1000, max: 20000, step: 100 },
-        radius: { value: 1.5, min: 0.5, max: 5.0 },
-        color: '#f272c8',
-        size: { value: 0.005, min: 0.001, max: 0.05, step: 0.001 },
-        speed: { value: 1, min: 0, max: 5 }
-    });
-
+export default function StarField({ count = 5000, radius = 1.5, color = '#f272c8', size = 0.005, speed = 1 }) {
     return (
         <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, background: '#111' }}>
             <Canvas camera={{ position: [0, 0, 1] }}>

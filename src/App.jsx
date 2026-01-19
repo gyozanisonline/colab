@@ -59,6 +59,44 @@ function App() {
         textColor: '#ffffff'
     });
 
+    // Background Settings State (Hoisted from Leva)
+    const [starfieldSettings, setStarfieldSettings] = useState({
+        count: 5000,
+        radius: 1.5,
+        color: '#f272c8',
+        size: 0.005,
+        speed: 1
+    });
+
+    const [auroraSettings, setAuroraSettings] = useState({
+        bg: '#000000',
+        color1: '#ff00cc',
+        color2: '#3333ff',
+        color3: '#00ffcc',
+        speed: 10,
+        blobSize: 60
+    });
+
+    const [darkVeilSettings, setDarkVeilSettings] = useState({
+        baseColor: '#d500ff',
+        veilColor: '#1a1a1a',
+        density: 1.0,
+        speed: 0.2
+    });
+
+    const [ditherSettings, setDitherSettings] = useState({
+        color1: '#ffffff',
+        color2: '#000000',
+        pixelSize: 64.0
+    });
+
+    const [blocksSettings, setBlocksSettings] = useState({
+        defaultColor: 'orange',
+        hoveredColor: 'hotpink',
+        scale: 1,
+        speed: 1
+    });
+
     useEffect(() => {
         const handleBgChange = (e) => {
             console.log("React received bg change:", e.detail);
@@ -157,6 +195,16 @@ function App() {
                             setTextContent={setTextContent}
                             asciiSettings={asciiSettings}
                             setAsciiSettings={setAsciiSettings}
+                            starfieldSettings={starfieldSettings}
+                            setStarfieldSettings={setStarfieldSettings}
+                            auroraSettings={auroraSettings}
+                            setAuroraSettings={setAuroraSettings}
+                            darkVeilSettings={darkVeilSettings}
+                            setDarkVeilSettings={setDarkVeilSettings}
+                            ditherSettings={ditherSettings}
+                            setDitherSettings={setDitherSettings}
+                            blocksSettings={blocksSettings}
+                            setBlocksSettings={setBlocksSettings}
                         />
                     )}
 
@@ -172,13 +220,13 @@ function App() {
                             {activeBackground === 'silk' && <Silk {...silkSettings} />}
                             {activeBackground === 'spline' && <SplineBackground />}
                             {activeBackground === 'spline_new' && <SplineBackground sceneUrl="https://prod.spline.design/Gc46LQNHKmMSkOyq/scene.splinecode" />}
-                            {activeBackground === 'starfield' && <StarField />}
-                            {activeBackground === 'aurora' && <Aurora />}
-                            {activeBackground === 'blocks' && <Blocks />}
+                            {activeBackground === 'starfield' && <StarField {...starfieldSettings} />}
+                            {activeBackground === 'aurora' && <Aurora {...auroraSettings} />}
+                            {activeBackground === 'blocks' && <Blocks {...blocksSettings} />}
                             {activeBackground === 'particles' && <Particles {...particleSettings} />}
                             {activeBackground === 'color_bends' && <ColorBends />}
-                            {activeBackground === 'dark_veil' && <DarkVeil />}
-                            {activeBackground === 'dither' && <Dither />}
+                            {activeBackground === 'dark_veil' && <DarkVeil {...darkVeilSettings} />}
+                            {activeBackground === 'dither' && <Dither {...ditherSettings} />}
                         </div>
                     )}
 
