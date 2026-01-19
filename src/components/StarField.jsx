@@ -1,12 +1,11 @@
-import { useRef, useState } from 'react';
+import { useRef, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Points, PointMaterial } from '@react-three/drei';
 import * as random from 'maath/random/dist/maath-random.esm';
-import { useControls } from 'leva';
 
 function Stars({ count, radius, color, size, speed, ...props }) {
     const ref = useRef();
-    const [sphere] = useState(() => random.inSphere(new Float32Array(count * 3), { radius })); // *3 for xyz
+    const sphere = useMemo(() => random.inSphere(new Float32Array(count * 3), { radius }), [count, radius]); // Recalculate when count/radius changes
 
     useFrame((state, delta) => {
         ref.current.rotation.x -= delta / 10 * speed;
