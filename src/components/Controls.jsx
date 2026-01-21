@@ -5,7 +5,8 @@ import StaggeredMenu from './StaggeredMenu';
 import { Leva } from 'leva';
 
 // Icons for sliders
-import { RiText, RiFontSize2, RiStackLine, RiSpeedLine, RiExpandWidthLine } from 'react-icons/ri';
+import { RiFontSize2, RiStackLine, RiSpeedLine, RiExpandWidthLine, RiExpandHeightLine } from "react-icons/ri";
+import { filterProfanity } from '../utils/profanityFilter';
 import { MdAnimation, MdGridOn } from 'react-icons/md';
 
 const uiStyles = {
@@ -959,14 +960,15 @@ export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp,
                                 value={textContent || ''} // Controlled component
                                 onChange={(e) => {
                                     const val = e.target.value;
-                                    setTextContent(val);
+                                    const filtered = filterProfanity(val);
+                                    setTextContent(filtered);
 
                                     // Sync with legacy system ONLY in classic mode
                                     // In ASCII mode, React state is the source of truth
                                     if (activeTypeMode === 'classic') {
                                         const textArea = document.getElementById('textArea');
                                         if (textArea) {
-                                            textArea.value = val;
+                                            textArea.value = filtered;
                                             // Manually trigger the setText global function
                                             if (window.setText) window.setText();
                                         }
@@ -1143,6 +1145,37 @@ export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp,
 
                                             </div>
                                         </div>
+                                    </div>
+
+                                    {/* Spacing Controls (Kerning/Leading) */}
+                                    <h4 style={{ ...uiStyles.sectionTitle, gridColumn: 'span 2', marginTop: '10px', marginBottom: '5px' }}>Spacing</h4>
+
+                                    {/* Leading (Line Height) */}
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                        <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Line Height</label>
+                                        <ElasticSlider
+                                            defaultValue={asciiSettings.leading * 10}
+                                            startingValue={10}
+                                            maxValue={30}
+                                            stepSize={1}
+                                            leftIcon={<RiExpandHeightLine size={16} />}
+                                            rightIcon={<RiExpandHeightLine size={24} />}
+                                            onChange={(val) => setAsciiSettings({ ...asciiSettings, leading: val / 10 })}
+                                        />
+                                    </div>
+
+                                    {/* Kerning (Letter Spacing) */}
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                        <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Kerning</label>
+                                        <ElasticSlider
+                                            defaultValue={asciiSettings.kerning}
+                                            startingValue={-10}
+                                            maxValue={20}
+                                            stepSize={1}
+                                            leftIcon={<RiExpandWidthLine size={16} />}
+                                            rightIcon={<RiExpandWidthLine size={24} />}
+                                            onChange={(val) => setAsciiSettings({ ...asciiSettings, kerning: val })}
+                                        />
                                     </div>
                                 </>
                             )}

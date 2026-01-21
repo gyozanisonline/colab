@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import './IntroScreen.css';
 import StarBorder from './StarBorder';
+import { filterProfanity } from '../utils/profanityFilter';
 
 export default function IntroScreen({ onComplete }) {
     // Initialize state from localStorage to avoid cascading renders
@@ -64,7 +65,10 @@ export default function IntroScreen({ onComplete }) {
                                 className="intro-name-input"
                                 placeholder="YOUR NAME"
                                 value={name}
-                                onChange={(e) => setName(e.target.value)}
+                                onChange={(e) => {
+                                    const filtered = filterProfanity(e.target.value);
+                                    setName(filtered);
+                                }}
                                 maxLength={15}
                             />
                         </div>

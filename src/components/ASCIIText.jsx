@@ -258,7 +258,7 @@ class CanvasTxt {
 
 class CanvAscii {
     constructor(
-        { text, asciiFontSize, textFontSize, textColor, planeBaseHeight, enableWaves, isMonochrome },
+        { text, asciiFontSize, textFontSize, textColor, planeBaseHeight, enableWaves, isMonochrome, kerning, leading },
         containerElem,
         width,
         height
@@ -283,9 +283,17 @@ class CanvAscii {
         // Bind mouse handler
         this.onMouseMove = this.onMouseMove.bind(this);
         window.addEventListener('mousemove', this.onMouseMove);
+
+        this.id = Math.random().toString(36).substr(2, 9);
+        console.log(`[ASCII] Created instance ${this.id}`);
+
+        // Debug Global
+        if (!window.ASCII_DEBUG) window.ASCII_DEBUG = [];
+        window.ASCII_DEBUG.push(this);
     }
 
     async init() {
+        console.log(`[ASCII] Init instance ${this.id}`);
         try {
             await document.fonts.load('600 200px "IBM Plex Mono"');
             await document.fonts.load('500 12px "IBM Plex Mono"');
@@ -296,7 +304,9 @@ class CanvAscii {
     }
 
     start() {
+        console.log(`[ASCII] Start instance ${this.id}`);
         this.setMesh();
+
         this.setRenderer();
         this.load();
     }
@@ -305,7 +315,9 @@ class CanvAscii {
         this.textCanvas = new CanvasTxt(this.textString, {
             fontSize: this.textFontSize,
             fontFamily: 'IBM Plex Mono',
-            color: this.textColor
+            color: this.textColor,
+            kerning: this.kerning,
+            leading: this.leading
         });
         this.textCanvas.resize();
         this.textCanvas.render();
@@ -424,6 +436,13 @@ class CanvAscii {
     }
 
     dispose() {
+        console.log(`[ASCII] Dispose instance ${this.id}`);
+
+        // Debug Global
+        if (window.ASCII_DEBUG) {
+            window.ASCII_DEBUG = window.ASCII_DEBUG.filter(i => i !== this);
+        }
+
         cancelAnimationFrame(this.animationFrameId);
         if (this.filter) {
             this.filter.dispose();
@@ -439,6 +458,7 @@ class CanvAscii {
         }
     }
     update({ text, asciiFontSize, textFontSize, textColor, planeBaseHeight, enableWaves, isMonochrome }) {
+        // console.log(`[ASCII] Update instance ${this.id}`, { text }); // Verbose
         let needsRender = false;
         let geometryNeedsUpdate = false;
 
