@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import InfiniteMenu from './InfiniteMenu';
 
 const CommunityGallery = ({ isActive }) => {
@@ -7,102 +7,96 @@ const CommunityGallery = ({ isActive }) => {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        if (isActive) {
-            fetchPosters();
-        }
+        if (!isActive) return;
+
+        // Static items from video-gallery (Assets removed to save space)
+        const videoItems = [
+            {
+                image: 'https://placehold.co/600x900/333/666?text=Video+5',
+                video: null,
+                link: '#',
+                title: 'Video 5',
+                description: 'Dynamic content'
+            },
+            {
+                image: 'https://placehold.co/600x900/333/666?text=Video+8',
+                video: null,
+                link: '#',
+                title: 'Video 8',
+                description: 'High energy'
+            },
+            {
+                image: 'https://placehold.co/600x900/333/666?text=UHD+Video',
+                video: null,
+                link: '#',
+                title: 'UHD Video',
+                description: '4K Content'
+            },
+            {
+                image: 'https://placehold.co/600x900/333/666?text=Social+Clip',
+                video: null,
+                link: '#',
+                title: 'Social Clip',
+                description: 'Viral moment'
+            },
+            {
+                image: 'https://placehold.co/600x900/333/666?text=Music+Video',
+                video: null,
+                link: '#',
+                title: 'Music Video',
+                description: 'Aceite De Oliva'
+            },
+            {
+                image: 'https://placehold.co/600x900/333/666?text=Video+6021',
+                video: null,
+                link: '#',
+                title: 'Video 6021',
+                description: 'Raw footage'
+            },
+            {
+                image: 'https://placehold.co/600x900/333/666?text=Video+6151',
+                video: null,
+                link: '#',
+                title: 'Video 6151',
+                description: 'Creative draft'
+            },
+            {
+                image: 'https://placehold.co/600x900/333/666?text=Video+7cda',
+                video: null,
+                link: '#',
+                title: 'Video 7cda',
+                description: 'Safety first'
+            },
+            {
+                image: 'https://placehold.co/600x900/333/666?text=Water+Gong',
+                video: null,
+                link: '#',
+                title: 'Water Gong',
+                description: 'Relaxing sounds'
+            },
+            {
+                image: 'https://placehold.co/600x900/333/666?text=Chair+Study',
+                video: null,
+                link: '#',
+                title: 'Chair Study',
+                description: 'Modern art'
+            }
+        ];
+
+        const loadItems = async () => {
+            setLoading(true);
+            try {
+                // For now, use static video items instead of API
+                setItems(videoItems);
+            } catch (err) {
+                console.error("Failed to load posters", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadItems();
     }, [isActive]);
-
-    // Static items from video-gallery (Assets removed to save space)
-    const videoItems = [
-        {
-            image: 'https://placehold.co/600x900/333/666?text=Video+5',
-            video: null,
-            link: '#',
-            title: 'Video 5',
-            description: 'Dynamic content'
-        },
-        {
-            image: 'https://placehold.co/600x900/333/666?text=Video+8',
-            video: null,
-            link: '#',
-            title: 'Video 8',
-            description: 'High energy'
-        },
-        {
-            image: 'https://placehold.co/600x900/333/666?text=UHD+Video',
-            video: null,
-            link: '#',
-            title: 'UHD Video',
-            description: '4K Content'
-        },
-        {
-            image: 'https://placehold.co/600x900/333/666?text=Social+Clip',
-            video: null,
-            link: '#',
-            title: 'Social Clip',
-            description: 'Viral moment'
-        },
-        {
-            image: 'https://placehold.co/600x900/333/666?text=Music+Video',
-            video: null,
-            link: '#',
-            title: 'Music Video',
-            description: 'Aceite De Oliva'
-        },
-        {
-            image: 'https://placehold.co/600x900/333/666?text=Video+6021',
-            video: null,
-            link: '#',
-            title: 'Video 6021',
-            description: 'Raw footage'
-        },
-        {
-            image: 'https://placehold.co/600x900/333/666?text=Video+6151',
-            video: null,
-            link: '#',
-            title: 'Video 6151',
-            description: 'Creative draft'
-        },
-        {
-            image: 'https://placehold.co/600x900/333/666?text=Video+7cda',
-            video: null,
-            link: '#',
-            title: 'Video 7cda',
-            description: 'Safety first'
-        },
-        // Adding duplicates to fill out the grid if needed
-        {
-            image: 'https://placehold.co/600x900/333/666?text=Water+Gong',
-            video: null,
-            link: '#',
-            title: 'Water Gong',
-            description: 'Relaxing sounds'
-        },
-        {
-            image: 'https://placehold.co/600x900/333/666?text=Chair+Study',
-            video: null,
-            link: '#',
-            title: 'Chair Study',
-            description: 'Modern art'
-        }
-    ];
-
-    const fetchPosters = async () => {
-        setLoading(true);
-        try {
-            // For now, use static video items instead of API
-            // const res = await fetch('/api/posters');
-            // const data = await res.json();
-
-            // Just set the static items
-            setItems(videoItems);
-
-        } catch (err) {
-            console.error("Failed to load posters", err);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     if (!isActive) return null;
 

@@ -179,7 +179,6 @@ function checkCollisions() {
                 spawnHighFive(myX, myY);
                 // Mark cooldown for THIS remote user
                 remote.lastHighFive = now;
-                console.log("High Five with", id);
             }
         }
     }
@@ -194,7 +193,6 @@ function checkCollisions() {
 
 // Receive Initial State (On Connection)
 socket.on('initial_state', (state) => {
-    console.log('Received initial state:', state);
     if (state.text) {
         // Update text area and type instance
         const textArea = document.getElementById('textArea');

@@ -777,7 +777,7 @@ class InfiniteGridMenu {
         Promise.all(
             this.items.map(
                 (item, index) =>
-                    new Promise((resolve, reject) => {
+                    new Promise((resolve) => {
                         // If item has video property, create video element
                         if (item.video) {
                             const video = document.createElement('video');

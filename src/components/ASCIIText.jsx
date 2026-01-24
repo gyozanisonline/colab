@@ -1,4 +1,3 @@
-import React, { items } from 'react';
 import { useRef, useEffect } from 'react';
 import * as THREE from 'three';
 
@@ -270,12 +269,14 @@ class CanvasTxt {
 
 class CanvAscii {
     constructor(
-        { text, asciiFontSize, textFontSize, textColor, planeBaseHeight, enableWaves, isMonochrome, kerning, leading },
+        { text, asciiFontSize, textFontSize, textColor, planeBaseHeight, enableWaves, isMonochrome, kerning = 0, leading = 1.2 },
         containerElem,
         width,
         height
     ) {
         this.textString = text;
+        this.kerning = kerning;
+        this.leading = leading;
         this.asciiFontSize = asciiFontSize;
         this.textFontSize = textFontSize;
         this.textColor = textColor;
@@ -297,26 +298,19 @@ class CanvAscii {
         window.addEventListener('mousemove', this.onMouseMove);
 
         this.id = Math.random().toString(36).substr(2, 9);
-        console.log(`[ASCII] Created instance ${this.id}`);
-
-        // Debug Global
-        if (!window.ASCII_DEBUG) window.ASCII_DEBUG = [];
-        window.ASCII_DEBUG.push(this);
     }
 
     async init() {
-        console.log(`[ASCII] Init instance ${this.id}`);
         try {
             await document.fonts.load('600 200px "IBM Plex Mono"');
             await document.fonts.load('500 12px "IBM Plex Mono"');
-        } catch (e) {
+        } catch {
             // Font loading failed, continue with fallback
         }
         await document.fonts.ready;
     }
 
     start() {
-        console.log(`[ASCII] Start instance ${this.id}`);
         this.setMesh();
 
         this.setRenderer();
@@ -448,13 +442,6 @@ class CanvAscii {
     }
 
     dispose() {
-        console.log(`[ASCII] Dispose instance ${this.id}`);
-
-        // Debug Global
-        if (window.ASCII_DEBUG) {
-            window.ASCII_DEBUG = window.ASCII_DEBUG.filter(i => i !== this);
-        }
-
         cancelAnimationFrame(this.animationFrameId);
         if (this.filter) {
             this.filter.dispose();

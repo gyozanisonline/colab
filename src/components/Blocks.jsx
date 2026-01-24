@@ -1,7 +1,6 @@
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Box, OrbitControls } from '@react-three/drei';
-import { useControls } from 'leva';
 
 function RotatingBox({ hoveredColor, defaultColor, scaleFactor, speedFactor, ...props }) {
     const mesh = useRef();

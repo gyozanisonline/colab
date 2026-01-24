@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import ElasticSlider from './ElasticSlider';
 import StarBorder from './StarBorder';
 import StaggeredMenu from './StaggeredMenu';
@@ -60,7 +60,7 @@ const effectCategories = {
     ]
 };
 
-export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp, activeBackground, shapes, addShape, clearShapes, shapeSettings, setShapeSettings, particleSettings, setParticleSettings, silkSettings, setSilkSettings, starfieldSettings, setStarfieldSettings, auroraSettings, setAuroraSettings, darkVeilSettings, setDarkVeilSettings, ditherSettings, setDitherSettings, blocksSettings, setBlocksSettings, activeTypeMode, setActiveTypeMode, textContent, setTextContent, asciiSettings, setAsciiSettings }) {
+export default function Controls({ activeStep, activeApp, onSwitchApp, activeBackground, shapes, addShape, clearShapes, shapeSettings, setShapeSettings, particleSettings, setParticleSettings, silkSettings, setSilkSettings, starfieldSettings, setStarfieldSettings, auroraSettings, setAuroraSettings, darkVeilSettings, setDarkVeilSettings, ditherSettings, setDitherSettings, blocksSettings, setBlocksSettings, activeTypeMode, setActiveTypeMode, textContent, setTextContent, asciiSettings, setAsciiSettings }) {
     // Local state to track control values for UI feedback
     const [fontSize, setFontSize] = useState(70);
     const [layerCount, setLayerCount] = useState(7);
@@ -1167,7 +1167,7 @@ export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp,
                                     leftIcon={<RiExpandHeightLine size={16} />}
                                     rightIcon={<RiExpandHeightLine size={24} />}
                                     onChange={(val) => {
-                                        console.log('Leading Change:', val, 'Mode:', activeTypeMode);
+                                        // Leading change handler
                                         if (activeTypeMode === 'ascii') {
                                             setAsciiSettings({ ...asciiSettings, leading: val / 10 });
                                         } else {
@@ -1199,7 +1199,7 @@ export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp,
                                     leftIcon={<RiExpandWidthLine size={16} />}
                                     rightIcon={<RiExpandWidthLine size={24} />}
                                     onChange={(val) => {
-                                        console.log('Kerning Change:', val, 'Mode:', activeTypeMode);
+                                        // Kerning change handler
                                         if (activeTypeMode === 'ascii') {
                                             setAsciiSettings({ ...asciiSettings, kerning: val });
                                         } else {

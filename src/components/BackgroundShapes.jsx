@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import { useRef } from 'react';
 import { motion } from 'motion/react';
 
 export default function BackgroundShapes({ shapes = [], settings = { size: 1, speed: 20, fillOpacity: 0.1 } }) {

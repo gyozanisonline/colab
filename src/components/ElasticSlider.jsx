@@ -46,10 +46,10 @@ function Slider({ defaultValue, startingValue, maxValue, isStepped, stepSize, le
     useEffect(() => {
         // Only update if defaultValue changed significantly AND it wasn't from our own onChange
         if (!isInternalChange.current && Math.abs(defaultValue - value) > 0.01) {
-            // eslint-disable-next-line
             setValue(defaultValue);
         }
         isInternalChange.current = false;
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [defaultValue]);
 
     // Notify parent of changes, but mark as internal

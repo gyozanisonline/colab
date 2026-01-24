@@ -191,13 +191,8 @@ function setup() {
         lineHeight = pgTextSize * 0.8;
     }
 
-    if (width < 600) {
-        document.getElementById("textArea").value = "Colab\nExperiment Together";
-    } else if (width > 1300) {
-        document.getElementById("textArea").value = "Colab\nExperiment Together";
-    } else {
-        document.getElementById("textArea").value = "Colab\nExperiment Together";
-    }
+    // Set default text (responsive text sizes could be added here in future)
+    document.getElementById("textArea").value = "Colab\nExperiment Together";
 
     bkgdColor = color(0, 0, 0, 0); // Transparent background for layering
     foreColor = color('#FFFFFF');

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Silk from './components/Silk';
 import SplineBackground from './components/SplineBackground';
 import StarField from './components/StarField';
@@ -101,7 +101,6 @@ function App() {
 
     useEffect(() => {
         const handleBgChange = (e) => {
-            console.log("React received bg change:", e.detail);
             setActiveBackground(e.detail);
         };
 
@@ -116,6 +115,7 @@ function App() {
         window.addEventListener('app-step-changed', handleStepChange);
 
         // Initial Sync: If Intro is showing, tell legacy system to hide its UI
+        // Using showIntro directly here is intentional - we only want this on mount
         if (showIntro) {
             window.dispatchEvent(new CustomEvent('app-changed', { detail: { app: 'intro' } }));
         }
@@ -124,6 +124,7 @@ function App() {
             window.removeEventListener('change-background-type', handleBgChange);
             window.removeEventListener('app-step-changed', handleStepChange);
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []); // Run once on mount
 
     // Toggle legacy canvas based on activeTypeMode (and intro state)
@@ -143,7 +144,6 @@ function App() {
     };
 
     const handleIntroComplete = () => {
-        console.log('🎬 handleIntroComplete called - Hiding intro screen');
         setShowIntro(false);
         // Switch to main app mode
         window.dispatchEvent(new CustomEvent('app-changed', { detail: { app: 'typeflow' } }));
@@ -164,7 +164,7 @@ function App() {
         setShapes([]);
     };
 
-    console.log('🎬 App render - showIntro:', showIntro);
+
 
     return (
         <div style={{ width: '100%', height: '100%' }}>

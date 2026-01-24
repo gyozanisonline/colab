@@ -42,7 +42,6 @@ window.app = {
         if (bgTypeSelect) {
             bgTypeSelect.addEventListener('change', (e) => {
                 const type = e.target.value;
-                console.log('Background Type Changed:', type);
 
                 // 1. Notify React (Silk)
                 const event = new CustomEvent('change-background-type', { detail: type });
@@ -81,27 +80,22 @@ window.app = {
         }
 
         document.getElementById('bg-cols').addEventListener('input', (e) => {
-            console.log('BG Cols Input:', e.target.value);
             if (window.bgInstance) window.bgInstance.updateParams('cols', parseInt(e.target.value));
             if (window.emitChange) window.emitChange('param', 'bg-cols', e.target.value);
         });
         document.getElementById('bg-rows').addEventListener('input', (e) => {
-            console.log('BG Rows Input:', e.target.value);
             if (window.bgInstance) window.bgInstance.updateParams('rows', parseInt(e.target.value));
             if (window.emitChange) window.emitChange('param', 'bg-rows', e.target.value);
         });
         document.getElementById('bg-speed').addEventListener('input', (e) => {
-            console.log('BG Speed Input:', e.target.value);
             if (window.bgInstance) window.bgInstance.updateParams('speed', parseFloat(e.target.value));
             if (window.emitChange) window.emitChange('param', 'bg-speed', e.target.value);
         });
         document.getElementById('bg-color').addEventListener('input', (e) => {
-            console.log('BG Color Input:', e.target.value);
             if (window.bgInstance) window.bgInstance.updateParams('color', e.target.value);
             if (window.emitChange) window.emitChange('param', 'bg-color', e.target.value);
         });
         document.getElementById('grid-color').addEventListener('input', (e) => {
-            console.log('Grid Color Input:', e.target.value);
             if (window.bgInstance) window.bgInstance.updateParams('strokeColor', e.target.value);
             if (window.emitChange) window.emitChange('param', 'grid-color', e.target.value);
         });
@@ -122,7 +116,6 @@ window.app = {
             });
         }
         document.getElementById('type-size').addEventListener('input', (e) => {
-            console.log('Type Size Input:', e.target.value);
             if (window.typeInstance) window.typeInstance.updateParams('size', parseInt(e.target.value));
             if (window.emitChange) window.emitChange('param', 'type-size', e.target.value);
         });
