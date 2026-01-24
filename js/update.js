@@ -99,14 +99,12 @@ function setKerning(val) {
     // Map slider value (e.g. -10 to 50) to tracking factor (e.g. 0.05 to 0.5)
     // Default 0 -> 0.15
     window.trackingFactor = 0.15 + (val / 100);
-    console.log("Set Kerning:", window.trackingFactor);
     setText();
 }
 
 function setLeading(val) {
     // val is directly passed as factor e.g. 1.2
     window.leadingFactor = parseFloat(val);
-    console.log("Set Leading:", window.leadingFactor);
     lineHeight = pgTextSize * window.leadingFactor;
     setText();
 }

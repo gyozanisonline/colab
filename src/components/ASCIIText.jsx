@@ -457,7 +457,6 @@ class CanvAscii {
         }
     }
     update({ text, asciiFontSize, textFontSize, textColor, planeBaseHeight, enableWaves, isMonochrome, kerning, leading }) {
-        // console.log(`[ASCII] Update instance ${this.id}`, { text }); // Verbose
         let needsRender = false;
         let geometryNeedsUpdate = false;
 
@@ -492,11 +491,31 @@ class CanvAscii {
             geometryNeedsUpdate = true;
         }
 
+        // Kerning update - moved BEFORE render/geometry checks
+        if (kerning !== undefined && kerning !== this.kerning) {
+            this.kerning = kerning;
+            this.textCanvas.kerning = kerning;
+            this.textCanvas.resize();
+            needsRender = true;
+            geometryNeedsUpdate = true;
+        }
+
+        // Leading update - moved BEFORE render/geometry checks
+        if (leading !== undefined && leading !== this.leading) {
+            this.leading = leading;
+            this.textCanvas.leading = leading;
+            this.textCanvas.resize();
+            needsRender = true;
+            geometryNeedsUpdate = true;
+        }
+
+        // Now perform render if needed
         if (needsRender) {
             this.textCanvas.render();
             this.texture.needsUpdate = true;
         }
 
+        // Now update geometry if needed
         if (geometryNeedsUpdate) {
             // Resize geometry
             const textAspect = this.textCanvas.width / this.textCanvas.height;
@@ -532,22 +551,6 @@ class CanvAscii {
         // Also update color if isMonochrome is on and color changed
         if (this.isMonochrome && textColor !== undefined) {
             this.filter.setColor(textColor);
-        }
-
-        if (kerning !== undefined && kerning !== this.kerning) {
-            this.kerning = kerning;
-            this.textCanvas.kerning = kerning;
-            this.textCanvas.resize();
-            needsRender = true;
-            geometryNeedsUpdate = true;
-        }
-
-        if (leading !== undefined && leading !== this.leading) {
-            this.leading = leading;
-            this.textCanvas.leading = leading;
-            this.textCanvas.resize();
-            needsRender = true;
-            geometryNeedsUpdate = true;
         }
     }
 }

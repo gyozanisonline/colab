@@ -1171,16 +1171,9 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                         if (activeTypeMode === 'ascii') {
                                             setAsciiSettings({ ...asciiSettings, leading: val / 10 });
                                         } else {
-                                            // Directly set global and trigger text refresh
-                                            window.leadingFactor = val / 10;
-                                            if (typeof window.lineHeight !== 'undefined' && typeof window.pgTextSize !== 'undefined') {
-                                                window.lineHeight = window.pgTextSize * window.leadingFactor;
-                                            }
-                                            if (window.setText) {
-                                                console.log('Calling setText with leadingFactor:', window.leadingFactor);
-                                                window.setText();
-                                            } else {
-                                                console.error('window.setText is undefined!');
+                                            // Use the proper setLeading function from update.js
+                                            if (window.setLeading) {
+                                                window.setLeading(val / 10);
                                             }
                                         }
                                     }}
@@ -1203,14 +1196,9 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                         if (activeTypeMode === 'ascii') {
                                             setAsciiSettings({ ...asciiSettings, kerning: val });
                                         } else {
-                                            // Directly set global and trigger text refresh
-                                            // Map slider value to tracking factor
-                                            window.trackingFactor = 0.15 + (val / 100);
-                                            if (window.setText) {
-                                                console.log('Calling setText with trackingFactor:', window.trackingFactor);
-                                                window.setText();
-                                            } else {
-                                                console.error('window.setText is undefined!');
+                                            // Use the proper setKerning function from update.js
+                                            if (window.setKerning) {
+                                                window.setKerning(val);
                                             }
                                         }
                                     }}
