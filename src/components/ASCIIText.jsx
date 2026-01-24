@@ -515,7 +515,7 @@ class CanvAscii {
             this.texture.needsUpdate = true;
         }
 
-        // Now update geometry if needed
+        // Now update geometry if needed (also recreate texture for new canvas size)
         if (geometryNeedsUpdate) {
             // Resize geometry
             const textAspect = this.textCanvas.width / this.textCanvas.height;
@@ -527,6 +527,13 @@ class CanvAscii {
                 this.geometry.dispose();
                 this.geometry = new THREE.PlaneGeometry(planeW, planeH, 36, 36);
                 this.mesh.geometry = this.geometry;
+
+                // CRITICAL: Recreate texture when canvas size changes to prevent ghost text
+                this.texture.dispose();
+                this.texture = new THREE.CanvasTexture(this.textCanvas.texture);
+                this.texture.minFilter = THREE.NearestFilter;
+                this.texture.needsUpdate = true;
+                this.mesh.material.uniforms.uTexture.value = this.texture;
             }
         }
 
