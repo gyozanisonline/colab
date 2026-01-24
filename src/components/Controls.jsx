@@ -1067,118 +1067,155 @@ export default function Controls({ activeStep, onUpdate, activeApp, onSwitchApp,
                                 </>
                             ) : (
                                 <>
-                                    {/* ASCII Controls */}
-                                    {/* Scale (Plane Height) */}
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                                        <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Scale</label>
-                                        <ElasticSlider
-                                            defaultValue={asciiSettings.planeBaseHeight}
-                                            startingValue={2}
-                                            maxValue={20}
-                                            stepSize={0.5}
-                                            leftIcon={<RiExpandWidthLine size={16} />}
-                                            rightIcon={<RiExpandWidthLine size={24} />}
-                                            onChange={(val) => setAsciiSettings({ ...asciiSettings, planeBaseHeight: val })}
-                                        />
-                                    </div>
+                                    {/* ASCII Specific Controls */}
+                                    {activeTypeMode === 'ascii' && (
+                                        <>
+                                            {/* Scale (Plane Height) */}
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                                <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Scale</label>
+                                                <ElasticSlider
+                                                    defaultValue={asciiSettings.planeBaseHeight}
+                                                    startingValue={2}
+                                                    maxValue={20}
+                                                    stepSize={0.5}
+                                                    leftIcon={<RiExpandWidthLine size={16} />}
+                                                    rightIcon={<RiExpandWidthLine size={24} />}
+                                                    onChange={(val) => setAsciiSettings({ ...asciiSettings, planeBaseHeight: val })}
+                                                />
+                                            </div>
 
-                                    {/* Density (ASCII Font Size) - Inverted logic (smaller font = higher density) */}
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                                        <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Density</label>
-                                        <ElasticSlider
-                                            defaultValue={20 - asciiSettings.asciiFontSize} // Abstract mapping
-                                            startingValue={1}
-                                            maxValue={18}
-                                            stepSize={1}
-                                            leftIcon={<MdGridOn size={16} />}
-                                            rightIcon={<MdGridOn size={24} />}
-                                            onChange={(val) => {
-                                                // val goes 1 -> 18.
-                                                // fontSize should go 19 -> 2?
-                                                // Let's simple map: font size
-                                                const fontSize = Math.max(2, 20 - val);
-                                                setAsciiSettings({ ...asciiSettings, asciiFontSize: fontSize });
-                                            }}
-                                        />
-                                    </div>
+                                            {/* Density (ASCII Font Size) */}
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                                <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Density</label>
+                                                <ElasticSlider
+                                                    defaultValue={20 - asciiSettings.asciiFontSize} // Abstract mapping
+                                                    startingValue={1}
+                                                    maxValue={18}
+                                                    stepSize={1}
+                                                    leftIcon={<MdGridOn size={16} />}
+                                                    rightIcon={<MdGridOn size={24} />}
+                                                    onChange={(val) => {
+                                                        const fontSize = Math.max(2, 20 - val);
+                                                        setAsciiSettings({ ...asciiSettings, asciiFontSize: fontSize });
+                                                    }}
+                                                />
+                                            </div>
 
-                                    {/* Wave Toggle */}
-                                    <div style={{ gridColumn: 'span 2', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                        <div style={{ gridColumn: 'span 2', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '0.9rem' }}>
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={asciiSettings.enableWaves}
-                                                        onChange={(e) => setAsciiSettings({ ...asciiSettings, enableWaves: e.target.checked })}
-                                                        style={{ accentColor: '#E5B020', width: '16px', height: '16px' }}
-                                                    />
-                                                    Enable Waves
-                                                </label>
+                                            {/* Wave Toggle */}
+                                            <div style={{ gridColumn: 'span 2', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                <div style={{ gridColumn: 'span 2', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '0.9rem' }}>
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={asciiSettings.enableWaves}
+                                                                onChange={(e) => setAsciiSettings({ ...asciiSettings, enableWaves: e.target.checked })}
+                                                                style={{ accentColor: '#E5B020', width: '16px', height: '16px' }}
+                                                            />
+                                                            Enable Waves
+                                                        </label>
 
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                    <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>Color</span>
-                                                    <input
-                                                        type="color"
-                                                        value={asciiSettings.textColor}
-                                                        onChange={(e) => setAsciiSettings({ ...asciiSettings, textColor: e.target.value })}
-                                                        style={{
-                                                            background: 'none',
-                                                            border: 'none',
-                                                            width: '40px',
-                                                            height: '40px',
-                                                            cursor: 'pointer'
-                                                        }}
-                                                    />
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                            <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>Color</span>
+                                                            <input
+                                                                type="color"
+                                                                value={asciiSettings.textColor}
+                                                                onChange={(e) => setAsciiSettings({ ...asciiSettings, textColor: e.target.value })}
+                                                                style={{
+                                                                    background: 'none',
+                                                                    border: 'none',
+                                                                    width: '40px',
+                                                                    height: '40px',
+                                                                    cursor: 'pointer'
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '0.9rem' }}>
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={asciiSettings.isMonochrome}
+                                                                onChange={(e) => setAsciiSettings({ ...asciiSettings, isMonochrome: e.target.checked })}
+                                                                style={{ accentColor: '#E5B020', width: '16px', height: '16px' }}
+                                                            />
+                                                            Monochrome Mode
+                                                        </label>
+
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '0.9rem' }}>
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={asciiSettings.isMonochrome}
-                                                        onChange={(e) => setAsciiSettings({ ...asciiSettings, isMonochrome: e.target.checked })}
-                                                        style={{ accentColor: '#E5B020', width: '16px', height: '16px' }}
-                                                    />
-                                                    Monochrome Mode
-                                                </label>
+                                        </>
+                                    )}
 
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Spacing Controls (Kerning/Leading) */}
-                                    <h4 style={{ ...uiStyles.sectionTitle, gridColumn: 'span 2', marginTop: '10px', marginBottom: '5px' }}>Spacing</h4>
-
-                                    {/* Leading (Line Height) */}
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                                        <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Line Height</label>
-                                        <ElasticSlider
-                                            defaultValue={asciiSettings.leading * 10}
-                                            startingValue={10}
-                                            maxValue={30}
-                                            stepSize={1}
-                                            leftIcon={<RiExpandHeightLine size={16} />}
-                                            rightIcon={<RiExpandHeightLine size={24} />}
-                                            onChange={(val) => setAsciiSettings({ ...asciiSettings, leading: val / 10 })}
-                                        />
-                                    </div>
-
-                                    {/* Kerning (Letter Spacing) */}
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                                        <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Kerning</label>
-                                        <ElasticSlider
-                                            defaultValue={asciiSettings.kerning}
-                                            startingValue={-10}
-                                            maxValue={20}
-                                            stepSize={1}
-                                            leftIcon={<RiExpandWidthLine size={16} />}
-                                            rightIcon={<RiExpandWidthLine size={24} />}
-                                            onChange={(val) => setAsciiSettings({ ...asciiSettings, kerning: val })}
-                                        />
-                                    </div>
+                                    {/* Spacing Controls removed from here */}
                                 </>
                             )}
+
+                            {/* Spacing Controls (Kerning/Leading) - SHARED */}
+                            <h4 style={{ ...uiStyles.sectionTitle, gridColumn: 'span 2', marginTop: '10px', marginBottom: '5px' }}>Spacing</h4>
+
+                            {/* Leading (Line Height) */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Line Height</label>
+                                <ElasticSlider
+                                    key={`leading-${activeTypeMode}`} // Force reset on mode change
+                                    defaultValue={activeTypeMode === 'ascii' ? (asciiSettings.leading * 10) : 12} // Default 1.2 * 10
+                                    startingValue={8} // 0.8
+                                    maxValue={20} // 2.0
+                                    stepSize={1}
+                                    leftIcon={<RiExpandHeightLine size={16} />}
+                                    rightIcon={<RiExpandHeightLine size={24} />}
+                                    onChange={(val) => {
+                                        console.log('Leading Change:', val, 'Mode:', activeTypeMode);
+                                        if (activeTypeMode === 'ascii') {
+                                            setAsciiSettings({ ...asciiSettings, leading: val / 10 });
+                                        } else {
+                                            // Directly set global and trigger text refresh
+                                            window.leadingFactor = val / 10;
+                                            if (typeof window.lineHeight !== 'undefined' && typeof window.pgTextSize !== 'undefined') {
+                                                window.lineHeight = window.pgTextSize * window.leadingFactor;
+                                            }
+                                            if (window.setText) {
+                                                console.log('Calling setText with leadingFactor:', window.leadingFactor);
+                                                window.setText();
+                                            } else {
+                                                console.error('window.setText is undefined!');
+                                            }
+                                        }
+                                    }}
+                                />
+                            </div>
+
+                            {/* Kerning (Letter Spacing) */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Kerning</label>
+                                <ElasticSlider
+                                    key={`kerning-${activeTypeMode}`} // Force reset on mode change
+                                    defaultValue={activeTypeMode === 'ascii' ? asciiSettings.kerning : 0}
+                                    startingValue={-20}
+                                    maxValue={50}
+                                    stepSize={1}
+                                    leftIcon={<RiExpandWidthLine size={16} />}
+                                    rightIcon={<RiExpandWidthLine size={24} />}
+                                    onChange={(val) => {
+                                        console.log('Kerning Change:', val, 'Mode:', activeTypeMode);
+                                        if (activeTypeMode === 'ascii') {
+                                            setAsciiSettings({ ...asciiSettings, kerning: val });
+                                        } else {
+                                            // Directly set global and trigger text refresh
+                                            // Map slider value to tracking factor
+                                            window.trackingFactor = 0.15 + (val / 100);
+                                            if (window.setText) {
+                                                console.log('Calling setText with trackingFactor:', window.trackingFactor);
+                                                window.setText();
+                                            } else {
+                                                console.error('window.setText is undefined!');
+                                            }
+                                        }
+                                    }}
+                                />
+                            </div>
 
 
                             <div style={{ height: '1px', background: 'rgba(255,255,255,0.1)', margin: '15px 0' }}></div>

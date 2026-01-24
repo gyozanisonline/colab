@@ -194,13 +194,15 @@ class AsciiFilter {
 }
 
 class CanvasTxt {
-    constructor(txt, { fontSize = 200, fontFamily = 'Arial', color = '#fdf9f3' } = {}) {
+    constructor(txt, { fontSize = 200, fontFamily = 'Arial', color = '#fdf9f3', kerning = 0, leading = 1.2 } = {}) {
         this.canvas = document.createElement('canvas');
         this.context = this.canvas.getContext('2d');
         this.txt = txt;
         this.fontSize = fontSize;
         this.fontFamily = fontFamily;
         this.color = color;
+        this.kerning = kerning;
+        this.leading = leading;
 
         this.font = `600 ${this.fontSize}px ${this.fontFamily}`;
     }
@@ -208,6 +210,12 @@ class CanvasTxt {
     resize() {
         this.context.font = this.font;
         const lines = this.txt.split('\n');
+
+        // Measure widest line
+        // Use letterSpacing if available
+        if (this.context.letterSpacing !== undefined) {
+            this.context.letterSpacing = `${this.kerning}px`;
+        }
 
         // Measure widest line
         let maxWidth = 0;
@@ -219,7 +227,7 @@ class CanvasTxt {
         const textWidth = Math.max(20, Math.ceil(maxWidth) + 20);
 
         // Estimate line height roughly as font size + leading
-        const lineHeight = this.fontSize * 1.2;
+        const lineHeight = this.fontSize * this.leading;
         const textHeight = Math.max(20, Math.ceil(lines.length * lineHeight) + 20);
 
         this.canvas.width = textWidth;
@@ -232,7 +240,11 @@ class CanvasTxt {
         this.context.font = this.font;
 
         const lines = this.txt.split('\n');
-        const lineHeight = this.fontSize * 1.2;
+        const lineHeight = this.fontSize * this.leading;
+
+        if (this.context.letterSpacing !== undefined) {
+            this.context.letterSpacing = `${this.kerning}px`;
+        }
 
         // Basic baseline adjustment
         const initialY = this.fontSize;
@@ -457,7 +469,7 @@ class CanvAscii {
             this.renderer.dispose();
         }
     }
-    update({ text, asciiFontSize, textFontSize, textColor, planeBaseHeight, enableWaves, isMonochrome }) {
+    update({ text, asciiFontSize, textFontSize, textColor, planeBaseHeight, enableWaves, isMonochrome, kerning, leading }) {
         // console.log(`[ASCII] Update instance ${this.id}`, { text }); // Verbose
         let needsRender = false;
         let geometryNeedsUpdate = false;
@@ -534,6 +546,22 @@ class CanvAscii {
         if (this.isMonochrome && textColor !== undefined) {
             this.filter.setColor(textColor);
         }
+
+        if (kerning !== undefined && kerning !== this.kerning) {
+            this.kerning = kerning;
+            this.textCanvas.kerning = kerning;
+            this.textCanvas.resize();
+            needsRender = true;
+            geometryNeedsUpdate = true;
+        }
+
+        if (leading !== undefined && leading !== this.leading) {
+            this.leading = leading;
+            this.textCanvas.leading = leading;
+            this.textCanvas.resize();
+            needsRender = true;
+            geometryNeedsUpdate = true;
+        }
     }
 }
 
@@ -544,16 +572,18 @@ export default function ASCIIText({
     textColor = '#fdf9f3',
     planeBaseHeight = 8,
     enableWaves = true,
-    isMonochrome = false
+    isMonochrome = false,
+    kerning = 0,
+    leading = 1.2
 }) {
     const containerRef = useRef(null);
     const asciiRef = useRef(null);
 
     // Ref to always have access to latest props during async init
-    const propsRef = useRef({ text, asciiFontSize, textFontSize, textColor, planeBaseHeight, enableWaves, isMonochrome });
+    const propsRef = useRef({ text, asciiFontSize, textFontSize, textColor, planeBaseHeight, enableWaves, isMonochrome, kerning, leading });
     useEffect(() => {
-        propsRef.current = { text, asciiFontSize, textFontSize, textColor, planeBaseHeight, enableWaves, isMonochrome };
-    }, [text, asciiFontSize, textFontSize, textColor, planeBaseHeight, enableWaves, isMonochrome]);
+        propsRef.current = { text, asciiFontSize, textFontSize, textColor, planeBaseHeight, enableWaves, isMonochrome, kerning, leading };
+    }, [text, asciiFontSize, textFontSize, textColor, planeBaseHeight, enableWaves, isMonochrome, kerning, leading]);
 
     useEffect(() => {
         if (!containerRef.current) return;
@@ -662,10 +692,12 @@ export default function ASCIIText({
                 textColor,
                 planeBaseHeight,
                 enableWaves,
-                isMonochrome
+                isMonochrome,
+                kerning,
+                leading
             });
         }
-    }, [text, asciiFontSize, textFontSize, textColor, planeBaseHeight, enableWaves, isMonochrome]);
+    }, [text, asciiFontSize, textFontSize, textColor, planeBaseHeight, enableWaves, isMonochrome, kerning, leading]);
 
     return (
         <div

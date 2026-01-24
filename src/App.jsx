@@ -56,7 +56,9 @@ function App() {
         planeBaseHeight: 8,
         enableWaves: true,
         isMonochrome: false,
-        textColor: '#ffffff'
+        textColor: '#ffffff',
+        kerning: 0,
+        leading: 1.2
     });
 
     // Background Settings State (Hoisted from Leva)
@@ -241,6 +243,8 @@ function App() {
                                 textColor={asciiSettings.textColor}
                                 planeBaseHeight={asciiSettings.planeBaseHeight}
                                 isMonochrome={asciiSettings.isMonochrome}
+                                kerning={asciiSettings.kerning}
+                                leading={asciiSettings.leading}
                             />
                         </div>
                     )}

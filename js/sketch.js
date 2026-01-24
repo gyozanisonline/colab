@@ -10,7 +10,8 @@
 
 var tFont = [];
 var pgTextSize = 90;
-var lineHeight = pgTextSize * 0.8;
+// Global vars initialized in update.js: window.leadingFactor, window.trackingFactor
+var lineHeight = pgTextSize * 0.8; // Initial safe value, updated in setup
 var bkgdColor, foreColor, fadeColor;
 
 var introScreen;
@@ -182,7 +183,13 @@ function setup() {
     if (document.getElementById("fontSize")) {
         document.getElementById("fontSize").value = pgTextSize;
     }
-    lineHeight = pgTextSize * 0.8;
+
+    // Ensure we use the global leading factor
+    if (window.leadingFactor) {
+        lineHeight = pgTextSize * window.leadingFactor;
+    } else {
+        lineHeight = pgTextSize * 0.8;
+    }
 
     if (width < 600) {
         document.getElementById("textArea").value = "Colab\nExperiment Together";
@@ -205,8 +212,6 @@ function setup() {
     frameRate(frate);
     noSmooth();
     textureMode(NORMAL);
-
-
 
     setText();
 
