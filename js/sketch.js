@@ -297,6 +297,7 @@ function resetAnim() {
         kineticGroups[p] = new KineticGroup(-horzSpacer * ((groupCount - 1) / 2) + p * horzSpacer, 0, p);
     }
 }
+window.resetAnim = resetAnim;
 
 function windowResized() {
     if (posterMode) {

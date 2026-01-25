@@ -764,11 +764,11 @@ class InfiniteGridMenu {
         this.atlasSize = Math.ceil(Math.sqrt(itemCount));
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
-        // Reduced from 2048 to 512 to prevent GPU memory exhaustion
-        const cellSize = 512;
+        // REVERT: Back to 2048 to match updateVideoTexture, or use a class property
+        this.cellSize = 2048;
 
-        canvas.width = this.atlasSize * cellSize;
-        canvas.height = this.atlasSize * cellSize;
+        canvas.width = this.atlasSize * this.cellSize;
+        canvas.height = this.atlasSize * this.cellSize;
 
         // Store video elements and active index
         this.videoElements = [];
@@ -781,50 +781,69 @@ class InfiniteGridMenu {
                         // If item has video property, create video element
                         if (item.video) {
                             const video = document.createElement('video');
-                            video.src = item.video;
-                            video.loop = true;
+                            // Add essential attributes for autoplay/inline
                             video.muted = true;
+                            video.loop = true;
                             video.playsInline = true;
                             video.crossOrigin = 'anonymous';
                             video.preload = 'auto';
+
+                            // Set src AFTER attributes
+                            video.src = item.video;
 
                             this.videoElements[index] = video;
 
                             let resolved = false;
 
-                            // Try multiple events
-                            const handleLoad = () => {
+                            const finish = (result) => {
                                 if (!resolved) {
                                     resolved = true;
-                                    resolve({ element: video, index });
+                                    resolve(result);
                                 }
                             };
 
-                            video.addEventListener('loadeddata', handleLoad, { once: true });
-                            video.addEventListener('canplay', handleLoad, { once: true });
+                            const handleLoad = () => finish({ element: video, index });
 
-                            video.addEventListener('error', (e) => {
-                                console.error(`Video ${index} failed:`, e);
-                                // Fallback to image
-                                const img = new Image();
-                                img.crossOrigin = 'anonymous';
-                                img.onload = () => resolve({ element: img, index });
-                                img.src = item.image;
-                                this.videoElements[index] = null;
-                            });
-
-                            // Timeout fallback after 5 seconds
-                            setTimeout(() => {
-                                if (!resolved) {
-                                    console.warn(`Video ${index} timeout, using fallback image`);
+                            // Check if already ready
+                            if (video.readyState >= 3) {
+                                handleLoad();
+                            } else {
+                                video.addEventListener('loadeddata', handleLoad, { once: true });
+                                video.addEventListener('canplay', handleLoad, { once: true });
+                                video.addEventListener('error', (e) => {
+                                    console.warn(`Video ${index} failed loading:`, e);
+                                    // Fallback to image
                                     const img = new Image();
                                     img.crossOrigin = 'anonymous';
-                                    img.onload = () => resolve({ element: img, index });
+                                    img.onload = () => finish({ element: img, index });
+                                    img.onerror = () => finish({ element: img, index }); // Resolve anyway
                                     img.src = item.image;
                                     this.videoElements[index] = null;
-                                }
-                            }, 5000);
+                                });
+                            }
 
+                            // Timeout fallback after 30 seconds (increased for huge files and slow connections)
+                            setTimeout(() => {
+                                if (!resolved) {
+                                    console.warn(`Video ${index} timeout, trying forced play or fallback`);
+                                    // Try forcing play first
+                                    video.play().then(() => {
+                                        console.log(`Video ${index} forced play success`);
+                                        handleLoad();
+                                    }).catch(() => {
+                                        console.warn(`Video ${index} timeout definitive, using fallback image`);
+                                        if (resolved) return;
+                                        const img = new Image();
+                                        img.crossOrigin = 'anonymous';
+                                        img.onload = () => finish({ element: img, index });
+                                        img.onerror = () => finish({ element: img, index });
+                                        img.src = item.image;
+                                        this.videoElements[index] = null;
+                                    });
+                                }
+                            }, 30000);
+
+                            // Trigger load
                             video.load();
                         } else {
                             // Regular image loading
@@ -843,10 +862,12 @@ class InfiniteGridMenu {
                     })
             )
         ).then(media => {
+            if (!this.isRunning || !this.gl) return; // Prevent using deleted resources
+
             media.forEach(({ element, index }) => {
-                const x = (index % this.atlasSize) * cellSize;
-                const y = Math.floor(index / this.atlasSize) * cellSize;
-                ctx.drawImage(element, x, y, cellSize, cellSize);
+                const x = (index % this.atlasSize) * this.cellSize;
+                const y = Math.floor(index / this.atlasSize) * this.cellSize;
+                ctx.drawImage(element, x, y, this.cellSize, this.cellSize);
             });
 
             gl.bindTexture(gl.TEXTURE_2D, this.tex);
@@ -856,6 +877,9 @@ class InfiniteGridMenu {
             // Store canvas and context for video updates
             this.textureCanvas = canvas;
             this.textureContext = ctx;
+
+            // Force first render
+            this.#render();
         }).catch(err => {
             console.error('Error loading media:', err);
         });
@@ -929,12 +953,12 @@ class InfiniteGridMenu {
         }
 
         const gl = this.gl;
-        const cellSize = 2048;
-        const x = (this.activeVideoIndex % this.atlasSize) * cellSize;
-        const y = Math.floor(this.activeVideoIndex / this.atlasSize) * cellSize;
+        // Use class property instead of hardcoded
+        const x = (this.activeVideoIndex % this.atlasSize) * this.cellSize;
+        const y = Math.floor(this.activeVideoIndex / this.atlasSize) * this.cellSize;
 
         // Redraw current video frame
-        this.textureContext.drawImage(video, x, y, cellSize, cellSize);
+        this.textureContext.drawImage(video, x, y, this.cellSize, this.cellSize);
 
         // Update WebGL texture
         gl.bindTexture(gl.TEXTURE_2D, this.tex);

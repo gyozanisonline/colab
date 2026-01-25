@@ -1,4 +1,4 @@
-const Navigation = () => {
+const Navigation = ({ onSwitchApp }) => {
     return (
         <div style={{
             position: 'fixed',
@@ -8,8 +8,11 @@ const Navigation = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            pointerEvents: 'none' // Click-through if logo shouldn't be interactive, or auto if needed
-        }}>
+            pointerEvents: 'auto', // Enable clicks
+            cursor: 'pointer'
+        }}
+            onClick={() => onSwitchApp && onSwitchApp('typeflow')}
+        >
             <img
                 src="/assets/Colab Logo White.svg"
                 alt="Colab"

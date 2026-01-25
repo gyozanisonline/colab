@@ -1167,13 +1167,20 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                     leftIcon={<RiExpandHeightLine size={16} />}
                                     rightIcon={<RiExpandHeightLine size={24} />}
                                     onChange={(val) => {
-                                        // Leading change handler
+                                        // Leading change handler for classic 2D mode
                                         if (activeTypeMode === 'ascii') {
                                             setAsciiSettings({ ...asciiSettings, leading: val / 10 });
                                         } else {
-                                            // Use the proper setLeading function from update.js
-                                            if (window.setLeading) {
-                                                window.setLeading(val / 10);
+                                            // Directly set the global leading factor
+                                            const leadingValue = val / 10;
+                                            window.leadingFactor = leadingValue;
+                                            // Update lineHeight if pgTextSize exists
+                                            if (typeof window.pgTextSize !== 'undefined') {
+                                                window.lineHeight = window.pgTextSize * leadingValue;
+                                            }
+                                            // Trigger text recreation
+                                            if (typeof window.setText === 'function') {
+                                                window.setText();
                                             }
                                         }
                                     }}
@@ -1192,13 +1199,27 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                     leftIcon={<RiExpandWidthLine size={16} />}
                                     rightIcon={<RiExpandWidthLine size={24} />}
                                     onChange={(val) => {
-                                        // Kerning change handler
+                                        // Kerning change handler for classic 2D mode
+                                        console.log('[Kerning] Mode:', activeTypeMode, 'Value:', val);
                                         if (activeTypeMode === 'ascii') {
                                             setAsciiSettings({ ...asciiSettings, kerning: val });
                                         } else {
-                                            // Use the proper setKerning function from update.js
-                                            if (window.setKerning) {
-                                                window.setKerning(val);
+                                            // Directly set the global tracking factor
+                                            const newTrackingFactor = 0.15 + (val / 100);
+                                            console.log('[Kerning] Setting trackingFactor to:', newTrackingFactor);
+                                            window.trackingFactor = newTrackingFactor;
+                                            console.log('[Kerning] window.trackingFactor is now:', window.trackingFactor);
+                                            console.log('[Kerning] window.setText:', typeof window.setText, 'window.resetAnim:', typeof window.resetAnim);
+
+                                            // Trigger text recreation - try multiple methods
+                                            if (typeof window.setText === 'function') {
+                                                console.log('[Kerning] Calling window.setText()');
+                                                window.setText();
+                                            } else if (typeof window.resetAnim === 'function') {
+                                                console.log('[Kerning] Calling window.resetAnim()');
+                                                window.resetAnim();
+                                            } else {
+                                                console.log('[Kerning] ERROR: Neither setText nor resetAnim available!');
                                             }
                                         }
                                     }}

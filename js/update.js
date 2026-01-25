@@ -3,6 +3,7 @@ window.trackingFactor = 0.15;
 window.leadingFactor = 0.8;
 
 function setText() {
+    console.log('[setText] Called! pgTextSize:', pgTextSize, 'currentFont:', currentFont);
     textSize(pgTextSize);
     textFont(currentFont);
 
@@ -16,7 +17,9 @@ function setText() {
 
     if (window.emitChange) window.emitChange('text', 'textArea', enteredText);
 
+    console.log('[setText] About to call resetAnim. keyArray:', keyArray);
     resetAnim();
+    console.log('[setText] resetAnim completed');
 }
 
 function setFont(val) {
@@ -110,11 +113,14 @@ function setLeading(val) {
 }
 
 // Explicitly attach to window for React access (must be after function definitions)
+window.setText = setText;
+window.setFont = setFont;
 window.setKerning = setKerning;
 window.setLeading = setLeading;
 window.setLayerCount = setLayerCount;
 window.setFontSize = setFontSize;
 window.setForeColor = setForeColor;
+window.setBkgdColor = setBkgdColor;
 
 function sizeSaveChange(val) {
     saveSizeState = val;

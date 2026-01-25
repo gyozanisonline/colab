@@ -2,6 +2,14 @@
 import { useState, useEffect } from 'react';
 import InfiniteMenu from './InfiniteMenu';
 
+import videoKimchi from '../../assets/Video Gallery Content/kimchi.mov';
+import videoBaby from '../../assets/Video Gallery Content/baby_born.mov';
+import videoWatson from '../../assets/Video Gallery Content/watson.mov';
+import videoPigs from '../../assets/Video Gallery Content/pigs_in_space.mov';
+import videoPortrait from '../../assets/Video Gallery Content/self_portrait.mov';
+import videoSmile from '../../assets/Video Gallery Content/smile.mov';
+import videoAliens from '../../assets/Video Gallery Content/aliens.mov';
+
 const CommunityGallery = ({ isActive }) => {
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -10,76 +18,56 @@ const CommunityGallery = ({ isActive }) => {
         if (!isActive) return;
 
         // Static items from video-gallery (Assets removed to save space)
+        // Imported video items
         const videoItems = [
             {
-                image: 'https://placehold.co/600x900/333/666?text=Video+5',
-                video: null,
+                image: 'https://placehold.co/600x900/333/666?text=Kimchi',
+                video: videoKimchi,
                 link: '#',
-                title: 'Video 5',
-                description: 'Dynamic content'
+                title: 'Kimchi',
+                description: '8'
             },
             {
-                image: 'https://placehold.co/600x900/333/666?text=Video+8',
-                video: null,
+                image: 'https://placehold.co/600x900/333/666?text=Hello+World',
+                video: videoBaby,
                 link: '#',
-                title: 'Video 8',
-                description: 'High energy'
+                title: 'Hello World!',
+                description: 'Baby Born'
             },
             {
-                image: 'https://placehold.co/600x900/333/666?text=UHD+Video',
-                video: null,
+                image: 'https://placehold.co/600x900/333/666?text=I+Love+Watson',
+                video: videoWatson,
                 link: '#',
-                title: 'UHD Video',
-                description: '4K Content'
+                title: 'I Love Watson',
+                description: 'Ayala Niv'
             },
             {
-                image: 'https://placehold.co/600x900/333/666?text=Social+Clip',
-                video: null,
+                image: 'https://placehold.co/600x900/333/666?text=Pigs+In+Space',
+                video: videoPigs,
                 link: '#',
-                title: 'Social Clip',
-                description: 'Viral moment'
+                title: 'Pigs In Space',
+                description: 'Ruth Zajdner'
             },
             {
-                image: 'https://placehold.co/600x900/333/666?text=Music+Video',
-                video: null,
+                image: 'https://placehold.co/600x900/333/666?text=Self+Portrait',
+                video: videoPortrait,
                 link: '#',
-                title: 'Music Video',
-                description: 'Aceite De Oliva'
+                title: 'Self Portrait',
+                description: 'Yonatan Alperin'
             },
             {
-                image: 'https://placehold.co/600x900/333/666?text=Video+6021',
-                video: null,
+                image: 'https://placehold.co/600x900/333/666?text=Smile',
+                video: videoSmile,
                 link: '#',
-                title: 'Video 6021',
-                description: 'Raw footage'
+                title: 'Smile',
+                description: 'Yoel Zajdner'
             },
             {
-                image: 'https://placehold.co/600x900/333/666?text=Video+6151',
-                video: null,
+                image: 'https://placehold.co/600x900/333/666?text=Aliens',
+                video: videoAliens,
                 link: '#',
-                title: 'Video 6151',
-                description: 'Creative draft'
-            },
-            {
-                image: 'https://placehold.co/600x900/333/666?text=Video+7cda',
-                video: null,
-                link: '#',
-                title: 'Video 7cda',
-                description: 'Safety first'
-            },
-            {
-                image: 'https://placehold.co/600x900/333/666?text=Water+Gong',
-                video: null,
-                link: '#',
-                title: 'Water Gong',
-                description: 'Relaxing sounds'
-            },
-            {
-                image: 'https://placehold.co/600x900/333/666?text=Chair+Study',
-                video: null,
-                link: '#',
-                title: 'Chair Study',
-                description: 'Modern art'
+                title: 'The Aliens are coming',
+                description: 'Rotem Ronen'
             }
         ];
 
@@ -117,7 +105,7 @@ const CommunityGallery = ({ isActive }) => {
                     Loading Gallery...
                 </div>
             ) : (
-                <InfiniteMenu items={items} scale={0.5} />
+                <InfiniteMenu items={items} scale={2.5} />
             )}
 
             {/* Title Overlay */}
