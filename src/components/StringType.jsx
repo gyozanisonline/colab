@@ -2,20 +2,24 @@ import { useEffect, useRef } from 'react';
 import { Particle } from '../utils/Particle';
 
 export default function StringType({
-    text = 'YOU DON\'T UNDERSTAND THINGS, YOU JUST GET USED TO THEM.', // Not fully connected yet as original has complex state
+    text = 'YOU DON\'T UNDERSTAND THINGS, YOU JUST GET USED TO THEM.',
     stripHeightProp = 70,
     foreColorProp = '#ffffff',
-    bgColorProp = '#0d0d0d'
+    bgColorProp = '#0d0d0d',
+    animationSpeed = 1,
+    steps = 70,
+    stripCount = 1,
+    textColor = '#ffffff'
 }) {
     const containerRef = useRef(null);
     const p5Instance = useRef(null);
 
     // Props ref to access latest values inside sketch closure
-    const propsRef = useRef({ text, stripHeightProp, foreColorProp, bgColorProp });
+    const propsRef = useRef({ text, stripHeightProp, foreColorProp, bgColorProp, animationSpeed, steps, stripCount, textColor });
 
     useEffect(() => {
-        propsRef.current = { text, stripHeightProp, foreColorProp, bgColorProp };
-    }, [text, stripHeightProp, foreColorProp, bgColorProp]);
+        propsRef.current = { text, stripHeightProp, foreColorProp, bgColorProp, animationSpeed, steps, stripCount, textColor };
+    }, [text, stripHeightProp, foreColorProp, bgColorProp, animationSpeed, steps, stripCount, textColor]);
 
     useEffect(() => {
         if (!containerRef.current) return;
@@ -23,7 +27,6 @@ export default function StringType({
         const sketch = (p) => {
             // --- Global Variables (Scoped to Instance) ---
             let particles = [];
-            let steps = 70;
             let textureUnit = 5;
             let currentTextureUnit = 5;
 
@@ -41,6 +44,7 @@ export default function StringType({
 
             let mainText1;
             let currentMainText1;
+            let currentTextColor; // Track color changes for texture redraw
 
             let rSpeed = [];
             let roundCap = false;
@@ -65,8 +69,7 @@ export default function StringType({
                 // Text Texture
                 pgT = p.createGraphics(1000, 150);
                 pgT.background(0, 0, 0, 0);
-                pgT.fill(p.color(propsRef.current.foreColorProp));
-                // pgT.textFont(font0); // Font selection omitted for simplicity in port
+                pgT.fill(p.color(propsRef.current.textColor)); // Use textColor prop
                 pgT.textSize(100);
                 pgT.textAlign(p.CENTER, p.CENTER);
                 pgT.text(propsRef.current.text, pgT.width / 2, pgT.height / 2 - 15);
@@ -79,7 +82,7 @@ export default function StringType({
                 // Stripes
                 pgStripes = p.createGraphics(100, 100);
                 pgStripes.background(0, 0, 0, 0);
-                pgStripes.fill(p.color(propsRef.current.foreColorProp));
+                pgStripes.fill(p.color(propsRef.current.textColor)); // Use textColor prop
                 pgStripes.noStroke();
                 pgStripes.rect(0, 0, 100, 20);
                 pgStripes.rect(0, 40, 100, 20);
@@ -112,12 +115,14 @@ export default function StringType({
 
             p.setup = () => {
                 const { width, height } = containerRef.current.getBoundingClientRect();
+                p.setAttributes('alpha', true); // Ensure transparency support
                 p.createCanvas(width, height, p.WEBGL);
 
                 handleColor = p.color(0, 0, 255);
 
                 mainText1 = propsRef.current.text;
                 currentMainText1 = propsRef.current.text;
+                currentTextColor = propsRef.current.textColor;
 
                 p.frameRate(30);
                 p.rectMode(p.CENTER);
@@ -146,13 +151,18 @@ export default function StringType({
                 foreColor = p.color(propsRef.current.foreColorProp);
                 bkgdColor = p.color(propsRef.current.bgColorProp);
                 mainText1 = propsRef.current.text;
+                stripCount = propsRef.current.stripCount; // Use prop value
 
                 // Don't fill background - keep transparent to show starfield
 
-                if (textureUnit != currentTextureUnit || mainText1 != currentMainText1) {
+                // Compare current color prop with tracked color
+                const newTextColor = propsRef.current.textColor;
+
+                if (textureUnit != currentTextureUnit || mainText1 != currentMainText1 || newTextColor != currentTextColor) {
                     drawTextures();
                     currentTextureUnit = textureUnit;
                     currentMainText1 = mainText1;
+                    currentTextColor = newTextColor;
                 }
 
                 p.push();
@@ -201,6 +211,7 @@ export default function StringType({
 
                                 p.beginShape(p.TRIANGLE_STRIP);
 
+                                const steps = propsRef.current.steps; // Use prop value
                                 for (let k = 0; k <= steps; k++) {
                                     let x = particles[n][j].x;
                                     let y = particles[n][j].y;
@@ -219,7 +230,8 @@ export default function StringType({
                                     let tangentY = p.bezierTangent(y, hY, hPreY, preY, t);
                                     let pointAngle = p.atan2(tangentY, tangentX) - p.HALF_PI;
 
-                                    let u = p.map((culmDist[n][m] + p.frameCount * rSpeed[m]) % heightRatio, 0, heightRatio, 0, 1);
+                                    // Use animationSpeed from props
+                                    let u = p.map((culmDist[n][m] + p.frameCount * propsRef.current.animationSpeed) % heightRatio, 0, heightRatio, 0, 1);
 
                                     // Strip width offsets
                                     let thisStripHeight = stripHeight / stripCount;

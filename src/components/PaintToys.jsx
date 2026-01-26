@@ -2,7 +2,11 @@ import { useEffect, useRef } from 'react';
 
 export default function PaintToys({
     text = "There was a table set out under a tree in front of the house...",
-    textColor = "#ffffff"
+    textColor = "#ffffff",
+    minFontSize = 8,
+    maxFontSize = 300,
+    angleDistortion = 0.01,
+    fontFamily = 'Georgia'
 }) {
     const canvasRef = useRef(null);
     const requestRef = useRef(null);
@@ -11,17 +15,22 @@ export default function PaintToys({
         mouse: { x: 0, y: 0, down: false },
         textIndex: 0,
         text: text,
-        minFontSize: 8,
-        maxFontSize: 300,
-        angleDistortion: 0.01,
-        textColor: textColor
+        minFontSize: minFontSize,
+        maxFontSize: maxFontSize,
+        angleDistortion: angleDistortion,
+        textColor: textColor,
+        fontFamily: fontFamily
     });
 
     // Update state when props change
     useEffect(() => {
         stateRef.current.text = text;
         stateRef.current.textColor = textColor;
-    }, [text, textColor]);
+        stateRef.current.minFontSize = minFontSize;
+        stateRef.current.maxFontSize = maxFontSize;
+        stateRef.current.angleDistortion = angleDistortion;
+        stateRef.current.fontFamily = fontFamily;
+    }, [text, textColor, minFontSize, maxFontSize, angleDistortion, fontFamily]);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -55,7 +64,7 @@ export default function PaintToys({
         };
 
         const getTextWidth = (string, size) => {
-            context.font = `${size}px Georgia`;
+            context.font = `${size}px ${state.fontFamily}`;
             return context.measureText(string).width;
         };
 
@@ -75,7 +84,7 @@ export default function PaintToys({
                 if (newDistance > stepSize) {
                     const angle = Math.atan2(state.mouse.y - state.position.y, state.mouse.x - state.position.x);
 
-                    context.font = `${fontSize}px Georgia`;
+                    context.font = `${fontSize}px ${state.fontFamily}`;
                     context.fillStyle = state.textColor;
 
                     context.save();

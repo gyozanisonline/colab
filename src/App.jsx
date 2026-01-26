@@ -111,6 +111,21 @@ function App() {
         textColor: '#ffffff'
     });
 
+    const [paintToysSettings, setPaintToysSettings] = useState({
+        minFontSize: 8,
+        maxFontSize: 300,
+        angleDistortion: 0.01,
+        fontFamily: 'Georgia'
+    });
+
+    const [stringTypeSettings, setStringTypeSettings] = useState({
+        stripHeight: 70,
+        animationSpeed: 1,
+        steps: 70,
+        stripCount: 2,
+        textColor: '#ffffff'
+    });
+
     useEffect(() => {
         const handleBgChange = (e) => {
             setActiveBackground(e.detail);
@@ -221,6 +236,10 @@ function App() {
                             setBlocksSettings={setBlocksSettings}
                             paintSettings={paintSettings}
                             setPaintSettings={setPaintSettings}
+                            paintToysSettings={paintToysSettings}
+                            setPaintToysSettings={setPaintToysSettings}
+                            stringTypeSettings={stringTypeSettings}
+                            setStringTypeSettings={setStringTypeSettings}
                         />
                     )}
 
@@ -267,13 +286,21 @@ function App() {
                         <PaintToys
                             text={textContent}
                             textColor={paintSettings.textColor}
+                            minFontSize={paintToysSettings.minFontSize}
+                            maxFontSize={paintToysSettings.maxFontSize}
+                            angleDistortion={paintToysSettings.angleDistortion}
+                            fontFamily={paintToysSettings.fontFamily}
                         />
                     )}
 
                     {activeApp === 'typeflow' && activeTypeMode === 'string_type' && (
                         <StringType
                             text={textContent}
-                        // Add more props if wire-up is done
+                            stripHeightProp={stringTypeSettings.stripHeight}
+                            animationSpeed={stringTypeSettings.animationSpeed}
+                            steps={stringTypeSettings.steps}
+                            stripCount={stringTypeSettings.stripCount}
+                            textColor={stringTypeSettings.textColor}
                         />
                     )}
 

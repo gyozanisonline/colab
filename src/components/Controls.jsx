@@ -60,7 +60,7 @@ const effectCategories = {
     ]
 };
 
-export default function Controls({ activeStep, activeApp, onSwitchApp, activeBackground, shapes, addShape, clearShapes, shapeSettings, setShapeSettings, particleSettings, setParticleSettings, silkSettings, setSilkSettings, starfieldSettings, setStarfieldSettings, auroraSettings, setAuroraSettings, darkVeilSettings, setDarkVeilSettings, ditherSettings, setDitherSettings, blocksSettings, setBlocksSettings, paintSettings, setPaintSettings, activeTypeMode, setActiveTypeMode, textContent, setTextContent, asciiSettings, setAsciiSettings }) {
+export default function Controls({ activeStep, activeApp, onSwitchApp, activeBackground, shapes, addShape, clearShapes, shapeSettings, setShapeSettings, particleSettings, setParticleSettings, silkSettings, setSilkSettings, starfieldSettings, setStarfieldSettings, auroraSettings, setAuroraSettings, darkVeilSettings, setDarkVeilSettings, ditherSettings, setDitherSettings, blocksSettings, setBlocksSettings, paintSettings, setPaintSettings, paintToysSettings, setPaintToysSettings, stringTypeSettings, setStringTypeSettings, activeTypeMode, setActiveTypeMode, textContent, setTextContent, asciiSettings, setAsciiSettings }) {
     // Local state to track control values for UI feedback
     const [fontSize, setFontSize] = useState(70);
     const [layerCount, setLayerCount] = useState(7);
@@ -1161,25 +1161,163 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                                 </p>
                                             </div>
 
-                                            {/* Reuse Text Color Logic if needed, or specific controls */}
-                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '10px' }}>
-                                                <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>Text Color</span>
-                                                <input
-                                                    type="color"
-                                                    value={activeTypeMode === 'paint_toys' ? paintSettings.textColor : '#ffffff'}
-                                                    onChange={(e) => {
-                                                        if (activeTypeMode === 'paint_toys') setPaintSettings({ ...paintSettings, textColor: e.target.value });
-                                                        // if(activeTypeMode === 'string_type') ... set color
-                                                    }}
-                                                    style={{
-                                                        background: 'none',
-                                                        border: 'none',
-                                                        width: '40px',
-                                                        height: '40px',
-                                                        cursor: 'pointer'
-                                                    }}
-                                                />
-                                            </div>
+                                            {/* Paint (Toys) Specific Controls */}
+                                            {activeTypeMode === 'paint_toys' && (
+                                                <>
+                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                                        <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Font Family</label>
+                                                        <select
+                                                            value={paintToysSettings.fontFamily}
+                                                            onChange={(e) => setPaintToysSettings({ ...paintToysSettings, fontFamily: e.target.value })}
+                                                            style={uiStyles.control}
+                                                        >
+                                                            <option value="Georgia">Georgia</option>
+                                                            <option value="Arial">Arial</option>
+                                                            <option value="Helvetica">Helvetica</option>
+                                                            <option value="Times New Roman">Times New Roman</option>
+                                                            <option value="Courier New">Courier New</option>
+                                                            <option value="Verdana">Verdana</option>
+                                                            <option value="Impact">Impact</option>
+                                                            <option value="Comic Sans MS">Comic Sans MS</option>
+                                                        </select>
+                                                    </div>
+
+                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                                        <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Min Font Size</label>
+                                                        <ElasticSlider
+                                                            defaultValue={paintToysSettings.minFontSize}
+                                                            startingValue={5}
+                                                            maxValue={50}
+                                                            stepSize={1}
+                                                            isStepped
+                                                            leftIcon={<RiFontSize2 size={16} />}
+                                                            rightIcon={<RiFontSize2 size={24} />}
+                                                            onChange={(val) => setPaintToysSettings({ ...paintToysSettings, minFontSize: val })}
+                                                        />
+                                                    </div>
+
+                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                                        <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Max Font Size</label>
+                                                        <ElasticSlider
+                                                            defaultValue={paintToysSettings.maxFontSize}
+                                                            startingValue={50}
+                                                            maxValue={500}
+                                                            stepSize={10}
+                                                            isStepped
+                                                            leftIcon={<RiFontSize2 size={16} />}
+                                                            rightIcon={<RiFontSize2 size={24} />}
+                                                            onChange={(val) => setPaintToysSettings({ ...paintToysSettings, maxFontSize: val })}
+                                                        />
+                                                    </div>
+
+                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                                        <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Angle Distortion</label>
+                                                        <ElasticSlider
+                                                            defaultValue={paintToysSettings.angleDistortion * 100}
+                                                            startingValue={0}
+                                                            maxValue={50}
+                                                            stepSize={1}
+                                                            isStepped
+                                                            leftIcon={<MdAnimation size={16} />}
+                                                            rightIcon={<MdAnimation size={24} />}
+                                                            onChange={(val) => setPaintToysSettings({ ...paintToysSettings, angleDistortion: val / 100 })}
+                                                        />
+                                                    </div>
+
+                                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '10px' }}>
+                                                        <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>Text Color</span>
+                                                        <input
+                                                            type="color"
+                                                            value={paintSettings.textColor}
+                                                            onChange={(e) => setPaintSettings({ ...paintSettings, textColor: e.target.value })}
+                                                            style={{
+                                                                background: 'none',
+                                                                border: 'none',
+                                                                width: '40px',
+                                                                height: '40px',
+                                                                cursor: 'pointer'
+                                                            }}
+                                                        />
+                                                    </div>
+                                                </>
+                                            )}
+
+                                            {/* String Type Specific Controls */}
+                                            {activeTypeMode === 'string_type' && (
+                                                <>
+                                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                                                        <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>Text Color</span>
+                                                        <input
+                                                            type="color"
+                                                            value={stringTypeSettings.textColor}
+                                                            onChange={(e) => setStringTypeSettings({ ...stringTypeSettings, textColor: e.target.value })}
+                                                            style={{
+                                                                background: 'none',
+                                                                border: 'none',
+                                                                width: '40px',
+                                                                height: '40px',
+                                                                cursor: 'pointer'
+                                                            }}
+                                                        />
+                                                    </div>
+
+                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                                        <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Strip Count</label>
+                                                        <ElasticSlider
+                                                            defaultValue={stringTypeSettings.stripCount}
+                                                            startingValue={1}
+                                                            maxValue={6}
+                                                            stepSize={1}
+                                                            isStepped
+                                                            leftIcon={<RiStackLine size={16} />}
+                                                            rightIcon={<RiStackLine size={24} />}
+                                                            onChange={(val) => setStringTypeSettings({ ...stringTypeSettings, stripCount: val })}
+                                                        />
+                                                    </div>
+
+                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                                        <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Strip Height</label>
+                                                        <ElasticSlider
+                                                            defaultValue={stringTypeSettings.stripHeight}
+                                                            startingValue={10}
+                                                            maxValue={300}
+                                                            stepSize={5}
+                                                            isStepped
+                                                            leftIcon={<RiExpandHeightLine size={16} />}
+                                                            rightIcon={<RiExpandHeightLine size={24} />}
+                                                            onChange={(val) => setStringTypeSettings({ ...stringTypeSettings, stripHeight: val })}
+                                                        />
+                                                    </div>
+
+                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                                        <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Animation Speed</label>
+                                                        <ElasticSlider
+                                                            defaultValue={stringTypeSettings.animationSpeed * 10}
+                                                            startingValue={0}
+                                                            maxValue={50}
+                                                            stepSize={1}
+                                                            isStepped
+                                                            leftIcon={<RiSpeedLine size={16} />}
+                                                            rightIcon={<RiSpeedLine size={24} />}
+                                                            onChange={(val) => setStringTypeSettings({ ...stringTypeSettings, animationSpeed: val / 10 })}
+                                                        />
+                                                    </div>
+
+                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                                        <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Smoothness</label>
+                                                        <ElasticSlider
+                                                            defaultValue={stringTypeSettings.steps}
+                                                            startingValue={20}
+                                                            maxValue={100}
+                                                            stepSize={5}
+                                                            isStepped
+                                                            leftIcon={<RiStackLine size={16} />}
+                                                            rightIcon={<RiStackLine size={24} />}
+                                                            onChange={(val) => setStringTypeSettings({ ...stringTypeSettings, steps: val })}
+                                                        />
+                                                    </div>
+                                                </>
+                                            )}
                                         </>
                                     )}
 
