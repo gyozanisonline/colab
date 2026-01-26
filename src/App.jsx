@@ -13,6 +13,9 @@ import CommunityGallery from './components/CommunityGallery';
 import Controls from './components/Controls';
 import BackgroundShapes from './components/BackgroundShapes';
 import ASCIIText from './components/ASCIIText';
+import PaintText from './components/PaintText'; // Keeping for reference or removal
+import PaintToys from './components/PaintToys';
+import StringType from './components/StringType';
 
 import VersionOverlay from './components/VersionOverlay';
 
@@ -97,6 +100,15 @@ function App() {
         hoveredColor: 'hotpink',
         scale: 1,
         speed: 1
+    });
+
+    const [paintSettings, setPaintSettings] = useState({
+        mode: 'flow', // 'brush' or 'flow'
+        speed: 1,
+        stripHeight: 85,
+        density: 200,
+        stepDist: 100,
+        textColor: '#ffffff'
     });
 
     useEffect(() => {
@@ -207,6 +219,8 @@ function App() {
                             setDitherSettings={setDitherSettings}
                             blocksSettings={blocksSettings}
                             setBlocksSettings={setBlocksSettings}
+                            paintSettings={paintSettings}
+                            setPaintSettings={setPaintSettings}
                         />
                     )}
 
@@ -247,6 +261,20 @@ function App() {
                                 leading={asciiSettings.leading}
                             />
                         </div>
+                    )}
+
+                    {activeApp === 'typeflow' && activeTypeMode === 'paint_toys' && (
+                        <PaintToys
+                            text={textContent}
+                            textColor={paintSettings.textColor}
+                        />
+                    )}
+
+                    {activeApp === 'typeflow' && activeTypeMode === 'string_type' && (
+                        <StringType
+                            text={textContent}
+                        // Add more props if wire-up is done
+                        />
                     )}
 
                     <CommunityGallery isActive={activeApp === 'community'} />

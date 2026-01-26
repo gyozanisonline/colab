@@ -60,7 +60,7 @@ const effectCategories = {
     ]
 };
 
-export default function Controls({ activeStep, activeApp, onSwitchApp, activeBackground, shapes, addShape, clearShapes, shapeSettings, setShapeSettings, particleSettings, setParticleSettings, silkSettings, setSilkSettings, starfieldSettings, setStarfieldSettings, auroraSettings, setAuroraSettings, darkVeilSettings, setDarkVeilSettings, ditherSettings, setDitherSettings, blocksSettings, setBlocksSettings, activeTypeMode, setActiveTypeMode, textContent, setTextContent, asciiSettings, setAsciiSettings }) {
+export default function Controls({ activeStep, activeApp, onSwitchApp, activeBackground, shapes, addShape, clearShapes, shapeSettings, setShapeSettings, particleSettings, setParticleSettings, silkSettings, setSilkSettings, starfieldSettings, setStarfieldSettings, auroraSettings, setAuroraSettings, darkVeilSettings, setDarkVeilSettings, ditherSettings, setDitherSettings, blocksSettings, setBlocksSettings, paintSettings, setPaintSettings, activeTypeMode, setActiveTypeMode, textContent, setTextContent, asciiSettings, setAsciiSettings }) {
     // Local state to track control values for UI feedback
     const [fontSize, setFontSize] = useState(70);
     const [layerCount, setLayerCount] = useState(7);
@@ -951,6 +951,8 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                             >
                                 <option value="classic">Classic (2D)</option>
                                 <option value="ascii">ASCII (3D)</option>
+                                <option value="paint_toys">Paint (Toys)</option>
+                                <option value="string_type">String Type</option>
                             </select>
                         </div>
 
@@ -1144,6 +1146,39 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
 
                                                     </div>
                                                 </div>
+                                            </div>
+                                        </>
+                                    )}
+
+                                    {/* Paint Types Controls */}
+                                    {(activeTypeMode === 'paint_toys' || activeTypeMode === 'string_type') && (
+                                        <>
+                                            <div style={{ padding: '10px', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', marginBottom: '15px' }}>
+                                                <p style={{ margin: 0, fontSize: '0.8rem', color: '#aaa', fontStyle: 'italic' }}>
+                                                    {activeTypeMode === 'paint_toys'
+                                                        ? "Generative Design 'Texter' port. Move fast for large letters."
+                                                        : "Space Type Generator port. Kinetic text strings."}
+                                                </p>
+                                            </div>
+
+                                            {/* Reuse Text Color Logic if needed, or specific controls */}
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '10px' }}>
+                                                <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>Text Color</span>
+                                                <input
+                                                    type="color"
+                                                    value={activeTypeMode === 'paint_toys' ? paintSettings.textColor : '#ffffff'}
+                                                    onChange={(e) => {
+                                                        if (activeTypeMode === 'paint_toys') setPaintSettings({ ...paintSettings, textColor: e.target.value });
+                                                        // if(activeTypeMode === 'string_type') ... set color
+                                                    }}
+                                                    style={{
+                                                        background: 'none',
+                                                        border: 'none',
+                                                        width: '40px',
+                                                        height: '40px',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                />
                                             </div>
                                         </>
                                     )}
