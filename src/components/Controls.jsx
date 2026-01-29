@@ -452,14 +452,14 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                             marginBottom: '20px'
                         }}>
                             {[
-                                { id: 'starfield', label: 'Starfield', color: '#000033' },
-                                { id: 'wireframe', label: 'Wireframe', color: '#111111' },
-                                { id: 'color_bends', label: 'Color Bends', color: '#220022' },
-                                { id: 'dark_veil', label: 'Dark Veil', color: '#001100' },
-                                { id: 'dither', label: 'Dither', color: '#111122' },
-                                { id: 'aurora', label: 'Aurora', color: '#002222' },
-                                { id: 'silk', label: 'Silk', color: '#222200' },
-                                { id: 'spline_new', label: 'Spline New', color: '#112211' },
+                                { id: 'starfield', label: 'Starfield', color: '#000033', video: '/Thumbnails/Scene/starfield.mov' },
+                                { id: 'wireframe', label: 'Wireframe', color: '#000000', video: '/Thumbnails/Scene/wireframe.mov' },
+                                { id: 'color_bends', label: 'Color Bends', color: '#220022' }, /* No video found */
+                                { id: 'dark_veil', label: 'Dark Veil', color: '#001100', video: '/Thumbnails/Scene/dark_veil.mov' },
+                                { id: 'dither', label: 'Dither', color: '#111122', video: '/Thumbnails/Scene/dither.mov' },
+                                { id: 'aurora', label: 'Aurora', color: '#002222', video: '/Thumbnails/Scene/aurora.mov' },
+                                { id: 'silk', label: 'Silk', color: '#222200', video: '/Thumbnails/Scene/silk.mov' },
+                                { id: 'spline_new', label: 'Spline New', color: '#112211', video: '/Thumbnails/Scene/spline_new.mov' },
                             ].map((bg) => (
                                 <button
                                     key={bg.id}
@@ -469,10 +469,6 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                             legacySelect.value = bg.id;
                                             legacySelect.dispatchEvent(new Event('change'));
                                         }
-                                        // Also directly call props update if available/needed, 
-                                        // but the select change should trigger the state update loop via legacy listeners if set up that way.
-                                        // Assuming App.jsx updates activeBackground based on legacy or internal state.
-                                        // Since prompt uses controlled component pattern:
                                         if (window.app && window.app.setBackgroundReference) window.app.setBackgroundReference(bg.id);
                                     }}
                                     style={{
@@ -482,23 +478,47 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                         borderRadius: '8px',
                                         cursor: 'pointer',
                                         display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
                                         flexDirection: 'column',
-                                        padding: '5px',
-                                        transition: 'all 0.2s',
+                                        alignItems: 'center',
+                                        justifyContent: 'flex-end',
+                                        padding: '0',
+                                        color: 'white',
+                                        transition: 'all 0.2s ease',
+                                        overflow: 'hidden',
                                         position: 'relative'
                                     }}
                                     title={bg.label}
                                 >
+                                    {bg.video && (
+                                        <video
+                                            src={bg.video}
+                                            autoPlay
+                                            loop
+                                            muted
+                                            playsInline
+                                            style={{
+                                                position: 'absolute',
+                                                top: 0,
+                                                left: 0,
+                                                width: '100%',
+                                                height: '100%',
+                                                objectFit: 'cover',
+                                                opacity: 0.7,
+                                                zIndex: 0
+                                            }}
+                                        />
+                                    )}
                                     <span style={{
                                         fontSize: '0.65rem',
-                                        color: '#fff',
-                                        textAlign: 'center',
-                                        marginTop: 'auto',
-                                        marginBottom: 'auto',
                                         fontWeight: activeBackground === bg.id ? 'bold' : 'normal',
-                                        textShadow: '0 1px 2px rgba(0,0,0,0.8)'
+                                        color: activeBackground === bg.id ? '#E5B020' : 'white',
+                                        zIndex: 1,
+                                        textShadow: '0 1px 2px rgba(0,0,0,0.8)',
+                                        background: 'rgba(0,0,0,0.3)',
+                                        width: '100%',
+                                        textAlign: 'center',
+                                        padding: '4px 0',
+                                        backdropFilter: 'blur(2px)'
                                     }}>
                                         {bg.label}
                                     </span>
@@ -1703,7 +1723,7 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                     </div>
                 )}
             </div>
-        </StaggeredMenu>
+        </StaggeredMenu >
     );
 }
 
