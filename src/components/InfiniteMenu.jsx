@@ -1042,7 +1042,16 @@ class InfiniteGridMenu {
     #onControlUpdate(deltaTime) {
         const timeScale = deltaTime / this.TARGET_FRAME_DURATION + 0.0001;
         let damping = 5 / timeScale;
-        let cameraTargetZ = 3 * this.scaleFactor;
+
+        // Target Z depends on zoom state
+        // Default: 9.0 * scaleFactor (Further out)
+        // Zoomed: 5.5 * scaleFactor (Fit vertical)
+        const baseDist = this.isZoomed ? 5.5 : 9.0;
+        let cameraTargetZ = baseDist * this.scaleFactor;
+
+        // Target X offset (Camera moves Right -> Object appears Left)
+        const baseOffsetX = this.isZoomed ? 4.5 : 0;
+        let cameraTargetX = baseOffsetX;
 
         const isMoving = this.control.isPointerDown || Math.abs(this.smoothRotationVelocity) > 0.01;
 
@@ -1054,7 +1063,12 @@ class InfiniteGridMenu {
         if (!this.control.isPointerDown) {
             const nearestVertexIndex = this.#findNearestVertexIndex();
             const itemIndex = nearestVertexIndex % Math.max(1, this.items.length);
-            this.onActiveItemChange(itemIndex);
+
+            // Only update active item if it changed
+            if (this.lastItemIndex !== itemIndex) {
+                this.onActiveItemChange(itemIndex);
+                this.lastItemIndex = itemIndex; // basic tracking to avoid spam
+            }
 
             // Control video playback
             this.#updateVideoPlayback(itemIndex);
@@ -1067,7 +1081,12 @@ class InfiniteGridMenu {
         }
 
         this.camera.position[2] += (cameraTargetZ - this.camera.position[2]) / damping;
+        this.camera.position[0] += (cameraTargetX - this.camera.position[0]) / damping;
         this.#updateCameraMatrix();
+    }
+
+    setZoom(zoomed) {
+        this.isZoomed = zoomed;
     }
 
     #updateVideoPlayback(activeIndex) {
@@ -1126,6 +1145,8 @@ export default function InfiniteMenu({ items = [], scale = 1.0 }) {
     const canvasRef = useRef(null);
     const [activeItem, setActiveItem] = useState(null);
     const [isMoving, setIsMoving] = useState(false);
+    const [isZoomed, setIsZoomed] = useState(false);
+    const sketchRef = useRef(null);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -1133,7 +1154,18 @@ export default function InfiniteMenu({ items = [], scale = 1.0 }) {
 
         const handleActiveItem = index => {
             const itemIndex = index % items.length;
-            setActiveItem(items[itemIndex]);
+            const newItem = items[itemIndex];
+
+            // Only update if actually different to avoid unnecessary resets
+            setActiveItem(prev => {
+                if (prev !== newItem) {
+                    // Reset zoom on scroll
+                    setIsZoomed(false);
+                    if (sketchRef.current) sketchRef.current.setZoom(false);
+                    return newItem;
+                }
+                return prev;
+            });
         };
 
         if (canvas) {
@@ -1145,6 +1177,7 @@ export default function InfiniteMenu({ items = [], scale = 1.0 }) {
                 sk => sk.run(),
                 scale
             );
+            sketchRef.current = sketch;
         }
 
         const handleResize = () => {
@@ -1163,11 +1196,10 @@ export default function InfiniteMenu({ items = [], scale = 1.0 }) {
     }, [items, scale]);
 
     const handleButtonClick = () => {
-        if (!activeItem?.link) return;
-        if (activeItem.link.startsWith('http')) {
-            window.open(activeItem.link, '_blank');
-        } else {
-            console.log('Internal route:', activeItem.link);
+        if (!isZoomed) {
+            // Zoom In
+            setIsZoomed(true);
+            if (sketchRef.current) sketchRef.current.setZoom(true);
         }
     };
 
@@ -1177,13 +1209,31 @@ export default function InfiniteMenu({ items = [], scale = 1.0 }) {
 
             {activeItem && (
                 <>
-                    <h2 className={`face-title ${isMoving ? 'inactive' : 'active'}`}>{activeItem.title}</h2>
+                    {/* Default State: View Button Only */}
+                    {!isZoomed && (
+                        <button
+                            onClick={handleButtonClick}
+                            className={`action-button ${isMoving ? 'inactive' : 'active'}`}
+                        >
+                            View
+                        </button>
+                    )}
 
-                    <p className={`face-description ${isMoving ? 'inactive' : 'active'}`}> {activeItem.description}</p>
-
-                    <div onClick={handleButtonClick} className={`action-button ${isMoving ? 'inactive' : 'active'}`}>
-                        <p className="action-button-icon">&#x2197;</p>
-                    </div>
+                    {/* Zoomed State: Split Layout */}
+                    {isZoomed && (
+                        <div className="gallery-details-panel active">
+                            <div className="gallery-info">
+                                <h2>{activeItem.title || "Untitled"}</h2>
+                                <p className="gallery-description">
+                                    {activeItem.description || "A few words about this poster maybe names of the users any background about this poster and about it message maybe about colors and motion."}
+                                </p>
+                            </div>
+                            <div className="gallery-actions">
+                                <button className="gallery-btn">save</button>
+                                <button className="gallery-btn">remix</button>
+                            </div>
+                        </div>
+                    )}
                 </>
             )}
         </div>
