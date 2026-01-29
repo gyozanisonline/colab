@@ -9,8 +9,7 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: #000;
-    /* Assuming dark background */
+    background-color: transparent;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -69,7 +68,7 @@
     margin-top: 0;
 
     /* Edit these numbers in DevTools to position the Inputs! */
-    transform: translate(0px, 0px);
+    transform: translate(0px, 300px);
 }
 
 .intro-label {

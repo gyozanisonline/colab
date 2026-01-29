@@ -85,7 +85,7 @@ if (!HAS_DB) {
     await fs.writeFile(path.join(__dirname, 'posters.json'), '[]');
 }
 
-app.use(express.json()); // Enable JSON body parsing
+app.use(express.json({ limit: '50mb' })); // Enable JSON body parsing with increased limit for video uploads
 
 // Get all posters
 app.get('/api/posters', async (req, res) => {

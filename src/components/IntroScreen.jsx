@@ -50,11 +50,7 @@ export default function IntroScreen({ onComplete }) {
     return (
         <div className="intro-container">
             <div className="intro-content">
-                <img
-                    src="./assets/Colab Logo White.svg"
-                    alt="Colab Logo"
-                    className="intro-logo"
-                />
+
 
                 <div className="intro-form">
                     <div className="intro-row">

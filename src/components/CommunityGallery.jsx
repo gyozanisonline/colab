@@ -74,10 +74,25 @@ const CommunityGallery = ({ isActive }) => {
         const loadItems = async () => {
             setLoading(true);
             try {
-                // For now, use static video items instead of API
-                setItems(videoItems);
+                // Fetch user created posters
+                const response = await fetch('/api/posters');
+                const userPosters = await response.json();
+
+                const formattedUserPosters = userPosters.map(p => ({
+                    image: 'https://placehold.co/600x900/222/FFF?text=' + encodeURIComponent(p.title), // Placeholder or thumbnail if we had one
+                    video: p.video, // Base64 video date URI
+                    link: '#',
+                    title: p.title,
+                    description: p.author,
+                    state: p.state // Store state for remixing later
+                }));
+
+                // Combine with static items
+                setItems([...formattedUserPosters, ...videoItems]);
             } catch (err) {
                 console.error("Failed to load posters", err);
+                // Fallback to static only
+                setItems(videoItems);
             } finally {
                 setLoading(false);
             }

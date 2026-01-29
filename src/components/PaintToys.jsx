@@ -9,6 +9,7 @@ export default function PaintToys({
     fontFamily = 'Georgia'
 }) {
     const canvasRef = useRef(null);
+    const contextRef = useRef(null); // Store context for remote access
     const requestRef = useRef(null);
     const stateRef = useRef({
         position: { x: 0, y: 0 },
@@ -35,6 +36,8 @@ export default function PaintToys({
     useEffect(() => {
         const canvas = canvasRef.current;
         const context = canvas.getContext('2d');
+        contextRef.current = context; // Save to ref
+
         const scale = 2; // High DPI support
 
         // Resize handling
@@ -69,7 +72,21 @@ export default function PaintToys({
         };
 
         // Draw Loop
+        // Helper to draw a single letter (Local or Remote)
+        const drawLetter = (x, y, letter, fontSize, angle, color, font) => {
+            context.font = `${fontSize}px ${font}`;
+            context.fillStyle = color;
+
+            context.save();
+            context.translate(x, y);
+            context.rotate(angle);
+            context.fillText(letter, 0, 0);
+            context.restore();
+        };
+
+        // Draw Loop
         const draw = () => {
+            // Handle Local Drawing
             if (state.mouse.down) {
                 const newDistance = distance(state.position, state.mouse);
                 let fontSize = state.minFontSize + newDistance / 2;
@@ -84,14 +101,24 @@ export default function PaintToys({
                 if (newDistance > stepSize) {
                     const angle = Math.atan2(state.mouse.y - state.position.y, state.mouse.x - state.position.x);
 
-                    context.font = `${fontSize}px ${state.fontFamily}`;
-                    context.fillStyle = state.textColor;
+                    // Add some randomness locally
+                    const finalAngle = angle + (Math.random() * (state.angleDistortion * 2) - state.angleDistortion);
 
-                    context.save();
-                    context.translate(state.position.x, state.position.y);
-                    context.rotate(angle + (Math.random() * (state.angleDistortion * 2) - state.angleDistortion));
-                    context.fillText(letter, 0, 0);
-                    context.restore();
+                    // Draw Locally
+                    drawLetter(state.position.x, state.position.y, letter, fontSize, finalAngle, state.textColor, state.fontFamily);
+
+                    // Emit to Network
+                    if (window.emitPaintStroke) {
+                        window.emitPaintStroke({
+                            x: state.position.x / canvas.width, // Normalize
+                            y: state.position.y / canvas.height,
+                            letter: letter,
+                            fontSize: fontSize,
+                            angle: finalAngle,
+                            color: state.textColor,
+                            font: state.fontFamily
+                        });
+                    }
 
                     state.textIndex++;
                     if (state.textIndex > state.text.length - 1) {
@@ -103,6 +130,20 @@ export default function PaintToys({
                 }
             }
         };
+
+        // Network Listener
+        // Network Listener
+        const handleRemoteStroke = (e) => {
+            const data = e.detail;
+            if (!contextRef.current) return;
+
+            const x = data.x * canvas.width;
+            const y = data.y * canvas.height;
+
+            drawLetter(contextRef.current, x, y, data.letter, data.fontSize, data.angle, data.color, data.font);
+        };
+
+        window.addEventListener('remote-paint-stroke', handleRemoteStroke);
 
         const update = () => {
             draw();
@@ -158,6 +199,7 @@ export default function PaintToys({
             canvas.removeEventListener('touchstart', onDown);
             canvas.removeEventListener('touchmove', onMove);
             window.removeEventListener('touchend', onUp);
+            window.removeEventListener('remote-paint-stroke', handleRemoteStroke);
         };
     }, []);
 

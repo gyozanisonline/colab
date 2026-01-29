@@ -141,6 +141,23 @@ export default function StringType({
                     let rs = p.random(5, 20);
                     rSpeed[r] = rs / 10;
                 }
+
+                // Remote Drag Listener
+                window.addEventListener('remote-string-drag', (e) => {
+                    const data = e.detail;
+                    if (particles[data.sIndex] && particles[data.sIndex][data.pIndex]) {
+                        const pt = particles[data.sIndex][data.pIndex];
+                        // Denormalize
+                        pt.x = data.x * p.width;
+                        pt.y = data.y * p.height;
+                        pt.hx = data.hx * p.width;
+                        pt.hy = data.hy * p.height;
+                        pt.althx = data.althx * p.width;
+                        pt.althy = data.althy * p.height;
+                        // Force update handles internally if needed, but we set them directly
+                        // pt.updateHandles(); // Not needed if we set hx/hy directly
+                    }
+                });
             }
 
             p.draw = () => {
@@ -273,6 +290,22 @@ export default function StringType({
 
                         particles[n][j].update(p.mouseX, p.mouseY); // Should work if mouseX is relative to canvas corner
 
+                        // Emit Sync if dragging
+                        if ((particles[n][j].dragging || particles[n][j].draggingHandle || particles[n][j].draggingHandleAlt) && p.frameCount % 3 === 0) {
+                            if (window.emitStringDrag) {
+                                window.emitStringDrag({
+                                    sIndex: n,
+                                    pIndex: j,
+                                    x: particles[n][j].x / p.width, // Normalize
+                                    y: particles[n][j].y / p.height,
+                                    hx: particles[n][j].hx / p.width,
+                                    hy: particles[n][j].hy / p.height,
+                                    althx: particles[n][j].althx / p.width, // Sync both handles
+                                    althy: particles[n][j].althy / p.height
+                                });
+                            }
+                        }
+
                         particles[n][j].over(p.mouseX, p.mouseY);
                         particles[n][j].show(p, handleColor, false);
                     }
@@ -280,34 +313,58 @@ export default function StringType({
 
                 p.pop();
 
-                // Fade handle color
-                handleColor.setAlpha(handleAlpha);
-                if (handleAlpha >= 0) handleAlpha -= 15;
+                // Keep handles visible
+                handleColor.setAlpha(255);
+                // if (handleAlpha >= 0) handleAlpha -= 15;
             };
 
             p.mouseMoved = () => {
-                if (handleAlpha < 255) handleAlpha += 30;
+                // handleAlpha reset handled by constant visibility
             };
 
             p.mousePressed = () => {
                 clickedIn = true;
                 drgStartX = p.mouseX;
                 drgStartY = p.mouseY;
+                noneSelected = true; // Assume none, prove otherwise
 
                 for (var n = 0; n < squiggleCount; n++) {
                     for (var j = 0; j < particles[n].length; j++) {
-                        particles[n][j].pressed(p.mouseX, p.mouseY);
+                        if (particles[n][j].pressed(p.mouseX, p.mouseY)) {
+                            noneSelected = false;
+                        }
                     }
                 }
             };
 
             p.mouseDragged = () => {
+                // If we are dragging a handle, dragHL etc are updated by Particle class internally?
+                // Particle.update takes mouseX, mouseY.
+                // But here we calculate drag handle length for the NEW point visualization
                 drgHL = p.dist(drgStartX, drgStartY, p.mouseX, p.mouseY);
                 drgA = p.atan2(drgStartY - p.mouseY, drgStartX - p.mouseX);
                 draggedIn = true;
             };
 
             p.mouseReleased = () => {
+                // If we were dragging to create a new point
+                if (draggedIn && noneSelected) {
+                    // Add new particle
+                    // Helper to get last particle of current squiggle
+                    let lastP = particles[squiggleCount - 1][particles[squiggleCount - 1].length - 1];
+
+                    // New particle at drag start (where we clicked)
+                    // Angle based on drag
+                    // Handle length based on drag
+                    let newP = new Particle(drgStartX, drgStartY, drgA, drgHL, stripHeight);
+                    // Adjust handle of previous point to smooth? 
+                    // Original logic usually adjusts previous point's alt handle or similar.
+                    // For now simple add:
+                    particles[squiggleCount - 1].push(newP);
+
+                    // Update steps/particles count? loops handle .length automatically
+                }
+
                 for (var n = 0; n < squiggleCount; n++) {
                     for (var j = 0; j < particles[n].length; j++) {
                         particles[n][j].released();
@@ -315,6 +372,7 @@ export default function StringType({
                 }
                 clickedIn = false;
                 draggedIn = false;
+                noneSelected = true;
             };
         };
 

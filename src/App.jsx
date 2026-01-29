@@ -20,9 +20,11 @@ import StringType from './components/StringType';
 import VersionOverlay from './components/VersionOverlay';
 
 import IntroScreen from './components/IntroScreen';
+import ParticleIntro from './components/ParticleIntro';
 
 function App() {
     const [showIntro, setShowIntro] = useState(true);
+    const [showIntroUI, setShowIntroUI] = useState(false);
     const [activeBackground, setActiveBackground] = useState('starfield'); // Default to StarField (lighter on GPU)
     const [activeApp, setActiveApp] = useState('typeflow');
     const [activeStep, setActiveStep] = useState(1);
@@ -193,10 +195,17 @@ function App() {
 
 
 
+    const removeShape = (id) => {
+        setShapes(prev => prev.filter(shape => shape.id !== id));
+    };
+
     return (
         <div style={{ width: '100%', height: '100%' }}>
             {showIntro ? (
-                <IntroScreen onComplete={handleIntroComplete} />
+                <>
+                    <ParticleIntro onComplete={() => setShowIntroUI(true)} />
+                    {showIntroUI && <IntroScreen onComplete={handleIntroComplete} />}
+                </>
             ) : (
                 <>
                     <VersionOverlay />
@@ -250,7 +259,7 @@ function App() {
                     {activeApp === 'typeflow' && (
                         <div style={{ width: '100%', height: '100%', pointerEvents: 'none' }}>
                             {/* Background Shapes: Z-index managed by CSS or default stacking. Should be above bg, below type. */}
-                            <BackgroundShapes shapes={shapes} settings={shapeSettings} />
+                            <BackgroundShapes shapes={shapes} settings={shapeSettings} onRemove={removeShape} />
 
                             {activeBackground === 'silk' && <Silk {...silkSettings} />}
                             {activeBackground === 'spline_new' && <SplineBackground sceneUrl="https://prod.spline.design/Gc46LQNHKmMSkOyq/scene.splinecode" />}

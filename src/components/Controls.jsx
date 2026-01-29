@@ -454,7 +454,7 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                             {[
                                 { id: 'starfield', label: 'Starfield', color: '#000033', video: '/Thumbnails/Scene/starfield.mov' },
                                 { id: 'wireframe', label: 'Wireframe', color: '#000000', video: '/Thumbnails/Scene/wireframe.mov' },
-                                { id: 'color_bends', label: 'Color Bends', color: '#220022' }, /* No video found */
+                                { id: 'color_bends', label: 'Color Bends', color: '#220022', video: '/Thumbnails/Scene/color_bends.mov' },
                                 { id: 'dark_veil', label: 'Dark Veil', color: '#001100', video: '/Thumbnails/Scene/dark_veil.mov' },
                                 { id: 'dither', label: 'Dither', color: '#111122', video: '/Thumbnails/Scene/dither.mov' },
                                 { id: 'aurora', label: 'Aurora', color: '#002222', video: '/Thumbnails/Scene/aurora.mov' },
@@ -1019,12 +1019,62 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                         <div style={{ marginTop: '20px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '15px' }}>
                             <h3 style={uiStyles.sectionTitle}>Background Shapes</h3>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '15px' }}>
-                                <button onClick={() => addShape('circle')} style={uiStyles.button}>+ Circle</button>
-                                <button onClick={() => addShape('rectangle')} style={uiStyles.button}>+ Rect</button>
-                                <button onClick={() => addShape('triangle')} style={uiStyles.button}>+ Triangle</button>
-                                <button onClick={() => addShape('star')} style={uiStyles.button}>+ Star</button>
-                                <button onClick={() => addShape('spiral')} style={uiStyles.button}>+ Spiral</button>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px', marginBottom: '15px' }}>
+                                {[
+                                    {
+                                        type: 'circle', icon: (
+                                            <svg viewBox="0 0 100 100" style={{ width: '100%', height: '100%', pointerEvents: 'none' }}>
+                                                <circle cx="50" cy="50" r="35" stroke="white" strokeWidth="4" fill="none" />
+                                            </svg>
+                                        )
+                                    },
+                                    {
+                                        type: 'rectangle', icon: (
+                                            <svg viewBox="0 0 100 100" style={{ width: '100%', height: '100%', pointerEvents: 'none' }}>
+                                                <rect x="25" y="25" width="50" height="50" stroke="white" strokeWidth="4" fill="none" />
+                                            </svg>
+                                        )
+                                    },
+                                    {
+                                        type: 'triangle', icon: (
+                                            <svg viewBox="0 0 100 100" style={{ width: '100%', height: '100%', pointerEvents: 'none' }}>
+                                                <polygon points="50,20 80,75 20,75" stroke="white" strokeWidth="4" fill="none" />
+                                            </svg>
+                                        )
+                                    },
+                                    {
+                                        type: 'star', icon: (
+                                            <svg viewBox="0 0 100 100" style={{ width: '100%', height: '100%', pointerEvents: 'none' }}>
+                                                <polygon points="50,15 61,40 90,40 68,60 79,90 50,75 21,90 32,60 10,40 39,40" stroke="white" strokeWidth="3" fill="none" />
+                                            </svg>
+                                        )
+                                    },
+                                    {
+                                        type: 'spiral', icon: (
+                                            <svg viewBox="0 0 100 100" style={{ width: '100%', height: '100%', pointerEvents: 'none' }}>
+                                                <path d="M50,50 m 0,0 a 1,1 0 0,1 2,0 a 2,2 0 0,1 -4,0 a 3,3 0 0,1 6,0 a 4,4 0 0,1 -8,0 a 5,5 0 0,1 10,0 a 6,6 0 0,1 -12,0" stroke="white" strokeWidth="2" fill="none" transform="scale(3) translate(-33, -33)" />
+                                            </svg>
+                                        )
+                                    }
+                                ].map((shape) => (
+                                    <button
+                                        key={shape.type}
+                                        onClick={() => addShape(shape.type)}
+                                        style={{
+                                            ...uiStyles.button,
+                                            padding: '8px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            aspectRatio: '1',
+                                            background: 'rgba(255,255,255,0.05)',
+                                            border: '1px solid rgba(255,255,255,0.1)'
+                                        }}
+                                        title={`Add ${shape.type.charAt(0).toUpperCase() + shape.type.slice(1)}`}
+                                    >
+                                        {shape.icon}
+                                    </button>
+                                ))}
                             </div>
 
                             {shapes.length > 0 && (
