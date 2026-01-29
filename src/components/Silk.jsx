@@ -1,7 +1,5 @@
-
-import { forwardRef, useMemo, useRef, useLayoutEffect } from 'react';
+import { forwardRef, useMemo, useRef } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { useControls } from 'leva';
 import { Color } from 'three';
 
 const hexToNormalizedRGB = (hex) => {
@@ -69,41 +67,10 @@ void main() {
 }
 `;
 
-const SilkPlane = forwardRef(function SilkPlane({ uniforms }, ref) {
+const SilkPlane = forwardRef(function SilkPlane({ speed, scale, color, noiseIntensity, rotation }, ref) {
     const { viewport } = useThree();
 
-    useLayoutEffect(() => {
-        if (ref.current) {
-            ref.current.scale.set(viewport.width, viewport.height, 1);
-        }
-    }, [ref, viewport]);
-
-    useFrame((state, delta) => {
-        if (ref.current) {
-            ref.current.material.uniforms.uTime.value += 0.1 * delta;
-        }
-    });
-
-    return (
-        <mesh ref={ref}>
-            <planeGeometry args={[1, 1, 1, 1]} />
-            <shaderMaterial uniforms={uniforms} vertexShader={vertexShader} fragmentShader={fragmentShader} />
-        </mesh>
-    );
-});
-
-const Silk = ({ speed: defaultSpeed = 5, scale: defaultScale = 1, color: defaultColor = '#7B7481', noiseIntensity: defaultNoise = 1.5, rotation: defaultRotation = 0 }) => {
-    const meshRef = useRef(null);
-
-    // Leva Controls
-    const { speed, scale, color, noiseIntensity, rotation } = useControls('Silk', {
-        speed: { value: defaultSpeed, min: 0.1, max: 20 },
-        scale: { value: defaultScale, min: 0.1, max: 5 },
-        color: { value: defaultColor },
-        noiseIntensity: { value: defaultNoise, min: 0, max: 5 },
-        rotation: { value: defaultRotation, min: 0, max: 6.28 }
-    });
-
+    // Uniforms ref to avoid re-creating object every frame
     const uniforms = useMemo(
         () => ({
             uSpeed: { value: speed },
@@ -113,23 +80,41 @@ const Silk = ({ speed: defaultSpeed = 5, scale: defaultScale = 1, color: default
             uRotation: { value: rotation },
             uTime: { value: 0 }
         }),
-        [speed, scale, noiseIntensity, color, rotation]
+        [] // Initial setup only
     );
 
-    useFrame(() => {
-        if (meshRef.current) {
-            // Ensure uniforms update if memo changes ref (though R3F handles this usually, manual update is safer for uniforms)
-            meshRef.current.material.uniforms.uSpeed.value = speed;
-            meshRef.current.material.uniforms.uScale.value = scale;
-            meshRef.current.material.uniforms.uNoiseIntensity.value = noiseIntensity;
-            meshRef.current.material.uniforms.uColor.value.set(color);
-            meshRef.current.material.uniforms.uRotation.value = rotation;
+    useFrame((state, delta) => {
+        // ref might be attached to the mesh, but we need to access material
+        // We can use a local ref for the material if needed, or assume the forwarded ref is the mesh
+        if (ref.current) {
+            ref.current.material.uniforms.uTime.value += 0.1 * delta;
+            // Update uniforms from props
+            ref.current.material.uniforms.uSpeed.value = speed;
+            ref.current.material.uniforms.uScale.value = scale;
+            ref.current.material.uniforms.uNoiseIntensity.value = noiseIntensity;
+            ref.current.material.uniforms.uColor.value.set(color);
+            ref.current.material.uniforms.uRotation.value = rotation;
         }
     });
 
     return (
+        <mesh ref={ref} scale={[viewport.width, viewport.height, 1]}>
+            <planeGeometry args={[1, 1]} />
+            <shaderMaterial
+                uniforms={uniforms}
+                vertexShader={vertexShader}
+                fragmentShader={fragmentShader}
+            />
+        </mesh>
+    );
+});
+
+const Silk = (props) => {
+    const meshRef = useRef(null);
+
+    return (
         <Canvas dpr={[1, 2]} frameloop="always" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
-            <SilkPlane ref={meshRef} uniforms={uniforms} />
+            <SilkPlane ref={meshRef} {...props} />
         </Canvas>
     );
 };
