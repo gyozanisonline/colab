@@ -253,7 +253,6 @@ function App() {
                             <BackgroundShapes shapes={shapes} settings={shapeSettings} />
 
                             {activeBackground === 'silk' && <Silk {...silkSettings} />}
-                            {activeBackground === 'spline' && <SplineBackground />}
                             {activeBackground === 'spline_new' && <SplineBackground sceneUrl="https://prod.spline.design/Gc46LQNHKmMSkOyq/scene.splinecode" />}
                             {activeBackground === 'starfield' && <StarField {...starfieldSettings} />}
                             {activeBackground === 'aurora' && <Aurora {...auroraSettings} />}

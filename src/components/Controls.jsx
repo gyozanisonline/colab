@@ -8,6 +8,8 @@ import { Leva } from 'leva';
 import { RiFontSize2, RiStackLine, RiSpeedLine, RiExpandWidthLine, RiExpandHeightLine } from "react-icons/ri";
 import { filterProfanity } from '../utils/profanityFilter';
 import { MdAnimation, MdGridOn } from 'react-icons/md';
+import { RiUploadCloud2Line } from "react-icons/ri";
+import recorder from '../utils/RecorderManager';
 
 const uiStyles = {
     control: {
@@ -252,6 +254,124 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                 </button>
             </div>
 
+            {/* Fixed Controls (Save/Publish) */}
+            <div style={{
+                padding: '15px 20px',
+                borderBottom: '1px solid rgba(255,255,255,0.1)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px',
+                background: 'rgba(0,0,0,0.2)' // Slight darker bg to separate
+            }}>
+                <div style={{ display: 'flex', gap: '10px' }}>
+
+
+                    <StarBorder
+                        as="button"
+                        color="#20E5B0"
+                        speed="3s"
+                        onClick={async () => {
+                            const author = prompt("Enter your name:", "Anonymous");
+                            if (!author) return;
+                            const title = prompt("Enter a title for your poster:", "Untitled");
+                            if (!title) return;
+
+                            const btn = document.activeElement;
+                            const originalText = btn.innerText;
+                            // Ensure button is found - sometimes activeElement is body if clicked div
+                            // But StarBorder renders as button here.
+                            if (btn && btn.tagName === 'BUTTON') {
+                                btn.innerText = "REC...";
+                                btn.disabled = true;
+                            }
+
+                            recorder.startRecording(4000, async (blob) => {
+                                if (btn && btn.tagName === 'BUTTON') btn.innerText = "UP...";
+
+                                // Convert Blob to Base64
+                                const reader = new FileReader();
+                                reader.readAsDataURL(blob);
+                                reader.onloadend = async () => {
+                                    const base64Video = reader.result;
+
+                                    // Collect State
+                                    const appState = {
+                                        activeBackground,
+                                        activeTypeMode,
+                                        textContent,
+                                        settings: {
+                                            shapeSettings,
+                                            particleSettings,
+                                            silkSettings,
+                                            starfieldSettings,
+                                            auroraSettings,
+                                            darkVeilSettings,
+                                            ditherSettings,
+                                            blocksSettings,
+                                            paintSettings,
+                                            paintToysSettings,
+                                            stringTypeSettings,
+                                            asciiSettings,
+                                            fontSize,
+                                            layerCount,
+                                            animSpeed,
+                                            animSpread,
+                                            animIntensity,
+                                            bgGridDensity,
+                                            bgScrollSpeed
+                                        }
+                                    };
+
+                                    try {
+                                        const res = await fetch('/api/posters', {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({
+                                                author,
+                                                title,
+                                                text: textContent,
+                                                video: base64Video,
+                                                state: appState
+                                            })
+                                        });
+
+                                        if (res.ok) {
+                                            alert("Published!");
+                                        } else {
+                                            const err = await res.json();
+                                            alert("Failed: " + err.error);
+                                        }
+                                    } catch (error) {
+                                        console.error("Upload failed", error);
+                                        alert("Error uploading.");
+                                    } finally {
+                                        if (btn && btn.tagName === 'BUTTON') {
+                                            btn.innerText = "PUBLISH";
+                                            btn.disabled = false;
+                                        }
+                                    }
+                                };
+                            });
+                        }}
+                        style={{ flex: 1, fontSize: '0.8rem' }}
+                    >
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}>
+                            <RiUploadCloud2Line size={16} />
+                            PUBLISH
+                        </div>
+                    </StarBorder>
+                </div>
+
+                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '0.8rem', justifyContent: 'center' }}>
+                    <input
+                        type="checkbox"
+                        onChange={(e) => window.togglePosterMode && window.togglePosterMode(e.target.checked)}
+                        style={{ accentColor: '#E5B020', width: '14px', height: '14px' }}
+                    />
+                    Poster Mode
+                </label>
+            </div>
+
             {/* Scrollable Main Area (Controls) */}
             <div style={{
                 flex: 1, // Fill remaining space
@@ -316,27 +436,7 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                     </button>
                 </div>
 
-                {/* Global Controls Section */}
-                <div style={{ paddingBottom: '15px', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    <StarBorder
-                        as="button"
-                        color="#E5B020"
-                        speed="3s"
-                        onClick={() => window.savePoster && window.savePoster()}
-                        style={{ width: '100%', fontSize: '0.9rem' }}
-                    >
-                        SAVE POSTER
-                    </StarBorder>
 
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '0.9rem' }}>
-                        <input
-                            type="checkbox"
-                            onChange={(e) => window.togglePosterMode && window.togglePosterMode(e.target.checked)}
-                            style={{ accentColor: '#E5B020', width: '16px', height: '16px' }}
-                        />
-                        Poster Mode
-                    </label>
-                </div>
 
 
 
@@ -344,33 +444,66 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                     <div className="controls-section">
                         <h3 style={uiStyles.sectionTitle}>Background Settings</h3>
 
-                        {/* Background Selector */}
-                        <div style={{ marginBottom: '20px' }}>
-                            <label style={uiStyles.label}>Type</label>
-                            <select
-                                onChange={(e) => {
-                                    const legacySelect = document.getElementById('bg-type-select');
-                                    if (legacySelect) {
-                                        legacySelect.value = e.target.value;
-                                        legacySelect.dispatchEvent(new Event('change'));
-                                    }
-                                }}
-                                value={activeBackground || 'wireframe'} // Controlled component
-                                style={uiStyles.control}
-                            >
-                                <option value="starfield">Starfield</option>
-                                <option value="wireframe">Wireframe</option>
-                                <option value="color_bends">Color Bends</option>
-                                <option value="dark_veil">Dark Veil</option>
-                                <option value="dither">Dither</option>
-                                <option value="aurora">Aurora</option>
-                                <option value="blocks">Blocks</option>
-                                <option value="particles">Particles</option>
-                                <option value="silk">Silk</option>
-                                <option value="spline">Spline 3D</option>
-                                <option value="spline_new">Spline New</option>
-                                <option value="none">None</option>
-                            </select>
+                        {/* Background Grid */}
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(4, 1fr)',
+                            gap: '8px',
+                            marginBottom: '20px'
+                        }}>
+                            {[
+                                { id: 'starfield', label: 'Starfield', color: '#000033' },
+                                { id: 'wireframe', label: 'Wireframe', color: '#111111' },
+                                { id: 'color_bends', label: 'Color Bends', color: '#220022' },
+                                { id: 'dark_veil', label: 'Dark Veil', color: '#001100' },
+                                { id: 'dither', label: 'Dither', color: '#111122' },
+                                { id: 'aurora', label: 'Aurora', color: '#002222' },
+                                { id: 'silk', label: 'Silk', color: '#222200' },
+                                { id: 'spline_new', label: 'Spline New', color: '#112211' },
+                            ].map((bg) => (
+                                <button
+                                    key={bg.id}
+                                    onClick={() => {
+                                        const legacySelect = document.getElementById('bg-type-select');
+                                        if (legacySelect) {
+                                            legacySelect.value = bg.id;
+                                            legacySelect.dispatchEvent(new Event('change'));
+                                        }
+                                        // Also directly call props update if available/needed, 
+                                        // but the select change should trigger the state update loop via legacy listeners if set up that way.
+                                        // Assuming App.jsx updates activeBackground based on legacy or internal state.
+                                        // Since prompt uses controlled component pattern:
+                                        if (window.app && window.app.setBackgroundReference) window.app.setBackgroundReference(bg.id);
+                                    }}
+                                    style={{
+                                        aspectRatio: '1',
+                                        background: bg.color,
+                                        border: activeBackground === bg.id ? '2px solid #E5B020' : '1px solid rgba(255,255,255,0.1)',
+                                        borderRadius: '8px',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        flexDirection: 'column',
+                                        padding: '5px',
+                                        transition: 'all 0.2s',
+                                        position: 'relative'
+                                    }}
+                                    title={bg.label}
+                                >
+                                    <span style={{
+                                        fontSize: '0.65rem',
+                                        color: '#fff',
+                                        textAlign: 'center',
+                                        marginTop: 'auto',
+                                        marginBottom: 'auto',
+                                        fontWeight: activeBackground === bg.id ? 'bold' : 'normal',
+                                        textShadow: '0 1px 2px rgba(0,0,0,0.8)'
+                                    }}>
+                                        {bg.label}
+                                    </span>
+                                </button>
+                            ))}
                         </div>
 
                         {/* Leva Controls Panel */}
@@ -1168,7 +1301,7 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                                         <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Font Family</label>
                                                         <select
                                                             value={paintToysSettings.fontFamily}
-                                                            onChange={(e) => setPaintToysSettings({ ...paintToysSettings, fontFamily: e.target.value })}
+                                                            onChange={(e) => setPaintToysSettings('fontFamily', e.target.value)}
                                                             style={uiStyles.control}
                                                         >
                                                             <option value="Georgia">Georgia</option>
@@ -1192,7 +1325,7 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                                             isStepped
                                                             leftIcon={<RiFontSize2 size={16} />}
                                                             rightIcon={<RiFontSize2 size={24} />}
-                                                            onChange={(val) => setPaintToysSettings({ ...paintToysSettings, minFontSize: val })}
+                                                            onChange={(val) => setPaintToysSettings('minFontSize', val)}
                                                         />
                                                     </div>
 
@@ -1206,7 +1339,7 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                                             isStepped
                                                             leftIcon={<RiFontSize2 size={16} />}
                                                             rightIcon={<RiFontSize2 size={24} />}
-                                                            onChange={(val) => setPaintToysSettings({ ...paintToysSettings, maxFontSize: val })}
+                                                            onChange={(val) => setPaintToysSettings('maxFontSize', val)}
                                                         />
                                                     </div>
 
@@ -1220,7 +1353,7 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                                             isStepped
                                                             leftIcon={<MdAnimation size={16} />}
                                                             rightIcon={<MdAnimation size={24} />}
-                                                            onChange={(val) => setPaintToysSettings({ ...paintToysSettings, angleDistortion: val / 100 })}
+                                                            onChange={(val) => setPaintToysSettings('angleDistortion', val / 100)}
                                                         />
                                                     </div>
 
@@ -1250,7 +1383,7 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                                         <input
                                                             type="color"
                                                             value={stringTypeSettings.textColor}
-                                                            onChange={(e) => setStringTypeSettings({ ...stringTypeSettings, textColor: e.target.value })}
+                                                            onChange={(e) => setStringTypeSettings('textColor', e.target.value)}
                                                             style={{
                                                                 background: 'none',
                                                                 border: 'none',
@@ -1271,7 +1404,7 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                                             isStepped
                                                             leftIcon={<RiStackLine size={16} />}
                                                             rightIcon={<RiStackLine size={24} />}
-                                                            onChange={(val) => setStringTypeSettings({ ...stringTypeSettings, stripCount: val })}
+                                                            onChange={(val) => setStringTypeSettings('stripCount', val)}
                                                         />
                                                     </div>
 
@@ -1285,7 +1418,7 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                                             isStepped
                                                             leftIcon={<RiExpandHeightLine size={16} />}
                                                             rightIcon={<RiExpandHeightLine size={24} />}
-                                                            onChange={(val) => setStringTypeSettings({ ...stringTypeSettings, stripHeight: val })}
+                                                            onChange={(val) => setStringTypeSettings('stripHeight', val)}
                                                         />
                                                     </div>
 
@@ -1299,7 +1432,7 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                                             isStepped
                                                             leftIcon={<RiSpeedLine size={16} />}
                                                             rightIcon={<RiSpeedLine size={24} />}
-                                                            onChange={(val) => setStringTypeSettings({ ...stringTypeSettings, animationSpeed: val / 10 })}
+                                                            onChange={(val) => setStringTypeSettings('animationSpeed', val / 10)}
                                                         />
                                                     </div>
 
@@ -1313,7 +1446,7 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                                             isStepped
                                                             leftIcon={<RiStackLine size={16} />}
                                                             rightIcon={<RiStackLine size={24} />}
-                                                            onChange={(val) => setStringTypeSettings({ ...stringTypeSettings, steps: val })}
+                                                            onChange={(val) => setStringTypeSettings('steps', val)}
                                                         />
                                                     </div>
                                                 </>
