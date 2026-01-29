@@ -471,6 +471,17 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                         }
                                         if (window.app && window.app.setBackgroundReference) window.app.setBackgroundReference(bg.id);
                                     }}
+                                    onMouseEnter={(e) => {
+                                        const vid = e.currentTarget.querySelector('video');
+                                        if (vid) vid.play();
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        const vid = e.currentTarget.querySelector('video');
+                                        if (vid) {
+                                            vid.pause();
+                                            vid.currentTime = 0;
+                                        }
+                                    }}
                                     style={{
                                         aspectRatio: '1',
                                         background: bg.color,
@@ -492,7 +503,6 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                     {bg.video && (
                                         <video
                                             src={bg.video}
-                                            autoPlay
                                             loop
                                             muted
                                             playsInline
