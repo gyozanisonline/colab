@@ -16,6 +16,7 @@ import ASCIIText from './components/ASCIIText';
 import PaintText from './components/PaintText'; // Keeping for reference or removal
 import PaintToys from './components/PaintToys';
 import StringType from './components/StringType';
+import CRTEffect from './components/CRTEffect';
 
 import VersionOverlay from './components/VersionOverlay';
 
@@ -35,7 +36,8 @@ function App() {
         size: 1,
         speed: 20, // seconds for full rotation (lower is faster)
         fillOpacity: 0.1,
-        strokeWidth: 0.5
+        strokeWidth: 0.5,
+        color: '#ffffff'
     });
 
     const [particleSettings, setParticleSettings] = useState({
@@ -48,7 +50,7 @@ function App() {
     const [silkSettings, setSilkSettings] = useState({
         speed: 5,
         scale: 1,
-        color: '#00ffcc',
+        color: '#7f00ff',
         noiseIntensity: 1.5,
         rotation: 0
     });
@@ -85,10 +87,13 @@ function App() {
     });
 
     const [darkVeilSettings, setDarkVeilSettings] = useState({
-        baseColor: '#d500ff',
-        veilColor: '#1a1a1a',
-        density: 1.0,
-        speed: 0.2
+        hueShift: 336, // Default from React Bits
+        noiseIntensity: 0,
+        scanlineIntensity: 0,
+        speed: 3,
+        scanlineFrequency: 0,
+        warpAmount: 0,
+        resolutionScale: 1
     });
 
     const [ditherSettings, setDitherSettings] = useState({
@@ -102,6 +107,18 @@ function App() {
         hoveredColor: 'hotpink',
         scale: 1,
         speed: 1
+    });
+
+    const [colorBendsSettings, setColorBendsSettings] = useState({
+        rotation: 0,
+        autoRotate: 0,
+        speed: 0.5,
+        scale: 0.25,
+        frequency: 2,
+        warpStrength: 1,
+        mouseInfluence: 0.5,
+        parallax: 2,
+        noise: 0
     });
 
     const [paintSettings, setPaintSettings] = useState({
@@ -126,6 +143,21 @@ function App() {
         steps: 70,
         stripCount: 2,
         textColor: '#ffffff'
+    });
+
+    // CRT Effect Settings (separate for background and type layers)
+    const [crtBackgroundSettings, setCrtBackgroundSettings] = useState({
+        enabled: false,
+        intensity: 70,
+        scanlineDensity: 50,
+        chromaAmount: 50
+    });
+
+    const [crtTypeSettings, setCrtTypeSettings] = useState({
+        enabled: false,
+        intensity: 70,
+        scanlineDensity: 50,
+        chromaAmount: 50
     });
 
     useEffect(() => {
@@ -184,7 +216,7 @@ function App() {
             type: type,
             x: 0,
             y: 0,
-            color: 'rgba(255, 255, 255, 0.8)'
+            color: shapeSettings.color || 'rgba(255, 255, 255, 0.8)'
         };
         setShapes([...shapes, newShape]);
     };
@@ -193,10 +225,14 @@ function App() {
         setShapes([]);
     };
 
-
-
     const removeShape = (id) => {
         setShapes(prev => prev.filter(shape => shape.id !== id));
+    };
+
+    const updateShapeColor = (id, newColor) => {
+        setShapes(prev => prev.map(shape =>
+            shape.id === id ? { ...shape, color: newColor } : shape
+        ));
     };
 
     return (
@@ -220,6 +256,8 @@ function App() {
                             activeBackground={activeBackground}
                             shapes={shapes}
                             addShape={addShape}
+                            updateShapeColor={updateShapeColor}
+                            removeShape={removeShape}
                             clearShapes={clearShapes}
                             shapeSettings={shapeSettings}
                             setShapeSettings={setShapeSettings}
@@ -249,6 +287,12 @@ function App() {
                             setPaintToysSettings={setPaintToysSettings}
                             stringTypeSettings={stringTypeSettings}
                             setStringTypeSettings={setStringTypeSettings}
+                            crtBackgroundSettings={crtBackgroundSettings}
+                            setCrtBackgroundSettings={setCrtBackgroundSettings}
+                            crtTypeSettings={crtTypeSettings}
+                            setCrtTypeSettings={setCrtTypeSettings}
+                            colorBendsSettings={colorBendsSettings}
+                            setColorBendsSettings={setColorBendsSettings}
                         />
                     )}
 
@@ -267,9 +311,18 @@ function App() {
                             {activeBackground === 'aurora' && <Aurora {...auroraSettings} />}
                             {activeBackground === 'blocks' && <Blocks {...blocksSettings} />}
                             {activeBackground === 'particles' && <Particles {...particleSettings} />}
-                            {activeBackground === 'color_bends' && <ColorBends />}
+                            {activeBackground === 'color_bends' && <ColorBends {...colorBendsSettings} />}
                             {activeBackground === 'dark_veil' && <DarkVeil {...darkVeilSettings} />}
                             {activeBackground === 'dither' && <Dither {...ditherSettings} />}
+
+                            {/* CRT Effect for Background Layer */}
+                            <CRTEffect
+                                enabled={crtBackgroundSettings.enabled}
+                                intensity={crtBackgroundSettings.intensity}
+                                scanlineDensity={crtBackgroundSettings.scanlineDensity}
+                                chromaAmount={crtBackgroundSettings.chromaAmount}
+                                layer="background"
+                            />
                         </div>
                     )}
 
@@ -309,6 +362,17 @@ function App() {
                             steps={stringTypeSettings.steps}
                             stripCount={stringTypeSettings.stripCount}
                             textColor={stringTypeSettings.textColor}
+                        />
+                    )}
+
+                    {/* CRT Effect for Type Layer */}
+                    {activeApp === 'typeflow' && (
+                        <CRTEffect
+                            enabled={crtTypeSettings.enabled}
+                            intensity={crtTypeSettings.intensity}
+                            scanlineDensity={crtTypeSettings.scanlineDensity}
+                            chromaAmount={crtTypeSettings.chromaAmount}
+                            layer="type"
                         />
                     )}
 

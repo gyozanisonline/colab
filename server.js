@@ -99,6 +99,24 @@ app.get('/api/posters', async (req, res) => {
     }
 });
 
+// --- MUSIC SEARCH API (iTunes proxy) ---
+app.get('/api/music-search', async (req, res) => {
+    try {
+        const query = req.query.q;
+        if (!query) return res.json({ results: [] });
+
+        // Search songs, limit to 50 for better variety
+        const url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=50`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        res.json(data);
+    } catch (err) {
+        console.error("Error searching music:", err);
+        res.status(500).json({ error: 'Failed to search music' });
+    }
+});
+
 // Save a poster
 app.post('/api/posters', async (req, res) => {
     try {

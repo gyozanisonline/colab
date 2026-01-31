@@ -7,9 +7,16 @@ import { Leva } from 'leva';
 // Icons for sliders
 import { RiFontSize2, RiStackLine, RiSpeedLine, RiExpandWidthLine, RiExpandHeightLine } from "react-icons/ri";
 import { filterProfanity } from '../utils/profanityFilter';
-import { MdAnimation, MdGridOn } from 'react-icons/md';
-import { RiUploadCloud2Line } from "react-icons/ri";
+import { MdAnimation, MdGridOn, MdMonitor } from 'react-icons/md';
+import { RiUploadCloud2Line, RiContrastLine } from "react-icons/ri";
+import { BiLineChart } from "react-icons/bi";
 import recorder from '../utils/RecorderManager';
+
+// Music Library Components
+import MusicLibrary from './MusicLibrary';
+import AudioTrimmer from './AudioTrimmer';
+import InstagramAudioPlayer from './InstagramAudioPlayer';
+import PosterModeToggle from './PosterModeToggle';
 
 const uiStyles = {
     control: {
@@ -62,7 +69,7 @@ const effectCategories = {
     ]
 };
 
-export default function Controls({ activeStep, activeApp, onSwitchApp, activeBackground, shapes, addShape, clearShapes, shapeSettings, setShapeSettings, particleSettings, setParticleSettings, silkSettings, setSilkSettings, starfieldSettings, setStarfieldSettings, auroraSettings, setAuroraSettings, darkVeilSettings, setDarkVeilSettings, ditherSettings, setDitherSettings, blocksSettings, setBlocksSettings, paintSettings, setPaintSettings, paintToysSettings, setPaintToysSettings, stringTypeSettings, setStringTypeSettings, activeTypeMode, setActiveTypeMode, textContent, setTextContent, asciiSettings, setAsciiSettings }) {
+export default function Controls({ activeStep, activeApp, onSwitchApp, activeBackground, shapes, addShape, clearShapes, updateShapeColor, removeShape, shapeSettings, setShapeSettings, particleSettings, setParticleSettings, silkSettings, setSilkSettings, starfieldSettings, setStarfieldSettings, auroraSettings, setAuroraSettings, darkVeilSettings, setDarkVeilSettings, ditherSettings, setDitherSettings, blocksSettings, setBlocksSettings, colorBendsSettings, setColorBendsSettings, paintSettings, setPaintSettings, paintToysSettings, setPaintToysSettings, stringTypeSettings, setStringTypeSettings, activeTypeMode, setActiveTypeMode, textContent, setTextContent, asciiSettings, setAsciiSettings, crtBackgroundSettings, setCrtBackgroundSettings, crtTypeSettings, setCrtTypeSettings }) {
     // Local state to track control values for UI feedback
     const [fontSize, setFontSize] = useState(70);
     const [layerCount, setLayerCount] = useState(7);
@@ -77,7 +84,15 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
     const [availableEffects, setAvailableEffects] = useState([]);
     const [activeEffects, setActiveEffects] = useState([]);
     const [currentEffectForIntensity, setCurrentEffectForIntensity] = useState(null);
+
     const [currentIntensity, setCurrentIntensity] = useState(100);
+    const [posterModeActive, setPosterModeActive] = useState(false);
+
+    // Music State
+    const [selectedSong, setSelectedSong] = useState(null);
+    const [isMusicLibraryOpen, setIsMusicLibraryOpen] = useState(false);
+    const [isTrimmerOpen, setIsTrimmerOpen] = useState(false);
+    const [isTrimmerPlaying, setIsTrimmerPlaying] = useState(false);
 
     // Initial sync with legacy system
     useEffect(() => {
@@ -263,6 +278,14 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                 gap: '10px',
                 background: 'rgba(0,0,0,0.2)' // Slight darker bg to separate
             }}>
+                <PosterModeToggle
+                    isActive={posterModeActive}
+                    onToggle={(isActive) => {
+                        setPosterModeActive(isActive);
+                        if (window.togglePosterMode) window.togglePosterMode(isActive);
+                    }}
+                />
+
                 <div style={{ display: 'flex', gap: '10px' }}>
 
 
@@ -353,7 +376,7 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                 };
                             });
                         }}
-                        style={{ flex: 1, fontSize: '0.8rem' }}
+                        style={{ flex: 1, fontSize: '0.8rem', '--star-padding': '8px 12px' }}
                     >
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}>
                             <RiUploadCloud2Line size={16} />
@@ -362,15 +385,8 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                     </StarBorder>
                 </div>
 
-                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '0.8rem', justifyContent: 'center' }}>
-                    <input
-                        type="checkbox"
-                        onChange={(e) => window.togglePosterMode && window.togglePosterMode(e.target.checked)}
-                        style={{ accentColor: '#E5B020', width: '14px', height: '14px' }}
-                    />
-                    Poster Mode
-                </label>
             </div>
+
 
             {/* Scrollable Main Area (Controls) */}
             <div style={{
@@ -875,24 +891,11 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                             {activeBackground === 'dark_veil' && darkVeilSettings && (
                                 <>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                        <span style={{ minWidth: '80px', fontSize: '0.8rem' }}>Density</span>
-                                        <ElasticSlider
-                                            defaultValue={darkVeilSettings.density * 10}
-                                            startingValue={1}
-                                            maxValue={30}
-                                            stepSize={1}
-                                            leftIcon={<RiStackLine size={16} />}
-                                            rightIcon={<RiStackLine size={24} />}
-                                            onChange={(val) => setDarkVeilSettings({ ...darkVeilSettings, density: val / 10 })}
-                                            className="custom-slider"
-                                        />
-                                    </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                         <span style={{ minWidth: '80px', fontSize: '0.8rem' }}>Speed</span>
                                         <ElasticSlider
                                             defaultValue={darkVeilSettings.speed * 10}
-                                            startingValue={0}
-                                            maxValue={20}
+                                            startingValue={1}
+                                            maxValue={50}
                                             stepSize={1}
                                             leftIcon={<RiSpeedLine size={16} />}
                                             rightIcon={<RiSpeedLine size={24} />}
@@ -900,25 +903,71 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                             className="custom-slider"
                                         />
                                     </div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '10px' }}>
-                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
-                                            <span style={{ fontSize: '0.7em', color: '#888' }}>Base</span>
-                                            <input
-                                                type="color"
-                                                value={darkVeilSettings.baseColor}
-                                                onChange={(e) => setDarkVeilSettings({ ...darkVeilSettings, baseColor: e.target.value })}
-                                                style={{ background: 'none', border: 'none', width: '30px', height: '30px', cursor: 'pointer' }}
-                                            />
-                                        </div>
-                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
-                                            <span style={{ fontSize: '0.7em', color: '#888' }}>Veil</span>
-                                            <input
-                                                type="color"
-                                                value={darkVeilSettings.veilColor}
-                                                onChange={(e) => setDarkVeilSettings({ ...darkVeilSettings, veilColor: e.target.value })}
-                                                style={{ background: 'none', border: 'none', width: '30px', height: '30px', cursor: 'pointer' }}
-                                            />
-                                        </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span style={{ minWidth: '80px', fontSize: '0.8rem' }}>Hue</span>
+                                        <ElasticSlider
+                                            defaultValue={darkVeilSettings.hueShift}
+                                            startingValue={0}
+                                            maxValue={360}
+                                            stepSize={5}
+                                            isStepped
+                                            leftIcon={<RiContrastLine size={16} />}
+                                            rightIcon={<RiContrastLine size={24} />}
+                                            onChange={(val) => setDarkVeilSettings({ ...darkVeilSettings, hueShift: val })}
+                                            className="custom-slider"
+                                        />
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span style={{ minWidth: '80px', fontSize: '0.8rem' }}>Noise</span>
+                                        <ElasticSlider
+                                            defaultValue={darkVeilSettings.noiseIntensity * 10}
+                                            startingValue={0}
+                                            maxValue={30}
+                                            stepSize={1}
+                                            leftIcon={<MdAnimation size={16} />}
+                                            rightIcon={<MdAnimation size={24} />}
+                                            onChange={(val) => setDarkVeilSettings({ ...darkVeilSettings, noiseIntensity: val / 10 })}
+                                            className="custom-slider"
+                                        />
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span style={{ minWidth: '80px', fontSize: '0.8rem' }}>Scanline</span>
+                                        <ElasticSlider
+                                            defaultValue={darkVeilSettings.scanlineIntensity * 100}
+                                            startingValue={0}
+                                            maxValue={100}
+                                            stepSize={1}
+                                            leftIcon={<BiLineChart size={16} />}
+                                            rightIcon={<BiLineChart size={24} />}
+                                            onChange={(val) => setDarkVeilSettings({ ...darkVeilSettings, scanlineIntensity: val / 100 })}
+                                            className="custom-slider"
+                                        />
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span style={{ minWidth: '80px', fontSize: '0.8rem' }}>Freq</span>
+                                        <ElasticSlider
+                                            defaultValue={darkVeilSettings.scanlineFrequency * 100}
+                                            startingValue={0}
+                                            maxValue={300}
+                                            stepSize={1}
+                                            leftIcon={<BiLineChart size={16} />}
+                                            rightIcon={<BiLineChart size={24} />}
+                                            onChange={(val) => setDarkVeilSettings({ ...darkVeilSettings, scanlineFrequency: val / 100 })}
+                                            className="custom-slider"
+                                        />
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span style={{ minWidth: '80px', fontSize: '0.8rem' }}>Warp</span>
+                                        <ElasticSlider
+                                            defaultValue={darkVeilSettings.warpAmount * 10}
+                                            startingValue={0}
+                                            maxValue={50}
+                                            stepSize={1}
+                                            leftIcon={<RiExpandWidthLine size={16} />}
+                                            rightIcon={<RiExpandWidthLine size={24} />}
+                                            onChange={(val) => setDarkVeilSettings({ ...darkVeilSettings, warpAmount: val / 10 })}
+                                            className="custom-slider"
+                                        />
                                     </div>
                                 </>
                             )}
@@ -1014,7 +1063,184 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                     </div>
                                 </>
                             )}
+
+                            {/* Color Bends Controls */}
+                            {activeBackground === 'color_bends' && colorBendsSettings && (
+                                <>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span style={{ minWidth: '80px', fontSize: '0.8rem' }}>Rotation</span>
+                                        <ElasticSlider
+                                            defaultValue={colorBendsSettings.rotation}
+                                            startingValue={0}
+                                            maxValue={360}
+                                            stepSize={5}
+                                            leftIcon={<MdAnimation size={16} />}
+                                            rightIcon={<MdAnimation size={24} />}
+                                            onChange={(val) => setColorBendsSettings({ ...colorBendsSettings, rotation: val })}
+                                            className="custom-slider"
+                                        />
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span style={{ minWidth: '80px', fontSize: '0.8rem' }}>Speed</span>
+                                        <ElasticSlider
+                                            defaultValue={colorBendsSettings.speed * 10}
+                                            startingValue={0}
+                                            maxValue={30}
+                                            stepSize={1}
+                                            leftIcon={<RiSpeedLine size={16} />}
+                                            rightIcon={<RiSpeedLine size={24} />}
+                                            onChange={(val) => setColorBendsSettings({ ...colorBendsSettings, speed: val / 10 })}
+                                            className="custom-slider"
+                                        />
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span style={{ minWidth: '80px', fontSize: '0.8rem' }}>Scale</span>
+                                        <ElasticSlider
+                                            defaultValue={colorBendsSettings.scale * 100}
+                                            startingValue={5}
+                                            maxValue={200}
+                                            stepSize={5}
+                                            leftIcon={<RiExpandWidthLine size={16} />}
+                                            rightIcon={<RiExpandWidthLine size={24} />}
+                                            onChange={(val) => setColorBendsSettings({ ...colorBendsSettings, scale: val / 100 })}
+                                            className="custom-slider"
+                                        />
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span style={{ minWidth: '80px', fontSize: '0.8rem' }}>Frequency</span>
+                                        <ElasticSlider
+                                            defaultValue={colorBendsSettings.frequency * 10}
+                                            startingValue={5}
+                                            maxValue={50}
+                                            stepSize={1}
+                                            leftIcon={<MdGridOn size={16} />}
+                                            rightIcon={<MdGridOn size={24} />}
+                                            onChange={(val) => setColorBendsSettings({ ...colorBendsSettings, frequency: val / 10 })}
+                                            className="custom-slider"
+                                        />
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span style={{ minWidth: '80px', fontSize: '0.8rem' }}>Warp</span>
+                                        <ElasticSlider
+                                            defaultValue={colorBendsSettings.warpStrength * 10}
+                                            startingValue={0}
+                                            maxValue={30}
+                                            stepSize={1}
+                                            leftIcon={<MdAnimation size={16} />}
+                                            rightIcon={<MdAnimation size={24} />}
+                                            onChange={(val) => setColorBendsSettings({ ...colorBendsSettings, warpStrength: val / 10 })}
+                                            className="custom-slider"
+                                        />
+                                    </div>
+
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span style={{ minWidth: '80px', fontSize: '0.8rem' }}>Parallax</span>
+                                        <ElasticSlider
+                                            defaultValue={colorBendsSettings.parallax * 10}
+                                            startingValue={0}
+                                            maxValue={50}
+                                            stepSize={1}
+                                            leftIcon={<RiStackLine size={16} />}
+                                            rightIcon={<RiStackLine size={24} />}
+                                            onChange={(val) => setColorBendsSettings({ ...colorBendsSettings, parallax: val / 10 })}
+                                            className="custom-slider"
+                                        />
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span style={{ minWidth: '80px', fontSize: '0.8rem' }}>Noise</span>
+                                        <ElasticSlider
+                                            defaultValue={colorBendsSettings.noise * 100}
+                                            startingValue={15}
+                                            maxValue={100}
+                                            stepSize={1}
+                                            leftIcon={<MdGridOn size={16} />}
+                                            rightIcon={<MdGridOn size={24} />}
+                                            onChange={(val) => setColorBendsSettings({ ...colorBendsSettings, noise: val / 100 })}
+                                            className="custom-slider"
+                                        />
+                                    </div>
+                                </>
+                            )}
                         </div>
+
+                        {/* CRT Effect for Background */}
+                        {crtBackgroundSettings && (
+                            <div style={{ marginTop: '20px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '15px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                                    <span style={{ fontSize: '0.85rem', fontWeight: '500' }}>CRT Effect</span>
+                                    <button
+                                        onClick={() => setCrtBackgroundSettings({ ...crtBackgroundSettings, enabled: !crtBackgroundSettings.enabled })}
+                                        style={{
+                                            background: crtBackgroundSettings.enabled ? '#E5B020' : 'rgba(255,255,255,0.1)',
+                                            border: 'none',
+                                            borderRadius: '12px',
+                                            width: '44px',
+                                            height: '24px',
+                                            cursor: 'pointer',
+                                            position: 'relative',
+                                            transition: 'background 0.2s'
+                                        }}
+                                    >
+                                        <div style={{
+                                            position: 'absolute',
+                                            top: '2px',
+                                            left: crtBackgroundSettings.enabled ? '22px' : '2px',
+                                            width: '20px',
+                                            height: '20px',
+                                            background: '#fff',
+                                            borderRadius: '50%',
+                                            transition: 'left 0.2s'
+                                        }} />
+                                    </button>
+                                </div>
+                                {crtBackgroundSettings.enabled && (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <span style={{ minWidth: '60px', fontSize: '0.75rem', opacity: 0.7 }}>Intensity</span>
+                                            <ElasticSlider
+                                                defaultValue={crtBackgroundSettings.intensity}
+                                                startingValue={0}
+                                                maxValue={100}
+                                                stepSize={5}
+                                                isStepped
+                                                leftIcon={<MdMonitor size={14} />}
+                                                rightIcon={<MdMonitor size={20} />}
+                                                onChange={(val) => setCrtBackgroundSettings({ ...crtBackgroundSettings, intensity: val })}
+                                                className="custom-slider"
+                                            />
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <span style={{ minWidth: '60px', fontSize: '0.7rem', opacity: 0.5 }}>Scanlines</span>
+                                            <ElasticSlider
+                                                defaultValue={crtBackgroundSettings.scanlineDensity || 50}
+                                                startingValue={0}
+                                                maxValue={100}
+                                                stepSize={5}
+                                                isStepped
+                                                leftIcon={<BiLineChart size={14} />}
+                                                rightIcon={<BiLineChart size={20} />}
+                                                onChange={(val) => setCrtBackgroundSettings({ ...crtBackgroundSettings, scanlineDensity: val })}
+                                                className="custom-slider"
+                                            />
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <span style={{ minWidth: '60px', fontSize: '0.7rem', opacity: 0.5 }}>Chroma</span>
+                                            <ElasticSlider
+                                                defaultValue={crtBackgroundSettings.chromaAmount || 50}
+                                                startingValue={0}
+                                                maxValue={100}
+                                                stepSize={5}
+                                                isStepped
+                                                leftIcon={<RiContrastLine size={14} />}
+                                                rightIcon={<RiContrastLine size={20} />}
+                                                onChange={(val) => setCrtBackgroundSettings({ ...crtBackgroundSettings, chromaAmount: val })}
+                                                className="custom-slider"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
 
                         <div style={{ marginTop: '20px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '15px' }}>
                             <h3 style={uiStyles.sectionTitle}>Background Shapes</h3>
@@ -1127,6 +1353,70 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                             onChange={(val) => setShapeSettings({ ...shapeSettings, fillOpacity: val / 100 })}
                                         />
                                     </div>
+
+                                    {/* Shape Color */}
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '5px' }}>
+                                        <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>Color</span>
+                                        <input
+                                            type="color"
+                                            value={shapeSettings.color || '#ffffff'}
+                                            onChange={(e) => setShapeSettings({ ...shapeSettings, color: e.target.value })}
+                                            style={{
+                                                background: 'none',
+                                                border: 'none',
+                                                width: '40px',
+                                                height: '40px',
+                                                cursor: 'pointer'
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            {shapes.length > 0 && (
+                                <div style={{ marginTop: '15px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '10px' }}>
+                                    <span style={{ fontSize: '0.8rem', opacity: 0.8, display: 'block', marginBottom: '8px' }}>Active Shapes</span>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                        {shapes.map((shape, index) => (
+                                            <div key={shape.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '5px', background: 'rgba(255,255,255,0.03)', borderRadius: '4px' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    <span style={{ fontSize: '0.75rem', opacity: 0.7, textTransform: 'capitalize', minWidth: '60px' }}>
+                                                        {shape.type} {index + 1}
+                                                    </span>
+                                                </div>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    <input
+                                                        type="color"
+                                                        value={shape.color || '#ffffff'}
+                                                        onChange={(e) => updateShapeColor(shape.id, e.target.value)}
+                                                        style={{
+                                                            background: 'none',
+                                                            border: 'none',
+                                                            width: '24px',
+                                                            height: '24px',
+                                                            cursor: 'pointer'
+                                                        }}
+                                                        title="Change Color"
+                                                    />
+                                                    <button
+                                                        onClick={() => removeShape(shape.id)}
+                                                        style={{
+                                                            background: 'rgba(255, 100, 100, 0.2)',
+                                                            border: 'none',
+                                                            borderRadius: '4px',
+                                                            color: '#ffaaaa',
+                                                            cursor: 'pointer',
+                                                            padding: '4px 6px',
+                                                            fontSize: '0.7rem'
+                                                        }}
+                                                        title="Remove Shape"
+                                                    >
+                                                        ✕
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             )}
 
@@ -1169,7 +1459,84 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                             </select>
                         </div>
 
-                        {/* Text Input */}
+                        {/* CRT Effect for Type Layer */}
+                        {crtTypeSettings && (
+                            <div style={{ marginBottom: '20px', padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.08)' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                                    <span style={{ fontSize: '0.85rem', fontWeight: '500' }}>CRT Effect</span>
+                                    <button
+                                        onClick={() => setCrtTypeSettings({ ...crtTypeSettings, enabled: !crtTypeSettings.enabled })}
+                                        style={{
+                                            background: crtTypeSettings.enabled ? '#E5B020' : 'rgba(255,255,255,0.1)',
+                                            border: 'none',
+                                            borderRadius: '12px',
+                                            width: '44px',
+                                            height: '24px',
+                                            cursor: 'pointer',
+                                            position: 'relative',
+                                            transition: 'background 0.2s'
+                                        }}
+                                    >
+                                        <div style={{
+                                            position: 'absolute',
+                                            top: '2px',
+                                            left: crtTypeSettings.enabled ? '22px' : '2px',
+                                            width: '20px',
+                                            height: '20px',
+                                            background: '#fff',
+                                            borderRadius: '50%',
+                                            transition: 'left 0.2s'
+                                        }} />
+                                    </button>
+                                </div>
+                                {crtTypeSettings.enabled && (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <span style={{ minWidth: '60px', fontSize: '0.75rem', opacity: 0.7 }}>Intensity</span>
+                                            <ElasticSlider
+                                                defaultValue={crtTypeSettings.intensity}
+                                                startingValue={0}
+                                                maxValue={100}
+                                                stepSize={5}
+                                                isStepped
+                                                leftIcon={<MdMonitor size={14} />}
+                                                rightIcon={<MdMonitor size={20} />}
+                                                onChange={(val) => setCrtTypeSettings({ ...crtTypeSettings, intensity: val })}
+                                                className="custom-slider"
+                                            />
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <span style={{ minWidth: '60px', fontSize: '0.7rem', opacity: 0.5 }}>Scanlines</span>
+                                            <ElasticSlider
+                                                defaultValue={crtTypeSettings.scanlineDensity || 50}
+                                                startingValue={0}
+                                                maxValue={100}
+                                                stepSize={5}
+                                                isStepped
+                                                leftIcon={<BiLineChart size={14} />}
+                                                rightIcon={<BiLineChart size={20} />}
+                                                onChange={(val) => setCrtTypeSettings({ ...crtTypeSettings, scanlineDensity: val })}
+                                                className="custom-slider"
+                                            />
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <span style={{ minWidth: '60px', fontSize: '0.7rem', opacity: 0.5 }}>Chroma</span>
+                                            <ElasticSlider
+                                                defaultValue={crtTypeSettings.chromaAmount || 50}
+                                                startingValue={0}
+                                                maxValue={100}
+                                                stepSize={5}
+                                                isStepped
+                                                leftIcon={<RiContrastLine size={14} />}
+                                                rightIcon={<RiContrastLine size={20} />}
+                                                onChange={(val) => setCrtTypeSettings({ ...crtTypeSettings, chromaAmount: val })}
+                                                className="custom-slider"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                         <div style={{ marginBottom: '15px' }}>
                             <textarea
                                 value={textContent || ''} // Controlled component
@@ -1381,7 +1748,7 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                                         <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Font Family</label>
                                                         <select
                                                             value={paintToysSettings.fontFamily}
-                                                            onChange={(e) => setPaintToysSettings('fontFamily', e.target.value)}
+                                                            onChange={(e) => setPaintToysSettings(prev => ({ ...prev, fontFamily: e.target.value }))}
                                                             style={uiStyles.control}
                                                         >
                                                             <option value="Georgia">Georgia</option>
@@ -1405,7 +1772,7 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                                             isStepped
                                                             leftIcon={<RiFontSize2 size={16} />}
                                                             rightIcon={<RiFontSize2 size={24} />}
-                                                            onChange={(val) => setPaintToysSettings('minFontSize', val)}
+                                                            onChange={(val) => setPaintToysSettings(prev => ({ ...prev, minFontSize: val }))}
                                                         />
                                                     </div>
 
@@ -1419,7 +1786,7 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                                             isStepped
                                                             leftIcon={<RiFontSize2 size={16} />}
                                                             rightIcon={<RiFontSize2 size={24} />}
-                                                            onChange={(val) => setPaintToysSettings('maxFontSize', val)}
+                                                            onChange={(val) => setPaintToysSettings(prev => ({ ...prev, maxFontSize: val }))}
                                                         />
                                                     </div>
 
@@ -1433,7 +1800,7 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                                             isStepped
                                                             leftIcon={<MdAnimation size={16} />}
                                                             rightIcon={<MdAnimation size={24} />}
-                                                            onChange={(val) => setPaintToysSettings('angleDistortion', val / 100)}
+                                                            onChange={(val) => setPaintToysSettings(prev => ({ ...prev, angleDistortion: val / 100 }))}
                                                         />
                                                     </div>
 
@@ -1463,7 +1830,7 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                                         <input
                                                             type="color"
                                                             value={stringTypeSettings.textColor}
-                                                            onChange={(e) => setStringTypeSettings('textColor', e.target.value)}
+                                                            onChange={(e) => setStringTypeSettings(prev => ({ ...prev, textColor: e.target.value }))}
                                                             style={{
                                                                 background: 'none',
                                                                 border: 'none',
@@ -1484,7 +1851,7 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                                             isStepped
                                                             leftIcon={<RiStackLine size={16} />}
                                                             rightIcon={<RiStackLine size={24} />}
-                                                            onChange={(val) => setStringTypeSettings('stripCount', val)}
+                                                            onChange={(val) => setStringTypeSettings(prev => ({ ...prev, stripCount: val }))}
                                                         />
                                                     </div>
 
@@ -1498,7 +1865,7 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                                             isStepped
                                                             leftIcon={<RiExpandHeightLine size={16} />}
                                                             rightIcon={<RiExpandHeightLine size={24} />}
-                                                            onChange={(val) => setStringTypeSettings('stripHeight', val)}
+                                                            onChange={(val) => setStringTypeSettings(prev => ({ ...prev, stripHeight: val }))}
                                                         />
                                                     </div>
 
@@ -1512,7 +1879,7 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                                             isStepped
                                                             leftIcon={<RiSpeedLine size={16} />}
                                                             rightIcon={<RiSpeedLine size={24} />}
-                                                            onChange={(val) => setStringTypeSettings('animationSpeed', val / 10)}
+                                                            onChange={(val) => setStringTypeSettings(prev => ({ ...prev, animationSpeed: val / 10 }))}
                                                         />
                                                     </div>
 
@@ -1526,7 +1893,7 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                                             isStepped
                                                             leftIcon={<RiStackLine size={16} />}
                                                             rightIcon={<RiStackLine size={24} />}
-                                                            onChange={(val) => setStringTypeSettings('steps', val)}
+                                                            onChange={(val) => setStringTypeSettings(prev => ({ ...prev, steps: val }))}
                                                         />
                                                     </div>
                                                 </>
@@ -1750,7 +2117,7 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                 )}
                 {activeStep === 3 && (
                     <div className="controls-section">
-                        <h3 style={uiStyles.sectionTitle}>Audio Controls</h3>
+                        <h3 style={uiStyles.sectionTitle}>Music</h3>
 
                         <div style={{
                             display: 'flex',
@@ -1758,28 +2125,69 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                             alignItems: 'center',
                             justifyContent: 'center',
                             minHeight: '150px',
-                            gap: '15px'
+                            gap: '15px',
+                            position: 'relative'
                         }}>
-                            <p style={{ fontSize: '0.9rem', opacity: 0.7 }}>Background Audio</p>
+                            <p style={{ fontSize: '0.9rem', opacity: 0.7 }}>Background Music</p>
 
-                            <StarBorder
-                                as="button"
-                                color="#E5B020"
-                                speed="5s"
-                                onClick={() => {
-                                    // Toggle audio using existing logic
-                                    const playBtn = document.getElementById('play-audio');
-                                    if (playBtn) playBtn.click();
-                                }}
-                                style={{ minWidth: '150px' }}
-                            >
-                                PLAY / PAUSE
-                            </StarBorder>
+                            {/* Audio Trimmer (appears above player when open) */}
+                            {selectedSong && (
+                                <AudioTrimmer
+                                    song={selectedSong}
+                                    isOpen={isTrimmerOpen}
+                                    onClose={() => setIsTrimmerOpen(false)}
+                                    onSave={(startTime, duration) => {
+                                        setSelectedSong(prev => ({ ...prev, startTime, duration }));
+                                    }}
+                                    onPlayStateChange={setIsTrimmerPlaying}
+                                    onBack={() => {
+                                        setIsTrimmerOpen(false);
+                                        setIsMusicLibraryOpen(true);
+                                    }}
+                                />
+                            )}
 
-                            <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '10px' }}>
-                                (Audio module is loaded via legacy script)
+                            {/* Instagram-style Audio Player */}
+                            <InstagramAudioPlayer
+                                src={selectedSong?.url}
+                                song={selectedSong}
+                                onPlayLibrary={() => setIsMusicLibraryOpen(true)}
+                                forcePause={isTrimmerPlaying}
+                            />
+
+                            {/* Edit Clip Button */}
+                            {selectedSong && (
+                                <button
+                                    onClick={() => setIsTrimmerOpen(true)}
+                                    style={{
+                                        background: 'rgba(255,255,255,0.1)',
+                                        border: '1px solid rgba(255,255,255,0.2)',
+                                        borderRadius: '6px',
+                                        color: 'white',
+                                        padding: '8px 16px',
+                                        cursor: 'pointer',
+                                        fontSize: '0.85rem',
+                                        transition: 'all 0.2s'
+                                    }}
+                                >
+                                    Edit Clip Timing
+                                </button>
+                            )}
+
+                            <p style={{ fontSize: '0.75rem', color: '#555', marginTop: '5px' }}>
+                                Powered by iTunes
                             </p>
                         </div>
+
+                        {/* Music Library Modal */}
+                        <MusicLibrary
+                            isOpen={isMusicLibraryOpen}
+                            onClose={() => setIsMusicLibraryOpen(false)}
+                            onSelect={(song) => {
+                                setSelectedSong({ ...song, startTime: 0, duration: 15 });
+                                setIsTrimmerOpen(true);
+                            }}
+                        />
                     </div>
                 )}
             </div>

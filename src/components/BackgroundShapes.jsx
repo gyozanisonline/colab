@@ -25,13 +25,16 @@ export default function BackgroundShapes({ shapes = [], settings = { size: 1, sp
 
     const strokeProps = (color) => {
         // Parse color to apply opacity for fill
-        // Assuming simple rgba or valid CSS color. For simplicity, we just set fillOpacity separate.
+        // Using global settings.color as primary, falling back to shape.color or white
+        const finalColor = settings.color || color || 'white';
+
         return {
-            fill: color || 'white',
+            fill: finalColor,
             fillOpacity: settings.fillOpacity,
-            stroke: color || 'rgba(255, 255, 255, 0.8)',
+            stroke: finalColor,
             strokeWidth: "0.5",
-            vectorEffect: "non-scaling-stroke"
+            vectorEffect: "non-scaling-stroke",
+            style: { stroke: finalColor } // Ensure stroke color is applied if SVG props fail
         };
     };
 

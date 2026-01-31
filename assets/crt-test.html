@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRT Effect Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+        }
+
+        .crt-container {
+            position: relative;
+            width: 900px;
+            height: 500px;
+            background: #0a0a0a;
+            overflow: hidden;
+        }
+
+        /* The content layer */
+        .content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+        }
+
+        .content h1 {
+            font-size: 100px;
+            font-weight: 900;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 8px;
+            font-family: 'Impact', 'Arial Black', sans-serif;
+        }
+
+        /* CRT Overlay Effects */
+        .crt-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* Tighter, more visible scanlines */
+        .scanlines {
+            background: repeating-linear-gradient(0deg,
+                    transparent 0px,
+                    transparent 2px,
+                    rgba(0, 0, 0, 0.4) 2px,
+                    rgba(0, 0, 0, 0.4) 4px);
+        }
+
+        /* More prominent RGB Phosphor Pattern */
+        .phosphor {
+            background: repeating-linear-gradient(90deg,
+                    rgba(255, 0, 0, 0.08) 0px,
+                    rgba(255, 0, 0, 0.08) 2px,
+                    rgba(0, 255, 0, 0.08) 2px,
+                    rgba(0, 255, 0, 0.08) 4px,
+                    rgba(0, 100, 255, 0.08) 4px,
+                    rgba(0, 100, 255, 0.08) 6px);
+            mix-blend-mode: screen;
+        }
+
+        /* Stronger Vignette */
+        .vignette {
+            background: radial-gradient(ellipse at center,
+                    transparent 0%,
+                    transparent 40%,
+                    rgba(0, 0, 0, 0.4) 70%,
+                    rgba(0, 0, 0, 0.9) 100%);
+        }
+
+        /* Subtle flicker */
+        .flicker {
+            animation: flicker 0.1s infinite;
+        }
+
+        @keyframes flicker {
+            0% {
+                opacity: 0.96;
+            }
+
+            25% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.98;
+            }
+
+            75% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.97;
+            }
+        }
+
+        /* Rolling scan line - more visible */
+        .rolling-scan {
+            background: linear-gradient(0deg,
+                    transparent 0%,
+                    rgba(255, 255, 255, 0.05) 45%,
+                    rgba(255, 255, 255, 0.08) 50%,
+                    rgba(255, 255, 255, 0.05) 55%,
+                    transparent 100%);
+            background-size: 100% 15%;
+            animation: scan 6s linear infinite;
+        }
+
+        @keyframes scan {
+            0% {
+                background-position: 0 -50%;
+            }
+
+            100% {
+                background-position: 0 150%;
+            }
+        }
+
+        /* Screen curvature */
+        .curvature {
+            box-shadow:
+                inset 0 0 80px rgba(0, 0, 0, 0.6),
+                inset 0 0 150px rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+        }
+
+        /* Chromatic aberration - RED channel offset left */
+        .chromatic-red {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ff0000;
+            opacity: 0.5;
+            transform: translateX(-3px);
+            mix-blend-mode: screen;
+            z-index: 0;
+        }
+
+        /* Chromatic aberration - CYAN channel offset right */
+        .chromatic-cyan {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #00ffff;
+            opacity: 0.5;
+            transform: translateX(3px);
+            mix-blend-mode: screen;
+            z-index: 0;
+        }
+
+        .chromatic-red h1,
+        .chromatic-cyan h1 {
+            font-size: 100px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 8px;
+            font-family: 'Impact', 'Arial Black', sans-serif;
+        }
+
+        /* Glow effect on text */
+        .glow h1 {
+            text-shadow:
+                0 0 5px rgba(255, 255, 255, 1),
+                0 0 10px rgba(255, 255, 255, 0.8),
+                0 0 20px rgba(255, 255, 255, 0.5),
+                0 0 40px rgba(255, 255, 255, 0.3);
+        }
+
+        /* Slight blur for that phosphor bloom */
+        .bloom {
+            filter: blur(0.5px);
+        }
+
+        /* Controls panel */
+        .controls {
+            margin-top: 25px;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            max-width: 900px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            min-width: 80px;
+        }
+
+        .control-group label {
+            color: #888;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .control-group input[type="range"] {
+            width: 100px;
+            accent-color: #E5B020;
+        }
+
+        .control-group input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #E5B020;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="crt-container curvature" id="crt-container">
+        <!-- Chromatic aberration layers -->
+        <div class="chromatic-red" id="chromatic-red">
+            <h1>STYLIZER</h1>
+        </div>
+        <div class="chromatic-cyan" id="chromatic-cyan">
+            <h1>STYLIZER</h1>
+        </div>
+
+        <!-- Main content -->
+        <div class="content glow bloom">
+            <h1>STYLIZER</h1>
+        </div>
+
+        <!-- CRT Overlay Layers -->
+        <div class="crt-overlay scanlines" id="scanlines"></div>
+        <div class="crt-overlay phosphor" id="phosphor"></div>
+        <div class="crt-overlay vignette" id="vignette"></div>
+        <div class="crt-overlay rolling-scan" id="rolling-scan"></div>
+        <div class="crt-overlay flicker" id="flicker"></div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+        <div class="control-group">
+            <label>Scanlines</label>
+            <input type="checkbox" id="toggle-scanlines" checked onchange="toggleLayer('scanlines', this.checked)">
+        </div>
+        <div class="control-group">
+            <label>Phosphor RGB</label>
+            <input type="checkbox" id="toggle-phosphor" checked onchange="toggleLayer('phosphor', this.checked)">
+        </div>
+        <div class="control-group">
+            <label>Vignette</label>
+            <input type="checkbox" id="toggle-vignette" checked onchange="toggleLayer('vignette', this.checked)">
+        </div>
+        <div class="control-group">
+            <label>Rolling Scan</label>
+            <input type="checkbox" id="toggle-rolling-scan" checked
+                onchange="toggleLayer('rolling-scan', this.checked)">
+        </div>
+        <div class="control-group">
+            <label>Flicker</label>
+            <input type="checkbox" id="toggle-flicker" checked onchange="toggleLayer('flicker', this.checked)">
+        </div>
+        <div class="control-group">
+            <label>Curvature</label>
+            <input type="checkbox" id="toggle-curvature" checked onchange="toggleCurvature(this.checked)">
+        </div>
+        <div class="control-group">
+            <label>RGB Split</label>
+            <input type="checkbox" id="toggle-chromatic" checked onchange="toggleChromatic(this.checked)">
+        </div>
+        <div class="control-group">
+            <label>Scanline %</label>
+            <input type="range" min="0" max="80" value="40" onchange="setScanlineIntensity(this.value)">
+        </div>
+        <div class="control-group">
+            <label>RGB Offset</label>
+            <input type="range" min="0" max="8" value="3" onchange="setRGBSplit(this.value)">
+        </div>
+    </div>
+
+    <script>
+        function toggleLayer(id, show) {
+            document.getElementById(id).style.display = show ? 'block' : 'none';
+        }
+
+        function toggleCurvature(enabled) {
+            const container = document.getElementById('crt-container');
+            container.classList.toggle('curvature', enabled);
+        }
+
+        function toggleChromatic(enabled) {
+            document.getElementById('chromatic-red').style.display = enabled ? 'flex' : 'none';
+            document.getElementById('chromatic-cyan').style.display = enabled ? 'flex' : 'none';
+        }
+
+        function setScanlineIntensity(value) {
+            const intensity = value / 100;
+            document.getElementById('scanlines').style.background = `repeating-linear-gradient(
+                0deg,
+                transparent 0px,
+                transparent 2px,
+                rgba(0, 0, 0, ${intensity}) 2px,
+                rgba(0, 0, 0, ${intensity}) 4px
+            )`;
+        }
+
+        function setRGBSplit(value) {
+            const offset = parseInt(value);
+            document.getElementById('chromatic-red').style.transform = `translateX(-${offset}px)`;
+            document.getElementById('chromatic-cyan').style.transform = `translateX(${offset}px)`;
+        }
+    </script>
+</body>
+
+</html>

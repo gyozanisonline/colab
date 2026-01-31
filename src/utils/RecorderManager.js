@@ -102,7 +102,7 @@ class RecorderManager {
             // For now assume all full-screen canvases match.
             try {
                 this.ctx.drawImage(source, 0, 0, this.width, this.height);
-            } catch (err) {
+            } catch {
                 // Determine if source is ready
             }
         });

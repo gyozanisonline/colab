@@ -30,30 +30,24 @@ export default function StringType({
             let textureUnit = 5;
             let currentTextureUnit = 5;
 
-            let stripChoice = 2; // Default G
             let stripCount = 1; // Default
-            let stripCountChoice = 1;
 
-            let partCount = 2;
             let squiggleCount = 1;
             let stripHeight = 85;
 
             let culmDist = [];
 
-            let foreColor, bkgdColor;
+            let bkgdColor;
 
             let mainText1;
             let currentMainText1;
             let currentTextColor; // Track color changes for texture redraw
 
             let rSpeed = [];
-            let roundCap = false;
 
             let handleColor;
-            let handleAlpha = 255;
             let drgHL = stripHeight; // Initial drag handle length
             let drgStartX, drgStartY, drgA = 0;
-            let clickedIn = false;
             let draggedIn = false;
             let noneSelected = true;
 
@@ -165,7 +159,7 @@ export default function StringType({
 
                 // Sync Props
                 stripHeight = propsRef.current.stripHeightProp;
-                foreColor = p.color(propsRef.current.foreColorProp);
+                // foreColor = p.color(propsRef.current.foreColorProp);
                 bkgdColor = p.color(propsRef.current.bgColorProp);
                 mainText1 = propsRef.current.text;
                 stripCount = propsRef.current.stripCount; // Use prop value
@@ -323,7 +317,7 @@ export default function StringType({
             };
 
             p.mousePressed = () => {
-                clickedIn = true;
+                // clickedIn = true;
                 drgStartX = p.mouseX;
                 drgStartY = p.mouseY;
                 noneSelected = true; // Assume none, prove otherwise
@@ -351,7 +345,7 @@ export default function StringType({
                 if (draggedIn && noneSelected) {
                     // Add new particle
                     // Helper to get last particle of current squiggle
-                    let lastP = particles[squiggleCount - 1][particles[squiggleCount - 1].length - 1];
+                    // let lastP = particles[squiggleCount - 1][particles[squiggleCount - 1].length - 1];
 
                     // New particle at drag start (where we clicked)
                     // Angle based on drag
@@ -370,7 +364,7 @@ export default function StringType({
                         particles[n][j].released();
                     }
                 }
-                clickedIn = false;
+                // clickedIn = false;
                 draggedIn = false;
                 noneSelected = true;
             };

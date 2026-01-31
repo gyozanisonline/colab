@@ -1,4 +1,4 @@
-import { forwardRef, useMemo, useRef } from 'react';
+import { forwardRef, useState, useRef } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Color } from 'three';
 
@@ -71,17 +71,14 @@ const SilkPlane = forwardRef(function SilkPlane({ speed, scale, color, noiseInte
     const { viewport } = useThree();
 
     // Uniforms ref to avoid re-creating object every frame
-    const uniforms = useMemo(
-        () => ({
-            uSpeed: { value: speed },
-            uScale: { value: scale },
-            uNoiseIntensity: { value: noiseIntensity },
-            uColor: { value: new Color(...hexToNormalizedRGB(color)) },
-            uRotation: { value: rotation },
-            uTime: { value: 0 }
-        }),
-        [] // Initial setup only
-    );
+    const [uniforms] = useState(() => ({
+        uSpeed: { value: speed },
+        uScale: { value: scale },
+        uNoiseIntensity: { value: noiseIntensity },
+        uColor: { value: new Color(...hexToNormalizedRGB(color)) },
+        uRotation: { value: rotation },
+        uTime: { value: 0 }
+    }));
 
     useFrame((state, delta) => {
         // ref might be attached to the mesh, but we need to access material

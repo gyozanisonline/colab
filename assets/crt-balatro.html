@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRT Effect - Balatro Crispy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: system-ui, sans-serif;
+        }
+
+        .container {
+            position: relative;
+            width: 900px;
+            height: 550px;
+        }
+
+        #content-canvas,
+        #crt-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+            image-rendering: pixelated;
+            /* Crispy! */
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+
+        #crt-canvas {
+            pointer-events: none;
+        }
+
+        .controls {
+            margin-top: 20px;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .control-group label {
+            color: #666;
+            font-size: 10px;
+            text-transform: uppercase;
+        }
+
+        .control-group input[type="range"] {
+            width: 85px;
+            accent-color: #E5B020;
+        }
+
+        .control-group input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #E5B020;
+        }
+
+        .control-group span {
+            color: #888;
+            font-size: 11px;
+            min-width: 35px;
+        }
+
+        .slider-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <canvas id="content-canvas"></canvas>
+        <canvas id="crt-canvas"></canvas>
+    </div>
+
+    <div class="controls">
+        <div class="control-group">
+            <label>CRT Amount</label>
+            <div class="slider-row">
+                <input type="range" id="crt-slider" min="0" max="100" value="70">
+                <span>70</span>
+            </div>
+        </div>
+        <div class="control-group">
+            <label>Glitch</label>
+            <input type="checkbox" id="glitch">
+        </div>
+    </div>
+
+    <script>
+        // === HIGH DPI SETUP ===
+        const dpr = window.devicePixelRatio || 1;
+        const displayWidth = 900;
+        const displayHeight = 550;
+
+        const contentCanvas = document.getElementById('content-canvas');
+        const crtCanvas = document.getElementById('crt-canvas');
+
+        // Set actual pixel dimensions (higher res for Retina)
+        contentCanvas.width = displayWidth * dpr;
+        contentCanvas.height = displayHeight * dpr;
+        crtCanvas.width = displayWidth * dpr;
+        crtCanvas.height = displayHeight * dpr;
+
+        const ctx = contentCanvas.getContext('2d');
+        ctx.scale(dpr, dpr); // Scale context to match
+
+        // Disable anti-aliasing for crispy look
+        ctx.imageSmoothingEnabled = false;
+
+        function drawContent() {
+            const w = displayWidth, h = displayHeight;
+
+            // Clear
+            ctx.clearRect(0, 0, w, h);
+
+            // Balatro green felt
+            const gradient = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w * 0.7);
+            gradient.addColorStop(0, '#2a5d4e');
+            gradient.addColorStop(1, '#1a3f2f');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, w, h);
+
+            // Cards
+            const cardColors = ['#ff5c4c', '#54a8eb', '#ffbc3c', '#bb79d6', '#3acbac'];
+            const cardWidth = 80, cardHeight = 110;
+            const startX = w / 2 - (cardColors.length * (cardWidth + 15)) / 2;
+
+            cardColors.forEach((color, i) => {
+                const x = startX + i * (cardWidth + 15);
+                const y = h / 2 - cardHeight / 2 + Math.sin(Date.now() / 500 + i) * 5;
+
+                ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                ctx.beginPath(); ctx.roundRect(x + 4, y + 4, cardWidth, cardHeight, 8); ctx.fill();
+
+                ctx.fillStyle = '#fff';
+                ctx.beginPath(); ctx.roundRect(x, y, cardWidth, cardHeight, 8); ctx.fill();
+
+                ctx.fillStyle = color;
+                ctx.beginPath(); ctx.roundRect(x + 8, y + 8, cardWidth - 16, cardHeight - 16, 4); ctx.fill();
+
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 36px serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(['♠', '♥', '♦', '♣', '★'][i], x + cardWidth / 2, y + cardHeight / 2 + 12);
+            });
+
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 48px system-ui';
+            ctx.textAlign = 'center';
+            ctx.fillText('STYLIZER', w / 2, 100);
+
+            ctx.fillStyle = 'rgba(255,255,255,0.7)';
+            ctx.font = '18px system-ui';
+            ctx.fillText('Balatro CRT Effect', w / 2, 135);
+
+            ctx.fillStyle = '#ffcc44';
+            ctx.font = 'bold 32px system-ui';
+            ctx.fillText('SCORE: 12,450', w / 2, h - 60);
+        }
+
+        const gl = crtCanvas.getContext('webgl2') || crtCanvas.getContext('webgl');
+
+        const vertexShaderSource = `
+            attribute vec2 a_position;
+            varying vec2 v_texCoord;
+            void main() {
+                v_texCoord = a_position * 0.5 + 0.5;
+                v_texCoord.y = 1.0 - v_texCoord.y;
+                gl_Position = vec4(a_position, 0.0, 1.0);
+            }
+        `;
+
+        // EXACT Balatro CRT shader
+        const fragmentShaderSource = `
+            precision highp float;
+            
+            uniform sampler2D u_texture;
+            uniform float u_time;
+            uniform vec2 u_resolution;
+            uniform float u_crt_slider;
+            uniform float u_glitch_intensity;
+            
+            varying vec2 v_texCoord;
+            
+            #define PI 3.14159265359
+            #define BUFF 0.01
+            
+            void main() {
+                vec2 tc = v_texCoord;
+                
+                // === BALATRO PARAMETERS ===
+                float crt = u_crt_slider;
+                vec2 distortion_fac = vec2(1.0 + 0.07 * crt / 100.0, 1.0 + 0.1 * crt / 100.0);
+                vec2 scale_fac = vec2(1.0 - 0.008 * crt / 100.0);
+                float feather_fac = 0.01;
+                float crt_intensity = 0.16 * crt / 100.0;
+                float scanlines = u_resolution.y * 0.75;
+                
+                // Recenter and scale
+                tc = tc * 2.0 - vec2(1.0);
+                tc *= scale_fac;
+                
+                // Barrel distortion
+                tc += (tc.yx * tc.yx) * tc * (distortion_fac - 1.0);
+                
+                // Edge mask
+                float mask = (1.0 - smoothstep(1.0 - feather_fac, 1.0, abs(tc.x) - BUFF))
+                           * (1.0 - smoothstep(1.0 - feather_fac, 1.0, abs(tc.y) - BUFF));
+                
+                // Undo recenter
+                tc = (tc + vec2(1.0)) / 2.0;
+                
+                // Glitch
+                float offset_l = 0.0;
+                if (u_glitch_intensity > 0.01) {
+                    float timefac = 3.0 * u_time;
+                    offset_l = 50.0 * (-3.5 
+                        + sin(timefac * 0.512 + tc.y * 40.0)
+                        + sin(-timefac * 0.8233 + tc.y * 81.532)
+                        + sin(timefac * 0.333 + tc.y * 30.3)
+                        + sin(-timefac * 0.1112331 + tc.y * 13.0));
+                    tc.x += 0.001 * u_glitch_intensity * clamp(offset_l, -1.0, 1.0);
+                }
+                
+                // Sample texture
+                vec4 crt_tex = texture2D(u_texture, tc);
+                
+                // Chromatic aberration
+                float crt_amount_adjusted = max(0.0, crt_intensity / 0.048);
+                if (crt_amount_adjusted > 0.0000001) {
+                    float ca_offset = 0.0005 * 1600.0 / u_resolution.x;
+                    crt_tex.r = crt_tex.r * (1.0 - crt_amount_adjusted) 
+                              + crt_amount_adjusted * texture2D(u_texture, tc + vec2(ca_offset, 0.0)).r;
+                    crt_tex.g = crt_tex.g * (1.0 - crt_amount_adjusted) 
+                              + crt_amount_adjusted * texture2D(u_texture, tc - vec2(ca_offset, 0.0)).g;
+                }
+                
+                // Darkened base
+                vec3 rgb_result = crt_tex.rgb * (1.0 - crt_intensity);
+                
+                // RGB scanline pattern - THE KEY
+                vec3 rgb_scanline = vec3(
+                    clamp(-0.3 + 2.0 * sin(tc.y * scanlines - PI/4.0) 
+                          - 0.8 * clamp(sin(tc.x * scanlines * 4.0), 0.4, 1.0), -1.0, 2.0),
+                    clamp(-0.3 + 2.0 * cos(tc.y * scanlines) 
+                          - 0.8 * clamp(cos(tc.x * scanlines * 4.0), 0.0, 1.0), -1.0, 2.0),
+                    clamp(-0.3 + 2.0 * cos(tc.y * scanlines - PI/3.0) 
+                          - 0.8 * clamp(cos(tc.x * scanlines * 4.0 - PI/4.0), 0.0, 1.0), -1.0, 2.0)
+                );
+                
+                // Add scanlines
+                rgb_result += crt_tex.rgb * rgb_scanline * crt_intensity;
+                
+                // Contrast correction
+                rgb_result -= vec3(0.55);
+                rgb_result *= 1.14;
+                rgb_result += vec3(0.5);
+                
+                // Apply mask
+                rgb_result *= mask;
+                
+                gl_FragColor = vec4(rgb_result, 1.0);
+            }
+        `;
+
+        function compileShader(source, type) {
+            const shader = gl.createShader(type);
+            gl.shaderSource(shader, source);
+            gl.compileShader(shader);
+            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                console.error('Shader error:', gl.getShaderInfoLog(shader));
+            }
+            return shader;
+        }
+
+        const program = gl.createProgram();
+        gl.attachShader(program, compileShader(vertexShaderSource, gl.VERTEX_SHADER));
+        gl.attachShader(program, compileShader(fragmentShaderSource, gl.FRAGMENT_SHADER));
+        gl.linkProgram(program);
+        gl.useProgram(program);
+
+        const positions = new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]);
+        const buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+
+        const positionLoc = gl.getAttribLocation(program, 'a_position');
+        gl.enableVertexAttribArray(positionLoc);
+        gl.vertexAttribPointer(positionLoc, 2, gl.FLOAT, false, 0, 0);
+
+        const texture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        // === NEAREST filtering for CRISPY pixels ===
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+        const uniforms = {
+            texture: gl.getUniformLocation(program, 'u_texture'),
+            time: gl.getUniformLocation(program, 'u_time'),
+            resolution: gl.getUniformLocation(program, 'u_resolution'),
+            crt_slider: gl.getUniformLocation(program, 'u_crt_slider'),
+            glitch_intensity: gl.getUniformLocation(program, 'u_glitch_intensity')
+        };
+
+        // Use actual pixel resolution
+        gl.uniform2f(uniforms.resolution, crtCanvas.width, crtCanvas.height);
+        gl.uniform1i(uniforms.texture, 0);
+
+        const slider = document.getElementById('crt-slider');
+        slider.addEventListener('input', () => {
+            slider.nextElementSibling.textContent = slider.value;
+        });
+
+        function render(time) {
+            const t = time * 0.001;
+            drawContent();
+
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, contentCanvas);
+
+            gl.uniform1f(uniforms.time, t);
+            gl.uniform1f(uniforms.crt_slider, parseFloat(document.getElementById('crt-slider').value));
+            gl.uniform1f(uniforms.glitch_intensity, document.getElementById('glitch').checked ? 0.5 : 0.0);
+
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+            requestAnimationFrame(render);
+        }
+
+        requestAnimationFrame(render);
+    </script>
+</body>
+
+</html>
