@@ -2,14 +2,6 @@
 import { useState, useEffect } from 'react';
 import InfiniteMenu from './InfiniteMenu';
 
-import videoKimchi from '../../assets/Video Gallery Content/kimchi.mov';
-import videoBaby from '../../assets/Video Gallery Content/baby_born.mov';
-import videoWatson from '../../assets/Video Gallery Content/watson.mov';
-import videoPigs from '../../assets/Video Gallery Content/pigs_in_space.mov';
-import videoPortrait from '../../assets/Video Gallery Content/self_portrait.mov';
-import videoSmile from '../../assets/Video Gallery Content/smile.mov';
-import videoAliens from '../../assets/Video Gallery Content/aliens.mov';
-
 const CommunityGallery = ({ isActive }) => {
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -17,54 +9,53 @@ const CommunityGallery = ({ isActive }) => {
     useEffect(() => {
         if (!isActive) return;
 
-        // Static items from video-gallery (Assets removed to save space)
-        // Imported video items
+        // Static items from Cloudinary
         const videoItems = [
             {
                 image: 'https://placehold.co/600x900/333/666?text=Kimchi',
-                video: videoKimchi,
+                video: 'https://res.cloudinary.com/dl93c5cwm/video/upload/v1769962105/colab-gallery-static/kimchi.mov',
                 link: '#',
                 title: 'Kimchi',
                 description: '8'
             },
             {
                 image: 'https://placehold.co/600x900/333/666?text=Hello+World',
-                video: videoBaby,
+                video: 'https://res.cloudinary.com/dl93c5cwm/video/upload/v1769962107/colab-gallery-static/baby_born.mov',
                 link: '#',
                 title: 'Hello World!',
                 description: 'Baby Born'
             },
             {
                 image: 'https://placehold.co/600x900/333/666?text=I+Love+Watson',
-                video: videoWatson,
+                video: 'https://res.cloudinary.com/dl93c5cwm/video/upload/v1769962108/colab-gallery-static/watson.mov',
                 link: '#',
                 title: 'I Love Watson',
                 description: 'Ayala Niv'
             },
             {
                 image: 'https://placehold.co/600x900/333/666?text=Pigs+In+Space',
-                video: videoPigs,
+                video: 'https://res.cloudinary.com/dl93c5cwm/video/upload/v1769962111/colab-gallery-static/pigs_in_space.mov',
                 link: '#',
                 title: 'Pigs In Space',
                 description: 'Ruth Zajdner'
             },
             {
                 image: 'https://placehold.co/600x900/333/666?text=Self+Portrait',
-                video: videoPortrait,
+                video: 'https://res.cloudinary.com/dl93c5cwm/video/upload/v1769962113/colab-gallery-static/self_portrait.mov',
                 link: '#',
                 title: 'Self Portrait',
                 description: 'Yonatan Alperin'
             },
             {
                 image: 'https://placehold.co/600x900/333/666?text=Smile',
-                video: videoSmile,
+                video: 'https://res.cloudinary.com/dl93c5cwm/video/upload/v1769962115/colab-gallery-static/smile.mov',
                 link: '#',
                 title: 'Smile',
                 description: 'Yoel Zajdner'
             },
             {
                 image: 'https://placehold.co/600x900/333/666?text=Aliens',
-                video: videoAliens,
+                video: 'https://res.cloudinary.com/dl93c5cwm/video/upload/v1769962116/colab-gallery-static/aliens.mov',
                 link: '#',
                 title: 'The Aliens are coming',
                 description: 'Rotem Ronen'
