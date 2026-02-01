@@ -1,6 +1,6 @@
 {
   "name": "unified-app-multiplayer",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "Multiplayer version of UnifiedApp",
   "main": "server.js",
   "type": "module",
