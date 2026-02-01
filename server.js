@@ -3,9 +3,18 @@ import http from 'http';
 import { Server } from 'socket.io';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { v2 as cloudinary } from 'cloudinary';
+import 'dotenv/config';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Configure Cloudinary
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 const app = express();
 const server = http.createServer(app);
@@ -129,6 +138,24 @@ app.post('/api/posters', async (req, res) => {
         // Add Timestamp
         newPoster.id = Date.now().toString();
         newPoster.createdAt = new Date().toISOString();
+
+        // Upload video to Cloudinary if present
+        if (newPoster.video && newPoster.video.startsWith('data:video')) {
+            try {
+                const uploadResult = await cloudinary.uploader.upload(newPoster.video, {
+                    resource_type: 'video',
+                    folder: 'colab-posters',
+                    public_id: `poster_${newPoster.id}`,
+                    overwrite: true
+                });
+                newPoster.videoUrl = uploadResult.secure_url;
+                delete newPoster.video; // Don't store base64 anymore
+                console.log(`Uploaded video to Cloudinary: ${uploadResult.secure_url}`);
+            } catch (uploadErr) {
+                console.error('Cloudinary upload failed:', uploadErr);
+                // Fall back to keeping base64 if upload fails
+            }
+        }
 
         const data = await fs.readFile(path.join(__dirname, 'posters.json'), 'utf-8');
         const posters = JSON.parse(data);

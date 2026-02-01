@@ -80,7 +80,7 @@ const CommunityGallery = ({ isActive }) => {
 
                 const formattedUserPosters = userPosters.map(p => ({
                     image: 'https://placehold.co/600x900/222/FFF?text=' + encodeURIComponent(p.title), // Placeholder or thumbnail if we had one
-                    video: p.video, // Base64 video date URI
+                    video: p.videoUrl || p.video, // Cloudinary URL or legacy base64
                     link: '#',
                     title: p.title,
                     description: p.author,

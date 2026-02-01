@@ -200,6 +200,10 @@ function App() {
 
     const handleSwitchApp = (appId) => {
         setActiveApp(appId);
+        // Disable poster mode when viewing gallery
+        if (appId === 'community' && window.togglePosterMode) {
+            window.togglePosterMode(false);
+        }
         // Dispatch event for non-React parts (e.g., main.js) to hide/show UI
         window.dispatchEvent(new CustomEvent('app-changed', { detail: { app: appId } }));
     };

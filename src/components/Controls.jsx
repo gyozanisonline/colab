@@ -294,13 +294,11 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                         color="#20E5B0"
                         speed="3s"
                         onClick={async () => {
-                            const author = prompt("Enter your name:", "Anonymous");
-                            if (!author) return;
-                            const title = prompt("Enter a title for your poster:", "Untitled");
-                            if (!title) return;
+                            // Auto-derive author and title
+                            const author = localStorage.getItem('playerName') || 'Anonymous';
+                            const title = (textContent.split('\n')[0] || '').trim().slice(0, 30) || 'Untitled';
 
                             const btn = document.activeElement;
-                            const originalText = btn.innerText;
                             // Ensure button is found - sometimes activeElement is body if clicked div
                             // But StarBorder renders as button here.
                             if (btn && btn.tagName === 'BUTTON') {
@@ -308,7 +306,7 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                 btn.disabled = true;
                             }
 
-                            recorder.startRecording(4000, async (blob) => {
+                            recorder.startRecording(5000, async (blob) => {
                                 if (btn && btn.tagName === 'BUTTON') btn.innerText = "UP...";
 
                                 // Convert Blob to Base64
