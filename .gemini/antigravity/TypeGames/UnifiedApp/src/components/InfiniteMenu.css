@@ -1,0 +1,196 @@
+/* Note: this CSS is only an example, you can overlay whatever you want using the activeItem logic */
+
+#infinite-grid-menu-canvas {
+    cursor: grab;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    outline: none;
+}
+
+#infinite-grid-menu-canvas:active {
+    cursor: grabbing;
+}
+
+.action-button {
+    position: absolute;
+    left: 50%;
+    z-index: 10;
+
+    /* React Button Style Override */
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #eee;
+    padding: 8px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: bold;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.2s ease;
+
+    /* Ensure no default button styles interfere */
+    outline: none;
+    display: inline-block;
+}
+
+.action-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #fff;
+}
+
+.face-title {
+    position: absolute;
+    top: 50%;
+    transform: translate(20%, -50%);
+}
+
+.face-title.active {
+    opacity: 1;
+    transform: translate(20%, -50%);
+    pointer-events: auto;
+    transition: 0.5s ease;
+}
+
+.face-title.inactive {
+    pointer-events: none;
+    opacity: 0;
+    transition: 0.1s ease;
+}
+
+.face-description {
+    user-select: none;
+    position: absolute;
+    max-width: 10ch;
+    top: 50%;
+    font-size: 1.2rem;
+    left: 65%;
+    transform: translate(0, -50%);
+}
+
+.face-description.active {
+    opacity: 1;
+    transform: translate(0, -50%);
+    pointer-events: auto;
+    transition: 0.5s ease;
+}
+
+.face-description.inactive {
+    pointer-events: none;
+    transform: translate(20%, -50%);
+    opacity: 0;
+    transition: 0.1s ease;
+}
+
+.action-button {
+    position: absolute;
+    left: 50%;
+}
+
+.action-button.active {
+    bottom: 3.8em;
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+    pointer-events: auto;
+    transition: 0.5s ease;
+}
+
+.action-button.inactive {
+    bottom: -80px;
+    transform: translateX(-50%) scale(0);
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.1s ease;
+}
+
+@media (max-width: 1500px) {
+
+    .face-title,
+    .face-description {
+        display: none;
+    }
+}
+
+/* =========================================
+   New Gallery Zoom Layout 
+   ========================================= */
+
+.gallery-details-panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 45%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 60px;
+    box-sizing: border-box;
+    z-index: 20;
+    pointer-events: none;
+    /* Let clicks pass through container */
+    opacity: 0;
+    transform: translateX(100%);
+    transition: opacity 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+
+    /* Optional: faint divider line or gradient? */
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
+    background: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.8));
+}
+
+.gallery-details-panel.active {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.gallery-info {
+    text-align: left;
+    margin-bottom: 40px;
+    color: white;
+}
+
+.gallery-info h2 {
+    font-size: 3rem;
+    font-weight: 700;
+    margin: 0 0 20px 0;
+    letter-spacing: -0.02em;
+}
+
+.gallery-description {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    opacity: 0.7;
+    max-width: 400px;
+    font-weight: 300;
+}
+
+.gallery-actions {
+    display: flex;
+    gap: 20px;
+    pointer-events: auto;
+    /* Re-enable clicks for buttons */
+}
+
+.gallery-btn {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #eee;
+    padding: 12px 36px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    text-transform: lowercase;
+    backdrop-filter: blur(10px);
+}
+
+.gallery-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}

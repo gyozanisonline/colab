@@ -3,9 +3,18 @@ import http from 'http';
 import { Server } from 'socket.io';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { v2 as cloudinary } from 'cloudinary';
+import 'dotenv/config';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Configure Cloudinary
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 const app = express();
 const server = http.createServer(app);
@@ -85,7 +94,7 @@ if (!HAS_DB) {
     await fs.writeFile(path.join(__dirname, 'posters.json'), '[]');
 }
 
-app.use(express.json()); // Enable JSON body parsing
+app.use(express.json({ limit: '50mb' })); // Enable JSON body parsing with increased limit for video uploads
 
 // Get all posters
 app.get('/api/posters', async (req, res) => {
@@ -96,6 +105,24 @@ app.get('/api/posters', async (req, res) => {
     } catch (err) {
         console.error("Error reading posters:", err);
         res.status(500).json({ error: 'Failed to fetch posters' });
+    }
+});
+
+// --- MUSIC SEARCH API (iTunes proxy) ---
+app.get('/api/music-search', async (req, res) => {
+    try {
+        const query = req.query.q;
+        if (!query) return res.json({ results: [] });
+
+        // Search songs, limit to 50 for better variety
+        const url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=50`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        res.json(data);
+    } catch (err) {
+        console.error("Error searching music:", err);
+        res.status(500).json({ error: 'Failed to search music' });
     }
 });
 
@@ -111,6 +138,24 @@ app.post('/api/posters', async (req, res) => {
         // Add Timestamp
         newPoster.id = Date.now().toString();
         newPoster.createdAt = new Date().toISOString();
+
+        // Upload video to Cloudinary if present
+        if (newPoster.video && newPoster.video.startsWith('data:video')) {
+            try {
+                const uploadResult = await cloudinary.uploader.upload(newPoster.video, {
+                    resource_type: 'video',
+                    folder: 'colab-posters',
+                    public_id: `poster_${newPoster.id}`,
+                    overwrite: true
+                });
+                newPoster.videoUrl = uploadResult.secure_url;
+                delete newPoster.video; // Don't store base64 anymore
+                console.log(`Uploaded video to Cloudinary: ${uploadResult.secure_url}`);
+            } catch (uploadErr) {
+                console.error('Cloudinary upload failed:', uploadErr);
+                // Fall back to keeping base64 if upload fails
+            }
+        }
 
         const data = await fs.readFile(path.join(__dirname, 'posters.json'), 'utf-8');
         const posters = JSON.parse(data);

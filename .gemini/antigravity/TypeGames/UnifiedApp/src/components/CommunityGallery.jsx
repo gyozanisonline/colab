@@ -1,28 +1,96 @@
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import InfiniteMenu from './InfiniteMenu';
 
-const CommunityGallery = ({ isActive, onBack }) => {
-    const [posters, setPosters] = useState([]);
+const CommunityGallery = ({ isActive }) => {
+    const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        if (isActive) {
-            fetchPosters();
-        }
-    }, [isActive]);
+        if (!isActive) return;
 
-    const fetchPosters = async () => {
-        setLoading(true);
-        try {
-            const res = await fetch('/api/posters');
-            const data = await res.json();
-            setPosters(data);
-        } catch (err) {
-            console.error("Failed to load posters", err);
-        } finally {
-            setLoading(false);
-        }
-    };
+        // Static items from Cloudinary
+        const videoItems = [
+            {
+                image: 'https://placehold.co/600x900/333/666?text=Kimchi',
+                video: 'https://res.cloudinary.com/dl93c5cwm/video/upload/v1769962105/colab-gallery-static/kimchi.mov',
+                link: '#',
+                title: 'Kimchi',
+                description: '8'
+            },
+            {
+                image: 'https://placehold.co/600x900/333/666?text=Hello+World',
+                video: 'https://res.cloudinary.com/dl93c5cwm/video/upload/v1769962107/colab-gallery-static/baby_born.mov',
+                link: '#',
+                title: 'Hello World!',
+                description: 'Baby Born'
+            },
+            {
+                image: 'https://placehold.co/600x900/333/666?text=I+Love+Watson',
+                video: 'https://res.cloudinary.com/dl93c5cwm/video/upload/v1769962108/colab-gallery-static/watson.mov',
+                link: '#',
+                title: 'I Love Watson',
+                description: 'Ayala Niv'
+            },
+            {
+                image: 'https://placehold.co/600x900/333/666?text=Pigs+In+Space',
+                video: 'https://res.cloudinary.com/dl93c5cwm/video/upload/v1769962111/colab-gallery-static/pigs_in_space.mov',
+                link: '#',
+                title: 'Pigs In Space',
+                description: 'Ruth Zajdner'
+            },
+            {
+                image: 'https://placehold.co/600x900/333/666?text=Self+Portrait',
+                video: 'https://res.cloudinary.com/dl93c5cwm/video/upload/v1769962113/colab-gallery-static/self_portrait.mov',
+                link: '#',
+                title: 'Self Portrait',
+                description: 'Yonatan Alperin'
+            },
+            {
+                image: 'https://placehold.co/600x900/333/666?text=Smile',
+                video: 'https://res.cloudinary.com/dl93c5cwm/video/upload/v1769962115/colab-gallery-static/smile.mov',
+                link: '#',
+                title: 'Smile',
+                description: 'Yoel Zajdner'
+            },
+            {
+                image: 'https://placehold.co/600x900/333/666?text=Aliens',
+                video: 'https://res.cloudinary.com/dl93c5cwm/video/upload/v1769962116/colab-gallery-static/aliens.mov',
+                link: '#',
+                title: 'The Aliens are coming',
+                description: 'Rotem Ronen'
+            }
+        ];
+
+        const loadItems = async () => {
+            setLoading(true);
+            try {
+                // Fetch user created posters
+                const response = await fetch('/api/posters');
+                const userPosters = await response.json();
+
+                const formattedUserPosters = userPosters.map(p => ({
+                    image: 'https://placehold.co/600x900/222/FFF?text=' + encodeURIComponent(p.title), // Placeholder or thumbnail if we had one
+                    video: p.videoUrl || p.video, // Cloudinary URL or legacy base64
+                    link: '#',
+                    title: p.title,
+                    description: p.author,
+                    state: p.state // Store state for remixing later
+                }));
+
+                // Combine with static items
+                setItems([...formattedUserPosters, ...videoItems]);
+            } catch (err) {
+                console.error("Failed to load posters", err);
+                // Fallback to static only
+                setItems(videoItems);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadItems();
+    }, [isActive]);
 
     if (!isActive) return null;
 
@@ -34,86 +102,30 @@ const CommunityGallery = ({ isActive, onBack }) => {
             width: '100%',
             height: '100%',
             background: 'linear-gradient(135deg, #111, #222)',
-            color: 'white',
             zIndex: 2000, // Above everything
-            padding: '80px 40px',
-            overflowY: 'auto',
-            fontFamily: 'sans-serif',
-            pointerEvents: 'auto'
+            pointerEvents: 'auto',
+            overflow: 'hidden' // Important for canvas
         }}>
-            <h1 style={{ fontSize: '3rem', marginBottom: '20px', borderBottom: '1px solid #444', paddingBottom: '10px' }}>
-                Community Gallery
-            </h1>
-
-            {loading ? <p>Loading...</p> : (
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-                    gap: '20px'
-                }}>
-                    {posters.map(poster => (
-                        <div key={poster.id} style={{
-                            background: 'rgba(255,255,255,0.05)',
-                            borderRadius: '10px',
-                            padding: '20px',
-                            border: '1px solid rgba(255,255,255,0.1)',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '10px'
-                        }}>
-                            <div style={{
-                                height: '150px',
-                                background: '#000',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                borderRadius: '5px',
-                                overflow: 'hidden',
-                                position: 'relative'
-                            }}>
-                                {/* Mini Preview - Just styled text for V1 */}
-                                <div style={{
-                                    color: poster.params?.foreColor || 'white',
-                                    fontSize: '1.2rem',
-                                    textAlign: 'center',
-                                    lineHeight: 1.2
-                                }}>
-                                    {poster.text}
-                                </div>
-                            </div>
-
-                            <div>
-                                <h3 style={{ margin: 0, fontSize: '1.1rem' }}>{poster.author}</h3>
-                                <p style={{ margin: 0, fontSize: '0.8rem', color: '#888' }}>
-                                    {new Date(poster.createdAt).toLocaleDateString()}
-                                </p>
-                            </div>
-
-                            <button style={{
-                                marginTop: 'auto',
-                                padding: '8px 15px',
-                                background: 'rgba(255,255,255,0.1)',
-                                border: 'none',
-                                color: 'white',
-                                borderRadius: '4px',
-                                cursor: 'pointer',
-                                transition: 'background 0.2s'
-                            }}
-                                onMouseOver={(e) => e.target.style.background = 'rgba(255,255,255,0.2)'}
-                                onMouseOut={(e) => e.target.style.background = 'rgba(255,255,255,0.1)'}
-                                onClick={() => {
-                                    // TODO: Load this poster
-                                    // For now just log it
-                                    console.log("Load poster:", poster);
-                                    alert("Loading posters not implemented in V1 yet!\nBut here is the data:\n" + JSON.stringify(poster, null, 2));
-                                }}
-                            >
-                                Inspect
-                            </button>
-                        </div>
-                    ))}
+            {loading ? (
+                <div style={{ color: 'white', position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+                    Loading Gallery...
                 </div>
+            ) : (
+                <InfiniteMenu items={items} scale={2.5} />
             )}
+
+            {/* Title Overlay */}
+            <div style={{
+                position: 'absolute',
+                top: '20px',
+                left: '40px',
+                color: 'white',
+                pointerEvents: 'none',
+                zIndex: 10
+            }}>
+                <h1 style={{ fontSize: '2rem', margin: 0, textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>Community Gallery</h1>
+                <p style={{ opacity: 0.7, margin: 0 }}>Drag to explore • Click to expand</p>
+            </div>
         </div>
     );
 };
