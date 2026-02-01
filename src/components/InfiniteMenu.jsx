@@ -448,6 +448,12 @@ class ArcballControl {
     EPSILON = 0.1;
     IDENTITY_QUAT = quat.create();
 
+    // Spotlight mode tracking
+    pointerDownPos = vec2.create();
+    pointerDownTime = 0;
+    CLICK_THRESHOLD = 10; // pixels
+    CLICK_TIME_THRESHOLD = 300; // ms
+
     constructor(canvas, updateCallback) {
         this.canvas = canvas;
         this.updateCallback = updateCallback || (() => null);
@@ -460,10 +466,23 @@ class ArcballControl {
         this.handlePointerDown = e => {
             vec2.set(this.pointerPos, e.clientX, e.clientY);
             vec2.copy(this.previousPointerPos, this.pointerPos);
+            vec2.copy(this.pointerDownPos, this.pointerPos);
+            this.pointerDownTime = Date.now();
             this.isPointerDown = true;
         };
 
         this.handlePointerUp = () => {
+            // Detect click (short time + minimal movement)
+            const timeDelta = Date.now() - this.pointerDownTime;
+            const distance = vec2.distance(this.pointerPos, this.pointerDownPos);
+
+            if (timeDelta < this.CLICK_TIME_THRESHOLD && distance < this.CLICK_THRESHOLD) {
+                // It's a click!
+                if (this.onClickCallback) {
+                    this.onClickCallback();
+                }
+            }
+
             this.isPointerDown = false;
         };
 
@@ -594,7 +613,7 @@ class ArcballControl {
 
 class InfiniteGridMenu {
     TARGET_FRAME_DURATION = 1000 / 60;
-    SPHERE_RADIUS = 2;
+    SPHERE_RADIUS = 2.1; // Slightly larger for good spacing
 
     #time = 0;
     #deltaTime = 0;
@@ -607,7 +626,7 @@ class InfiniteGridMenu {
         far: 40,
         fov: Math.PI / 4,
         aspect: 1,
-        position: vec3.fromValues(0, 0, 3),
+        position: vec3.fromValues(0, 0, 6), // Back outside for now
         up: vec3.fromValues(0, 1, 0),
         matrices: {
             view: mat4.create(),
@@ -621,6 +640,7 @@ class InfiniteGridMenu {
     scaleFactor = 1.0;
     movementActive = false;
     isRunning = true;
+    spotlightIndex = -1; // -1 = no spotlight, >= 0 = spotlight on that item
 
 
 
@@ -630,7 +650,7 @@ class InfiniteGridMenu {
         this.onActiveItemChange = onActiveItemChange || (() => { });
         this.onMovementChange = onMovementChange || (() => { });
         this.scaleFactor = scale;
-        this.camera.position[2] = 3 * scale;
+        this.camera.position[2] = 6 * scale;
         this.#init(onInit);
     }
 
@@ -739,7 +759,7 @@ class InfiniteGridMenu {
         );
 
         this.icoGeo = new IcosahedronGeometry();
-        this.icoGeo.subdivide(1).spherize(this.SPHERE_RADIUS);
+        this.icoGeo.subdivide(1).spherize(this.SPHERE_RADIUS); // Keep at 1 for performance
         this.instancePositions = this.icoGeo.vertices.map(v => v.position);
         this.DISC_INSTANCE_COUNT = this.icoGeo.vertices.length;
         this.#initDiscInstances(this.DISC_INSTANCE_COUNT);
@@ -748,6 +768,7 @@ class InfiniteGridMenu {
         this.#initTexture();
 
         this.control = new ArcballControl(this.canvas, deltaTime => this.#onControlUpdate(deltaTime));
+        // Spotlight is controlled via View button (setSpotlight method), not by clicking posters
 
         this.#updateCameraMatrix();
         this.#updateProjectionMatrix(gl);
@@ -919,11 +940,31 @@ class InfiniteGridMenu {
         let positions = this.instancePositions.map(p => vec3.transformQuat(vec3.create(), p, this.control.orientation));
         const scale = 0.25;
         const SCALE_INTENSITY = 0.6;
+
         positions.forEach((p, ndx) => {
-            const s = (Math.abs(p[2]) / this.SPHERE_RADIUS) * SCALE_INTENSITY + (1 - SCALE_INTENSITY);
-            const finalScale = s * scale;
+            // Determine which item this vertex corresponds to
+            const itemIndex = ndx % Math.max(1, this.items.length);
+            const isSpotlighted = this.spotlightIndex >= 0 && itemIndex === this.spotlightIndex;
+            const inSpotlightMode = this.spotlightIndex >= 0;
+
+            let s = (Math.abs(p[2]) / this.SPHERE_RADIUS) * SCALE_INTENSITY + (1 - SCALE_INTENSITY);
+            let finalScale = s * scale;
+            let positionMultiplier = 1.0; // How far to push the item
+
+            if (inSpotlightMode) {
+                if (isSpotlighted) {
+                    // Spotlighted item: keep normal size or slightly larger
+                    finalScale *= 1.2;
+                } else {
+                    // Non-spotlighted items: scale down and push away
+                    finalScale *= 0.3; // Much smaller
+                    positionMultiplier = 3.0; // Push far away (off-screen)
+                }
+            }
+
             const matrix = mat4.create();
-            mat4.multiply(matrix, matrix, mat4.fromTranslation(mat4.create(), vec3.negate(vec3.create(), p)));
+            const adjustedPos = vec3.scale(vec3.create(), p, positionMultiplier);
+            mat4.multiply(matrix, matrix, mat4.fromTranslation(mat4.create(), vec3.negate(vec3.create(), adjustedPos)));
             mat4.multiply(matrix, matrix, mat4.targetTo(mat4.create(), [0, 0, 0], p, [0, 1, 0]));
             mat4.multiply(matrix, matrix, mat4.fromScaling(mat4.create(), [finalScale, finalScale, finalScale]));
             mat4.multiply(matrix, matrix, mat4.fromTranslation(mat4.create(), [0, 0, -this.SPHERE_RADIUS]));
@@ -1087,6 +1128,15 @@ class InfiniteGridMenu {
 
     setZoom(zoomed) {
         this.isZoomed = zoomed;
+        // When zooming in via View button, also spotlight the current item
+        if (zoomed) {
+            const nearestVertexIndex = this.#findNearestVertexIndex();
+            const itemIndex = nearestVertexIndex % Math.max(1, this.items.length);
+            this.spotlightIndex = itemIndex;
+        } else {
+            // When zooming out, clear spotlight
+            this.spotlightIndex = -1;
+        }
     }
 
     #updateVideoPlayback(activeIndex) {
