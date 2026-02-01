@@ -1,7 +1,6 @@
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Box, OrbitControls } from '@react-three/drei';
-import { useControls } from 'leva';
 
 function RotatingBox({ hoveredColor, defaultColor, scaleFactor, speedFactor, ...props }) {
     const mesh = useRef();
@@ -25,14 +24,7 @@ function RotatingBox({ hoveredColor, defaultColor, scaleFactor, speedFactor, ...
     );
 }
 
-export default function Blocks() {
-    const { defaultColor, hoveredColor, scale, speed } = useControls('Blocks', {
-        defaultColor: 'orange',
-        hoveredColor: 'hotpink',
-        scale: { value: 1, min: 0.5, max: 3 },
-        speed: { value: 1, min: 0.1, max: 5 }
-    });
-
+export default function Blocks({ defaultColor = 'orange', hoveredColor = 'hotpink', scale = 1, speed = 1 }) {
     return (
         <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, background: '#222' }}>
             <Canvas>

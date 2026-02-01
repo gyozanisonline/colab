@@ -1,0 +1,69 @@
+
+> unified-app-multiplayer@1.0.3 lint
+> eslint .
+
+
+/Users/gyozan/.gemini/antigravity/TypeGames/UnifiedApp/src/App.jsx
+   1:8  warning  'React' is defined but never used                                                                             no-unused-vars
+  75:8  warning  React Hook useEffect has a missing dependency: 'showIntro'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/gyozan/.gemini/antigravity/TypeGames/UnifiedApp/src/backgroundControlsBridge.js
+  10:20  warning  React Hook "useControls" is called conditionally. React Hooks must be called in the exact same order in every component render. Did you accidentally call a React Hook after an early return?  react-hooks/rules-of-hooks
+  19:20  warning  React Hook "useControls" is called conditionally. React Hooks must be called in the exact same order in every component render. Did you accidentally call a React Hook after an early return?  react-hooks/rules-of-hooks
+  29:20  warning  React Hook "useControls" is called conditionally. React Hooks must be called in the exact same order in every component render. Did you accidentally call a React Hook after an early return?  react-hooks/rules-of-hooks
+  38:20  warning  React Hook "useControls" is called conditionally. React Hooks must be called in the exact same order in every component render. Did you accidentally call a React Hook after an early return?  react-hooks/rules-of-hooks
+  46:20  warning  React Hook "useControls" is called conditionally. React Hooks must be called in the exact same order in every component render. Did you accidentally call a React Hook after an early return?  react-hooks/rules-of-hooks
+  54:20  warning  React Hook "useControls" is called conditionally. React Hooks must be called in the exact same order in every component render. Did you accidentally call a React Hook after an early return?  react-hooks/rules-of-hooks
+  63:20  warning  React Hook "useControls" is called conditionally. React Hooks must be called in the exact same order in every component render. Did you accidentally call a React Hook after an early return?  react-hooks/rules-of-hooks
+  71:20  warning  React Hook "useControls" is called conditionally. React Hooks must be called in the exact same order in every component render. Did you accidentally call a React Hook after an early return?  react-hooks/rules-of-hooks
+
+/Users/gyozan/.gemini/antigravity/TypeGames/UnifiedApp/src/components/Aurora.jsx
+  1:8  warning  'React' is defined but never used  no-unused-vars
+
+/Users/gyozan/.gemini/antigravity/TypeGames/UnifiedApp/src/components/BackgroundShapes.jsx
+  1:8  warning  'React' is defined but never used  no-unused-vars
+
+/Users/gyozan/.gemini/antigravity/TypeGames/UnifiedApp/src/components/Blocks.jsx
+  1:8  warning  'React' is defined but never used  no-unused-vars
+
+/Users/gyozan/.gemini/antigravity/TypeGames/UnifiedApp/src/components/ColorBends.jsx
+  1:8  warning  'React' is defined but never used  no-unused-vars
+
+/Users/gyozan/.gemini/antigravity/TypeGames/UnifiedApp/src/components/CommunityGallery.jsx
+  2:8  warning  'React' is defined but never used  no-unused-vars
+
+/Users/gyozan/.gemini/antigravity/TypeGames/UnifiedApp/src/components/Controls.jsx
+   1:8   warning  'React' is defined but never used     no-unused-vars
+   7:10  warning  'RiText' is defined but never used    no-unused-vars
+  28:48  warning  'onUpdate' is defined but never used  no-unused-vars
+
+/Users/gyozan/.gemini/antigravity/TypeGames/UnifiedApp/src/components/DarkVeil.jsx
+  1:8  warning  'React' is defined but never used  no-unused-vars
+
+/Users/gyozan/.gemini/antigravity/TypeGames/UnifiedApp/src/components/Dither.jsx
+  1:8  warning  'React' is defined but never used  no-unused-vars
+
+/Users/gyozan/.gemini/antigravity/TypeGames/UnifiedApp/src/components/ElasticSlider.jsx
+  48:11  warning  'initialDefaultValue' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        no-unused-vars
+  53:13  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  51 |         // Only update if defaultValue changed significantly AND it wasn't from our own onChange
+  52 |         if (!isInternalChange.current && Math.abs(defaultValue - value) > 0.01) {
+> 53 |             setValue(defaultValue);
+     |             ^^^^^^^^ Avoid calling setState() directly within an effect
+  54 |         }
+  55 |         isInternalChange.current = false;
+  56 |     }, [defaultValue]);  react-hooks/set-state-in-effect
+  56:8   warning  React Hook useEffect has a missing dependency: 'value'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        react-hooks/exhaustive-deps
+
+/Users/gyozan/.gemini/antigravity/TypeGames/UnifiedApp/src/components/InfiniteMenu.jsx
+  780:43  warning  'reject' is defined but never used  no-unused-vars
+
+✖ 24 problems (1 error, 23 warnings)
+

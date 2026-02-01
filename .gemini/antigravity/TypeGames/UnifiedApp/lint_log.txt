@@ -1,0 +1,185 @@
+
+> unified-app-multiplayer@1.0.3 lint
+> eslint .
+
+
+/Users/gyozan/.gemini/antigravity/TypeGames/UnifiedApp/src/App.jsx
+  16:8  warning  'PaintText' is defined but never used  no-unused-vars
+
+/Users/gyozan/.gemini/antigravity/TypeGames/UnifiedApp/src/backgroundControlsBridge.js
+  10:20  warning  React Hook "useControls" is called conditionally. React Hooks must be called in the exact same order in every component render. Did you accidentally call a React Hook after an early return?  react-hooks/rules-of-hooks
+  19:20  warning  React Hook "useControls" is called conditionally. React Hooks must be called in the exact same order in every component render. Did you accidentally call a React Hook after an early return?  react-hooks/rules-of-hooks
+  29:20  warning  React Hook "useControls" is called conditionally. React Hooks must be called in the exact same order in every component render. Did you accidentally call a React Hook after an early return?  react-hooks/rules-of-hooks
+  38:20  warning  React Hook "useControls" is called conditionally. React Hooks must be called in the exact same order in every component render. Did you accidentally call a React Hook after an early return?  react-hooks/rules-of-hooks
+  46:20  warning  React Hook "useControls" is called conditionally. React Hooks must be called in the exact same order in every component render. Did you accidentally call a React Hook after an early return?  react-hooks/rules-of-hooks
+  54:20  warning  React Hook "useControls" is called conditionally. React Hooks must be called in the exact same order in every component render. Did you accidentally call a React Hook after an early return?  react-hooks/rules-of-hooks
+  63:20  warning  React Hook "useControls" is called conditionally. React Hooks must be called in the exact same order in every component render. Did you accidentally call a React Hook after an early return?  react-hooks/rules-of-hooks
+  71:20  warning  React Hook "useControls" is called conditionally. React Hooks must be called in the exact same order in every component render. Did you accidentally call a React Hook after an early return?  react-hooks/rules-of-hooks
+
+/Users/gyozan/.gemini/antigravity/TypeGames/UnifiedApp/src/components/ColorBends.jsx
+  1:1   warning  Unused eslint-disable directive (no problems were reported from 'react/no-unknown-property')
+  7:10  warning  'BendingPlane' is defined but never used                                                      no-unused-vars
+
+/Users/gyozan/.gemini/antigravity/TypeGames/UnifiedApp/src/components/Controls.jsx
+  280:35  warning  'originalText' is assigned a value but never used  no-unused-vars
+
+/Users/gyozan/.gemini/antigravity/TypeGames/UnifiedApp/src/components/PaintText.jsx
+    8:5   warning  'textFontSize' is assigned a value but never used                                                                                     no-unused-vars
+   78:36  warning  'col' is assigned a value but never used                                                                                              no-unused-vars
+   99:42  warning  'pathIndex' is defined but never used                                                                                                 no-unused-vars
+  108:31  warning  'p2' is assigned a value but never used                                                                                               no-unused-vars
+  128:29  warning  'segmentDistStart' is assigned a value but never used                                                                                 no-unused-vars
+  139:25  warning  'pathDistance' is assigned a value but never used                                                                                     no-unused-vars
+  152:35  warning  'x' is assigned a value but never used                                                                                                no-unused-vars
+  153:35  warning  'y' is assigned a value but never used                                                                                                no-unused-vars
+  158:35  warning  'angle' is assigned a value but never used                                                                                            no-unused-vars
+  335:8   warning  React Hook useEffect has missing dependencies: 'isInteractive' and 'stripHeight'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/gyozan/.gemini/antigravity/TypeGames/UnifiedApp/src/components/ParticleIntro.jsx
+  1:8   warning  'React' is defined but never used      no-unused-vars
+  1:44  warning  'useEffect' is defined but never used  no-unused-vars
+
+/Users/gyozan/.gemini/antigravity/TypeGames/UnifiedApp/src/components/Silk.jsx
+  75:9  error    Compilation Skipped: Existing memoization could not be preserved
+
+React Compiler has skipped optimizing this component because the existing manual memoization could not be preserved. The inferred dependencies did not match the manually specified dependencies, which could cause the value to change more or less frequently than expected. The inferred dependency was `speed`, but the source dependencies were []. Inferred dependency not present in source.
+
+  73 |     // Uniforms ref to avoid re-creating object every frame
+  74 |     const uniforms = useMemo(
+> 75 |         () => ({
+     |         ^^^^^^^^
+> 76 |             uSpeed: { value: speed },
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 77 |             uScale: { value: scale },
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 78 |             uNoiseIntensity: { value: noiseIntensity },
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 79 |             uColor: { value: new Color(...hexToNormalizedRGB(color)) },
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 80 |             uRotation: { value: rotation },
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 81 |             uTime: { value: 0 }
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 82 |         }),
+     | ^^^^^^^^^^^ Could not preserve existing manual memoization
+  83 |         [] // Initial setup only
+  84 |     );
+  85 |           react-hooks/preserve-manual-memoization
+  75:9  error    Compilation Skipped: Existing memoization could not be preserved
+
+React Compiler has skipped optimizing this component because the existing manual memoization could not be preserved. The inferred dependencies did not match the manually specified dependencies, which could cause the value to change more or less frequently than expected. The inferred dependency was `scale`, but the source dependencies were []. Inferred dependency not present in source.
+
+  73 |     // Uniforms ref to avoid re-creating object every frame
+  74 |     const uniforms = useMemo(
+> 75 |         () => ({
+     |         ^^^^^^^^
+> 76 |             uSpeed: { value: speed },
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 77 |             uScale: { value: scale },
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 78 |             uNoiseIntensity: { value: noiseIntensity },
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 79 |             uColor: { value: new Color(...hexToNormalizedRGB(color)) },
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 80 |             uRotation: { value: rotation },
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 81 |             uTime: { value: 0 }
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 82 |         }),
+     | ^^^^^^^^^^^ Could not preserve existing manual memoization
+  83 |         [] // Initial setup only
+  84 |     );
+  85 |           react-hooks/preserve-manual-memoization
+  75:9  error    Compilation Skipped: Existing memoization could not be preserved
+
+React Compiler has skipped optimizing this component because the existing manual memoization could not be preserved. The inferred dependencies did not match the manually specified dependencies, which could cause the value to change more or less frequently than expected. The inferred dependency was `noiseIntensity`, but the source dependencies were []. Inferred dependency not present in source.
+
+  73 |     // Uniforms ref to avoid re-creating object every frame
+  74 |     const uniforms = useMemo(
+> 75 |         () => ({
+     |         ^^^^^^^^
+> 76 |             uSpeed: { value: speed },
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 77 |             uScale: { value: scale },
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 78 |             uNoiseIntensity: { value: noiseIntensity },
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 79 |             uColor: { value: new Color(...hexToNormalizedRGB(color)) },
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 80 |             uRotation: { value: rotation },
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 81 |             uTime: { value: 0 }
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 82 |         }),
+     | ^^^^^^^^^^^ Could not preserve existing manual memoization
+  83 |         [] // Initial setup only
+  84 |     );
+  85 |  react-hooks/preserve-manual-memoization
+  75:9  error    Compilation Skipped: Existing memoization could not be preserved
+
+React Compiler has skipped optimizing this component because the existing manual memoization could not be preserved. The inferred dependencies did not match the manually specified dependencies, which could cause the value to change more or less frequently than expected. The inferred dependency was `color`, but the source dependencies were []. Inferred dependency not present in source.
+
+  73 |     // Uniforms ref to avoid re-creating object every frame
+  74 |     const uniforms = useMemo(
+> 75 |         () => ({
+     |         ^^^^^^^^
+> 76 |             uSpeed: { value: speed },
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 77 |             uScale: { value: scale },
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 78 |             uNoiseIntensity: { value: noiseIntensity },
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 79 |             uColor: { value: new Color(...hexToNormalizedRGB(color)) },
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 80 |             uRotation: { value: rotation },
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 81 |             uTime: { value: 0 }
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 82 |         }),
+     | ^^^^^^^^^^^ Could not preserve existing manual memoization
+  83 |         [] // Initial setup only
+  84 |     );
+  85 |           react-hooks/preserve-manual-memoization
+  75:9  error    Compilation Skipped: Existing memoization could not be preserved
+
+React Compiler has skipped optimizing this component because the existing manual memoization could not be preserved. The inferred dependencies did not match the manually specified dependencies, which could cause the value to change more or less frequently than expected. The inferred dependency was `rotation`, but the source dependencies were []. Inferred dependency not present in source.
+
+  73 |     // Uniforms ref to avoid re-creating object every frame
+  74 |     const uniforms = useMemo(
+> 75 |         () => ({
+     |         ^^^^^^^^
+> 76 |             uSpeed: { value: speed },
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 77 |             uScale: { value: scale },
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 78 |             uNoiseIntensity: { value: noiseIntensity },
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 79 |             uColor: { value: new Color(...hexToNormalizedRGB(color)) },
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 80 |             uRotation: { value: rotation },
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 81 |             uTime: { value: 0 }
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 82 |         }),
+     | ^^^^^^^^^^^ Could not preserve existing manual memoization
+  83 |         [] // Initial setup only
+  84 |     );
+  85 |        react-hooks/preserve-manual-memoization
+  83:9  warning  React Hook useMemo has missing dependencies: 'color', 'noiseIntensity', 'rotation', 'scale', and 'speed'. Either include them or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               react-hooks/exhaustive-deps
+
+/Users/gyozan/.gemini/antigravity/TypeGames/UnifiedApp/src/components/StringType.jsx
+   33:17  warning  'stripChoice' is assigned a value but never used       no-unused-vars
+   35:17  warning  'stripCountChoice' is assigned a value but never used  no-unused-vars
+   37:17  warning  'partCount' is assigned a value but never used         no-unused-vars
+   43:17  warning  'foreColor' is assigned a value but never used         no-unused-vars
+   50:17  warning  'roundCap' is assigned a value but never used          no-unused-vars
+   53:17  warning  'handleAlpha' is assigned a value but never used       no-unused-vars
+   56:17  warning  'clickedIn' is assigned a value but never used         no-unused-vars
+  354:25  warning  'lastP' is assigned a value but never used             no-unused-vars
+
+/Users/gyozan/.gemini/antigravity/TypeGames/UnifiedApp/src/utils/RecorderManager.js
+  105:22  warning  'err' is defined but never used  no-unused-vars
+
+✖ 39 problems (5 errors, 34 warnings)
+  0 errors and 1 warning potentially fixable with the `--fix` option.
+

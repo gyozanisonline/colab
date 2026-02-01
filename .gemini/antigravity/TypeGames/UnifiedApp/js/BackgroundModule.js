@@ -68,7 +68,6 @@ const backgroundSketch = (p) => {
         p.pop();
 
         // --- Grid Field ---
-        console.log('Drawing grid with strokeColor:', strokeColor); // DEBUG
         p.stroke(strokeColor);
         p.strokeWeight(strokeSize);
         p.noFill();

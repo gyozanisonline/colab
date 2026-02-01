@@ -9,36 +9,52 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: #000;
-    /* Assuming dark background */
+    background-color: transparent;
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 99999;
     /* Ensure it stays on top */
     color: white;
-    font-family: 'Milker', sans-serif;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
     cursor: default !important;
     /* Force system default cursor */
     pointer-events: auto !important;
-    /* Ensure interactivity */
+    /* Lift the visual center up by ~10% for better optical balance */
+    padding-bottom: 10vh;
 }
 
 .intro-content {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2rem;
+    /* Tighter gap to make Logo + Form feel like one unit */
+    gap: 0rem;
     text-align: center;
     width: 100%;
     /* Removed max-width constraint here to allow large logo */
 }
 
 .intro-logo {
-    width: 800px;
-    /* Increased by 400% from 200px */
-    height: auto;
-    margin-bottom: 2rem;
+    width: 251vw;
+    /* Limit height so inputs stay on screen. 45vh leaves ~55% for form + padding */
+    max-height: 139vh;
+    object-fit: contain;
+    height: 1035px;
+    margin-bottom: -49rem;
+
+    /* Edit these numbers in DevTools to position the Logo! */
+    transform: translate(-10px, -393px);
+}
+
+.intro-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    /* Center inputs vertically */
+    justify-content: center;
+    gap: 2rem;
+    width: 100%;
 }
 
 .intro-form {
@@ -48,9 +64,11 @@
     gap: 1.5rem;
     width: 100%;
     max-width: 600px;
-    /* Added constraint here for inputs */
-    margin-top: -200px;
-    /* Moved up by 200px as requested */
+    /* Removed negative margin for cleaner flow */
+    margin-top: 0;
+
+    /* Edit these numbers in DevTools to position the Inputs! */
+    transform: translate(0px, 300px);
 }
 
 .intro-label {
@@ -63,12 +81,14 @@
     border: none;
     border-bottom: 2px solid rgba(255, 255, 255, 0.5);
     color: white;
-    font-family: 'Milker', sans-serif;
+    font-family: inherit;
     font-size: 2rem;
     text-align: center;
     padding: 0.5rem;
     outline: none;
-    width: 80%;
+    padding: 0.5rem;
+    outline: none;
+    width: 300px;
     transition: border-color 0.3s;
 }
 
@@ -76,11 +96,12 @@
     border-color: #fff;
 }
 
-.color-picker-section {
+.input-group {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
+    gap: 1rem;
+    /* More breathing room between label and input */
 }
 
 .intro-color-input {
@@ -109,7 +130,7 @@
 .create-btn {
     background: white;
     color: black;
-    font-family: 'Milker', sans-serif;
+    font-family: inherit;
     font-size: 1.5rem;
     padding: 10px 40px;
     border: none;

@@ -42,7 +42,6 @@ window.app = {
         if (bgTypeSelect) {
             bgTypeSelect.addEventListener('change', (e) => {
                 const type = e.target.value;
-                console.log('Background Type Changed:', type);
 
                 // 1. Notify React (Silk)
                 const event = new CustomEvent('change-background-type', { detail: type });
@@ -81,27 +80,22 @@ window.app = {
         }
 
         document.getElementById('bg-cols').addEventListener('input', (e) => {
-            console.log('BG Cols Input:', e.target.value);
             if (window.bgInstance) window.bgInstance.updateParams('cols', parseInt(e.target.value));
             if (window.emitChange) window.emitChange('param', 'bg-cols', e.target.value);
         });
         document.getElementById('bg-rows').addEventListener('input', (e) => {
-            console.log('BG Rows Input:', e.target.value);
             if (window.bgInstance) window.bgInstance.updateParams('rows', parseInt(e.target.value));
             if (window.emitChange) window.emitChange('param', 'bg-rows', e.target.value);
         });
         document.getElementById('bg-speed').addEventListener('input', (e) => {
-            console.log('BG Speed Input:', e.target.value);
             if (window.bgInstance) window.bgInstance.updateParams('speed', parseFloat(e.target.value));
             if (window.emitChange) window.emitChange('param', 'bg-speed', e.target.value);
         });
         document.getElementById('bg-color').addEventListener('input', (e) => {
-            console.log('BG Color Input:', e.target.value);
             if (window.bgInstance) window.bgInstance.updateParams('color', e.target.value);
             if (window.emitChange) window.emitChange('param', 'bg-color', e.target.value);
         });
         document.getElementById('grid-color').addEventListener('input', (e) => {
-            console.log('Grid Color Input:', e.target.value);
             if (window.bgInstance) window.bgInstance.updateParams('strokeColor', e.target.value);
             if (window.emitChange) window.emitChange('param', 'grid-color', e.target.value);
         });
@@ -122,7 +116,6 @@ window.app = {
             });
         }
         document.getElementById('type-size').addEventListener('input', (e) => {
-            console.log('Type Size Input:', e.target.value);
             if (window.typeInstance) window.typeInstance.updateParams('size', parseInt(e.target.value));
             if (window.emitChange) window.emitChange('param', 'type-size', e.target.value);
         });
@@ -204,20 +197,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (appId === 'community') {
             if (uiOverlay) uiOverlay.style.display = 'none';
-            // Optional: Hide p5 canvas to save resources, though it acts as a nice background if visible? 
-            // The community gallery has its own specific background.
+
+            // Pause Legacy Backgrounds
             if (p5Canvas) p5Canvas.style.display = 'none';
+            if (window.bgInstance) {
+                console.log("Pausing Background Sketch");
+                window.bgInstance.noLoop();
+            }
+
+            // Pause Kinetic Type
             const typeCanvas = document.getElementById('canvas-type');
             if (typeCanvas) typeCanvas.style.display = 'none';
+            if (window.pauseType) window.pauseType();
+
         } else {
-            if (uiOverlay) uiOverlay.style.display = 'block';
-            // Restore p5 canvas if needed (check current bg type logic)
-            // A simple way is to trigger the bg change event again to reset state or just let the user interact.
-            // For now, let's just show it if active background is wireframe
+            // Restore p5 canvas if needed
             const bgType = document.getElementById('bg-type-select').value;
-            if (bgType === 'wireframe' && p5Canvas) p5Canvas.style.display = 'block';
+            if (bgType === 'wireframe') {
+                if (p5Canvas) p5Canvas.style.display = 'block';
+                if (window.bgInstance) {
+                    console.log("Resuming Background Sketch");
+                    window.bgInstance.loop();
+                }
+            }
+
+            // Restore Kinetic Type
             const typeCanvas = document.getElementById('canvas-type');
             if (typeCanvas) typeCanvas.style.display = 'block';
+            if (window.resumeType) window.resumeType();
         }
     });
 });

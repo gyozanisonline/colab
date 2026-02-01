@@ -10,7 +10,8 @@
 
 var tFont = [];
 var pgTextSize = 90;
-var lineHeight = pgTextSize * 0.8;
+// Global vars initialized in update.js: window.leadingFactor, window.trackingFactor
+var lineHeight = pgTextSize * 0.8; // Initial safe value, updated in setup
 var bkgdColor, foreColor, fadeColor;
 
 var introScreen;
@@ -146,8 +147,26 @@ function preload() {
 }
 
 function setup() {
-    // Initialize fonts as system font strings
-    tFont = ['Inter', 'Arial Black', 'Times New Roman', 'Courier New', 'Courier', 'Helvetica'];
+    // Initialize fonts - Google Fonts + System fonts
+    tFont = [
+        // Google Fonts (bold display fonts)
+        'Bebas Neue',
+        'Staatliches',
+        'Orbitron',
+        'Monoton',
+        'Rubik Mono One',
+        'Fredoka',
+        'Permanent Marker',
+        'Lobster',
+        'Dela Gothic One',
+        'Ultra',
+        // System fonts (fallbacks)
+        'Inter',
+        'Arial Black',
+        'Times New Roman',
+        'Courier New',
+        'Helvetica'
+    ];
 
     let canvas = createCanvas(windowWidth, windowHeight);
     canvas.parent('canvas-type'); // Parent to the type layer
@@ -164,15 +183,16 @@ function setup() {
     if (document.getElementById("fontSize")) {
         document.getElementById("fontSize").value = pgTextSize;
     }
-    lineHeight = pgTextSize * 0.8;
 
-    if (width < 600) {
-        document.getElementById("textArea").value = "Colab\nExperiment Together";
-    } else if (width > 1300) {
-        document.getElementById("textArea").value = "Colab\nExperiment Together";
+    // Ensure we use the global leading factor
+    if (window.leadingFactor) {
+        lineHeight = pgTextSize * window.leadingFactor;
     } else {
-        document.getElementById("textArea").value = "Colab\nExperiment Together";
+        lineHeight = pgTextSize * 0.8;
     }
+
+    // Set default text (responsive text sizes could be added here in future)
+    document.getElementById("textArea").value = "Colab\nExperiment Together";
 
     bkgdColor = color(0, 0, 0, 0); // Transparent background for layering
     foreColor = color('#FFFFFF');
@@ -188,12 +208,20 @@ function setup() {
     noSmooth();
     textureMode(NORMAL);
 
-
-
     setText();
 
-    introScreen = new IntroScreen(logoImg);
+    // introScreen = new IntroScreen(logoImg); // Disabled to prevent conflict with React Intro
 }
+
+window.pauseType = function () {
+    console.log("Pausing Kinetic Type");
+    noLoop();
+};
+
+window.resumeType = function () {
+    console.log("Resuming Kinetic Type");
+    loop();
+};
 
 
 function draw() {
@@ -269,6 +297,7 @@ function resetAnim() {
         kineticGroups[p] = new KineticGroup(-horzSpacer * ((groupCount - 1) / 2) + p * horzSpacer, 0, p);
     }
 }
+window.resetAnim = resetAnim;
 
 function windowResized() {
     if (posterMode) {

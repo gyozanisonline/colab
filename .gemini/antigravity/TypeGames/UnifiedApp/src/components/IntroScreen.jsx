@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import './IntroScreen.css';
+import StarBorder from './StarBorder';
+import { filterProfanity } from '../utils/profanityFilter';
 
 export default function IntroScreen({ onComplete }) {
-    const [name, setName] = useState('');
-    const [color, setColor] = useState('#00ffcc');
+    // Initialize state from localStorage to avoid cascading renders
+    const [name, setName] = useState(() => localStorage.getItem('playerName') || '');
+    const [color, setColor] = useState(() => localStorage.getItem('playerColor') || '#00ffcc');
 
     useEffect(() => {
-        // Load existing values if available
-        const savedName = localStorage.getItem('playerName');
-        const savedColor = localStorage.getItem('playerColor');
-        if (savedName) setName(savedName);
-        if (savedColor) setColor(savedColor);
+        // Component lifecycle tracking (removed debug logs)
+        return () => { };
     }, []);
 
     // Real-time sync with legacy input for cursor color update
@@ -23,6 +23,7 @@ export default function IntroScreen({ onComplete }) {
     }, [color]);
 
     const handleCreate = () => {
+        // Save to localStorage
         // 1. Save to localStorage
         const finalName = name.trim() || 'Guest';
         localStorage.setItem('playerName', finalName);
@@ -49,38 +50,49 @@ export default function IntroScreen({ onComplete }) {
     return (
         <div className="intro-container">
             <div className="intro-content">
-                <img
-                    src="./assets/Colab Logo White.svg"
-                    alt="Colab Logo"
-                    className="intro-logo"
-                />
+
 
                 <div className="intro-form">
-                    <div className="input-group">
-                        {/* <label className="intro-label">NAME</label> */}
-                        <input
-                            type="text"
-                            className="intro-name-input"
-                            placeholder="YOUR NAME"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            maxLength={15}
-                        />
+                    <div className="intro-row">
+                        <div className="input-group">
+                            {/* <label className="intro-label">NAME</label> */}
+                            <input
+                                type="text"
+                                className="intro-name-input"
+                                placeholder="YOUR NAME"
+                                value={name}
+                                onChange={(e) => {
+                                    const filtered = filterProfanity(e.target.value);
+                                    setName(filtered);
+                                }}
+                                maxLength={15}
+                            />
+                        </div>
+
+                        <div className="input-group color-picker-section">
+                            {/* <label className="intro-label">COLOR</label> */}
+                            <input
+                                type="color"
+                                className="intro-color-input"
+                                value={color}
+                                onChange={(e) => setColor(e.target.value)}
+                                style={{ backgroundColor: color }}
+                            />
+                        </div>
                     </div>
 
-                    <div className="input-group color-picker-section">
-                        <label className="intro-label">COLOR</label>
-                        <input
-                            type="color"
-                            className="intro-color-input"
-                            value={color}
-                            onChange={(e) => setColor(e.target.value)}
-                        />
+                    <div style={{ marginTop: '20px' }}>
+                        <StarBorder
+                            as="button"
+                            className="create-btn-wrapper"
+                            color={color}
+                            speed="3s"
+                            onClick={handleCreate}
+                            style={{ width: '100%' }}
+                        >
+                            CREATE
+                        </StarBorder>
                     </div>
-
-                    <button className="create-btn" onClick={handleCreate}>
-                        CREATE
-                    </button>
                 </div>
             </div>
         </div>

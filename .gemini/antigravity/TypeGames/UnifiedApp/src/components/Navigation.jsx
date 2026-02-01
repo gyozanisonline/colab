@@ -1,11 +1,4 @@
-import React from 'react';
-
-const Navigation = ({ activeApp, onSwitchApp }) => {
-    const apps = [
-        { id: 'typeflow', label: 'TypeFlow' },
-        { id: 'community', label: 'Community' }
-    ];
-
+const Navigation = ({ onSwitchApp }) => {
     return (
         <div style={{
             position: 'fixed',
@@ -13,33 +6,23 @@ const Navigation = ({ activeApp, onSwitchApp }) => {
             right: '20px',
             zIndex: 3000,
             display: 'flex',
-            gap: '10px',
-            background: 'rgba(0,0,0,0.6)',
-            padding: '10px',
-            borderRadius: '8px',
-            backdropFilter: 'blur(5px)',
-            border: '1px solid rgba(255,255,255,0.1)',
-            pointerEvents: 'auto'
-        }}>
-            {apps.map(app => (
-                <button
-                    key={app.id}
-                    onClick={() => onSwitchApp(app.id)}
-                    style={{
-                        background: activeApp === app.id ? '#00ffcc' : 'transparent',
-                        color: activeApp === app.id ? '#000' : '#fff',
-                        border: '1px solid rgba(255,255,255,0.2)',
-                        padding: '5px 10px',
-                        cursor: 'pointer',
-                        borderRadius: '4px',
-                        fontSize: '0.9rem',
-                        fontWeight: activeApp === app.id ? 'bold' : 'normal',
-                        transition: 'all 0.2s ease'
-                    }}
-                >
-                    {app.label}
-                </button>
-            ))}
+            alignItems: 'center',
+            justifyContent: 'center',
+            pointerEvents: 'auto', // Enable clicks
+            cursor: 'pointer'
+        }}
+            onClick={() => onSwitchApp && onSwitchApp('typeflow')}
+        >
+            <img
+                src="/assets/Colab Logo White.svg"
+                alt="Colab"
+                style={{
+                    width: '120px', // Adjust size as needed
+                    height: 'auto',
+                    filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))',
+                    opacity: 0.95
+                }}
+            />
         </div>
     );
 };

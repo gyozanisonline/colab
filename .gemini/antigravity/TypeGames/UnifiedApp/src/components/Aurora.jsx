@@ -1,15 +1,6 @@
-import React from 'react';
-import { useControls } from 'leva';
+// Aurora background component with animated blobs
 
-export default function Aurora() {
-    const { bg, color1, color2, color3, speed, blobSize } = useControls('Aurora', {
-        bg: '#000000',
-        color1: '#ff00cc',
-        color2: '#3333ff',
-        color3: '#00ffcc',
-        speed: { value: 10, min: 2, max: 30 },
-        blobSize: { value: 60, min: 30, max: 100, label: 'Blob Size (%)' }
-    });
+export default function Aurora({ bg = '#000000', color1 = '#ff00cc', color2 = '#3333ff', color3 = '#00ffcc', speed = 10, blobSize = 60 }) {
 
     const styles = {
         container: {

@@ -12,7 +12,10 @@ class KineticWord {
         textSize(pgTextSize);
         textFont(currentFont);
 
-        var thisTracking = pgTextSize * 0.15;
+        // Use global tracking factor
+        var safeTracking = (typeof window.trackingFactor !== 'undefined') ? window.trackingFactor : 0.15;
+        // console.log("Word Tracking:", safeTracking); 
+        var thisTracking = pgTextSize * safeTracking;
         var fullMainWidth = textWidth(keyArray[this.m]) - (keyArray[this.m].length - 1) * (thisTracking - 5);
 
         this.budgeCenter = 0;

@@ -1,0 +1,21 @@
+@keyframes shine {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    20% {
+        transform: translateX(100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.poster-toggle.pressed {
+    transform: scale(0.96);
+}
+
+.poster-toggle:active {
+    transform: scale(0.96);
+}

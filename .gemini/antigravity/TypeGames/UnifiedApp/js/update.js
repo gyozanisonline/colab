@@ -1,4 +1,9 @@
+// Global Animation Variables
+window.trackingFactor = 0.15;
+window.leadingFactor = 0.8;
+
 function setText() {
+    console.log('[setText] Called! pgTextSize:', pgTextSize, 'currentFont:', currentFont);
     textSize(pgTextSize);
     textFont(currentFont);
 
@@ -12,7 +17,9 @@ function setText() {
 
     if (window.emitChange) window.emitChange('text', 'textArea', enteredText);
 
+    console.log('[setText] About to call resetAnim. keyArray:', keyArray);
     resetAnim();
+    console.log('[setText] resetAnim completed');
 }
 
 function setFont(val) {
@@ -86,10 +93,34 @@ function setFontSize(val) {
     }
 
     pgTextSize = int(val);
-    lineHeight = pgTextSize * 0.8;
+    lineHeight = pgTextSize * leadingFactor;
 
     setText();
 }
+
+function setKerning(val) {
+    // Map slider value (e.g. -10 to 50) to tracking factor (e.g. 0.05 to 0.5)
+    // Default 0 -> 0.15
+    window.trackingFactor = 0.15 + (val / 100);
+    setText();
+}
+
+function setLeading(val) {
+    // val is directly passed as factor e.g. 1.2
+    window.leadingFactor = parseFloat(val);
+    lineHeight = pgTextSize * window.leadingFactor;
+    setText();
+}
+
+// Explicitly attach to window for React access (must be after function definitions)
+window.setText = setText;
+window.setFont = setFont;
+window.setKerning = setKerning;
+window.setLeading = setLeading;
+window.setLayerCount = setLayerCount;
+window.setFontSize = setFontSize;
+window.setForeColor = setForeColor;
+window.setBkgdColor = setBkgdColor;
 
 function sizeSaveChange(val) {
     saveSizeState = val;

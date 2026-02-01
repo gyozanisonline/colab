@@ -1,12 +1,11 @@
-import React, { useRef, useState } from 'react';
+import { useRef, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Points, PointMaterial } from '@react-three/drei';
 import * as random from 'maath/random/dist/maath-random.esm';
-import { useControls } from 'leva';
 
 function Stars({ count, radius, color, size, speed, ...props }) {
     const ref = useRef();
-    const [sphere] = useState(() => random.inSphere(new Float32Array(count * 3), { radius })); // *3 for xyz
+    const sphere = useMemo(() => random.inSphere(new Float32Array(count * 3), { radius }), [count, radius]); // Recalculate when count/radius changes
 
     useFrame((state, delta) => {
         ref.current.rotation.x -= delta / 10 * speed;
@@ -22,15 +21,7 @@ function Stars({ count, radius, color, size, speed, ...props }) {
     );
 }
 
-export default function StarField() {
-    const { count, radius, color, size, speed } = useControls('StarField', {
-        count: { value: 5000, min: 1000, max: 20000, step: 100 },
-        radius: { value: 1.5, min: 0.5, max: 5.0 },
-        color: '#f272c8',
-        size: { value: 0.005, min: 0.001, max: 0.05, step: 0.001 },
-        speed: { value: 1, min: 0, max: 5 }
-    });
-
+export default function StarField({ count = 5000, radius = 1.5, color = '#f272c8', size = 0.005, speed = 1 }) {
     return (
         <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, background: '#111' }}>
             <Canvas camera={{ position: [0, 0, 1] }}>

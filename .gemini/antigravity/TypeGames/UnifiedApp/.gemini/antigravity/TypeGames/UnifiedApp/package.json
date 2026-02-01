@@ -1,0 +1,42 @@
+{
+  "name": "unified-app-multiplayer",
+  "version": "1.0.3",
+  "description": "Multiplayer version of UnifiedApp",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "server": "nodemon server.js",
+    "client": "vite",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "build": "vite build",
+    "lint": "eslint .",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.5.0",
+    "@splinetool/react-spline": "^4.1.0",
+    "@splinetool/runtime": "^1.12.28",
+    "@vitejs/plugin-react": "^5.1.2",
+    "express": "^4.18.2",
+    "leva": "^0.10.1",
+    "maath": "^0.10.8",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "socket.io": "^4.7.2",
+    "three": "^0.182.0",
+    "vite": "^7.3.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "concurrently": "^9.2.1",
+    "eslint": "^9.39.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.26",
+    "globals": "^17.0.0",
+    "husky": "^9.1.7",
+    "nodemon": "^3.1.11"
+  }
+}

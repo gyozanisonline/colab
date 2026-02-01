@@ -1,4 +1,4 @@
-import React, { useRef, useMemo } from 'react';
+import { useRef, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useControls } from 'leva';
@@ -21,7 +21,7 @@ function ParticleSwarm({ count = 100, color, size, speedFactor }) {
         return temp;
     }, [count]);
 
-    useFrame((state) => {
+    useFrame(() => {
         particles.forEach((particle, i) => {
             let { t, factor, speed, xFactor, yFactor, zFactor } = particle;
             // Apply speedFactor

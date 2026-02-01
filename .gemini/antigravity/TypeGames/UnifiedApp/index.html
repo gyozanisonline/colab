@@ -7,6 +7,13 @@
     <title>Unified TypeFlow</title>
     <link rel="stylesheet" href="css/style.css">
 
+    <!-- Google Fonts for Kinetic Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Dela+Gothic+One&family=Fredoka:wght@600&family=Lobster&family=Monoton&family=Orbitron:wght@700&family=Permanent+Marker&family=Rubik+Mono+One&family=Staatliches&family=Ultra&display=swap"
+        rel="stylesheet">
+
     <!-- Existing Scripts -->
     <script src="/socket.io/socket.io.js"></script>
     <script src="js/socketManager.js"></script>
@@ -22,29 +29,14 @@
         <div id="react-root"></div>
 
         <!-- Layer 1: Background (Z-Index -1, managed by BackgroundModule) -->
-        <div id="canvas-background" style="z-index: 0; display: block;"></div>
+        <div id="canvas-background" style="z-index: 0; display: none;"></div>
 
         <!-- Layer 2: Typography (Z-Index 1) -->
-        <div id="canvas-type"></div>
+        <div id="canvas-type" style="display: none;"></div>
 
         <!-- UI Overlay (Z-Index 10) -->
-        <div id="ui-overlay">
-            <!-- Chat Widget (Moved to Global Scope) -->
-            <div id="chat-container">
-                <div id="chat-header">
-                    <span>💬 Live Chat</span>
-                    <button id="toggle-chat"
-                        style="background:none; border:none; color:white; cursor:pointer;">_</button>
-                </div>
-                <div id="chat-messages"></div>
-                <div id="chat-input-area">
-                    <input type="text" id="chat-input" placeholder="Type a message..." maxlength="140">
-                    <button id="chat-send">Send</button>
-                </div>
-            </div>
-            <header>
-                <h1>TypeFlow</h1>
-            </header>
+        <div id="ui-overlay" style="display: none;">
+
 
             <div id="step-nav">
                 <button class="step-btn active" onclick="app.setStep(1)">1. Scene</button>
@@ -85,11 +77,11 @@
                         Background Type
                         <select id="bg-type-select"
                             style="width: 100%; margin-top: 5px; padding: 5px; background: rgba(0,0,0,0.5); color: white; border: 1px solid rgba(255,255,255,0.3);">
-                            <option value="wireframe" selected>Wireframe (p5.js)</option>
+                            <option value="wireframe">Wireframe (p5.js)</option>
                             <option value="color_bends">Color Bends (React)</option>
                             <option value="dark_veil">Dark Veil (React)</option>
                             <option value="dither">Dither (React)</option>
-                            <option value="starfield">StarField (React)</option>
+                            <option value="starfield" selected>StarField (React)</option>
                             <option value="aurora">Aurora (React)</option>
                             <option value="blocks">Blocks (React)</option>
                             <option value="particles">Particles (React)</option>
@@ -213,7 +205,8 @@ Experiment Together</textarea>
     </div>
 
     <!-- Existing Logic scripts -->
-    <script src="js/IntroScreen.js"></script>
+    <!-- DISABLED: Redundant with React IntroScreen.jsx -->
+    <!-- <script src="js/IntroScreen.js"></script> -->
     <script src="js/animators.js"></script>
     <script src="js/KineticLetter.js"></script>
     <script src="js/KineticWord.js"></script>
@@ -221,7 +214,8 @@ Experiment Together</textarea>
     <script src="js/ShapeLayout.js"></script>
     <script src="js/update.js"></script>
     <script src="js/sketch.js"></script>
-    <script src="js/BackgroundModule.js"></script>
+    <!-- DISABLED: Now lazy-loaded when wireframe background is selected -->
+    <!-- <script src="js/BackgroundModule.js"></script> -->
     <script src="js/AudioModule.js"></script>
     <script src="js/main.js"></script>
     <script src="js/invertedCursor.js"></script>

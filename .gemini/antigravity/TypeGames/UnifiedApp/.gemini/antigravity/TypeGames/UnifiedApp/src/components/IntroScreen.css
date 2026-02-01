@@ -1,0 +1,129 @@
+@font-face {
+    font-family: 'Milker';
+    src: url('/assets/Milker.otf') format('opentype');
+}
+
+.intro-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #000;
+    /* Assuming dark background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+    /* Ensure it stays on top */
+    color: white;
+    font-family: 'Milker', sans-serif;
+    cursor: default !important;
+    /* Force system default cursor */
+    pointer-events: auto !important;
+    /* Ensure interactivity */
+}
+
+.intro-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    text-align: center;
+    width: 100%;
+    /* Removed max-width constraint here to allow large logo */
+}
+
+.intro-logo {
+    width: 800px;
+    /* Increased by 400% from 200px */
+    height: auto;
+    margin-bottom: 2rem;
+}
+
+.intro-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 600px;
+    /* Added constraint here for inputs */
+    margin-top: -200px;
+    /* Moved up by 200px as requested */
+}
+
+.intro-label {
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+}
+
+.intro-name-input {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+    color: white;
+    font-family: 'Milker', sans-serif;
+    font-size: 2rem;
+    text-align: center;
+    padding: 0.5rem;
+    outline: none;
+    width: 80%;
+    transition: border-color 0.3s;
+}
+
+.intro-name-input:focus {
+    border-color: #fff;
+}
+
+.color-picker-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.intro-color-input {
+    width: 50px;
+    height: 50px;
+    border: 2px solid white;
+    border-radius: 50%;
+    background: none;
+    cursor: pointer;
+    padding: 0;
+    overflow: hidden;
+    /* Hide default square input visuals if possible, usually requires wrapper */
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.intro-color-input::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.intro-color-input::-webkit-color-swatch {
+    border: none;
+    border-radius: 50%;
+}
+
+.create-btn {
+    background: white;
+    color: black;
+    font-family: 'Milker', sans-serif;
+    font-size: 1.5rem;
+    padding: 10px 40px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    margin-top: 2rem;
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+.create-btn:hover {
+    transform: scale(1.05);
+    background-color: #ddd;
+}
+
+.create-btn:active {
+    transform: scale(0.95);
+}
