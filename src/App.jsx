@@ -309,7 +309,7 @@ function App() {
 
                     {/* Render TypeFlow Backgrounds only if in TypeFlow mode */}
                     {activeApp === 'typeflow' && (
-                        <div style={{ width: '100%', height: '100%', pointerEvents: 'none' }}>
+                        <div style={{ width: '100%', height: '100%', pointerEvents: 'none', position: 'relative' }}>
                             {/* Background Shapes: Z-index managed by CSS or default stacking. Should be above bg, below type. */}
                             <BackgroundShapes shapes={shapes} settings={shapeSettings} onRemove={removeShape} />
 

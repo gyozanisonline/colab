@@ -25,7 +25,24 @@ class RecorderManager {
         const canvases = Array.from(document.querySelectorAll('canvas'));
 
         // Filter out the compositor itself if it somehow gets appended
-        return canvases.filter(c => c !== this.compositorCanvas);
+        // AND filter out hidden canvases (display: none, opacity: 0, visibility: hidden)
+        return canvases.filter(c => {
+            if (c === this.compositorCanvas) return false;
+
+            const style = window.getComputedStyle(c);
+            // Check for display none
+            if (style.display === 'none') return false;
+            // Check for visibility hidden
+            if (style.visibility === 'hidden') return false;
+            // Check for opacity 0 - IF checking for "ghost" elements, but 
+            // ASCIIText might use opacity 0 canvas if it just uses the canvas for data.
+            // However, the issue description says "duplicate text layer". 
+            // If ASCIIText canvas is visible, it should be recorded.
+            // If Legacy canvas is hidden, it should NOT be recorded.
+            // Legacy canvas is hidden via display: none in App.jsx.
+
+            return true;
+        });
     }
 
     startRecording(durationMs = 0, onStopCallback) {
