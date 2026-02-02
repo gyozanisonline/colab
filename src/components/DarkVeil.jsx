@@ -138,15 +138,14 @@ export default function DarkVeil({
 
         const mesh = new Mesh(gl, { geometry, program });
 
-        const resize = () => {
+        const resizeObserver = new ResizeObserver(() => {
             const w = parent.clientWidth,
                 h = parent.clientHeight;
             renderer.setSize(w * resolutionScale, h * resolutionScale);
             program.uniforms.uResolution.value.set(w, h);
-        };
+        });
 
-        window.addEventListener('resize', resize);
-        resize();
+        resizeObserver.observe(parent);
 
         const start = performance.now();
         let frame = 0;
@@ -171,7 +170,7 @@ export default function DarkVeil({
 
         return () => {
             cancelAnimationFrame(frame);
-            window.removeEventListener('resize', resize);
+            resizeObserver.disconnect();
         };
     }, [resolutionScale]); // Only re-init if resolution changes
 
