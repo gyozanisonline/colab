@@ -96,7 +96,7 @@ class RecorderManager {
         // Start Composite Loop
         this.isRecording = true;
         this.mediaRecorder.start();
-        this.compositeLoop(sources);
+        this.compositeLoop();
 
         // Auto-stop if duration provided
         if (durationMs > 0) {
@@ -107,8 +107,11 @@ class RecorderManager {
         }
     }
 
-    compositeLoop(sources) {
+    compositeLoop() {
         if (!this.isRecording) return;
+
+        // Re-check visible canvases each frame (handles dynamic hide/show)
+        const sources = this.findCanvases();
 
         // Draw background color (optional, prevents transparency artifacts)
         this.ctx.fillStyle = 'black';
@@ -125,7 +128,7 @@ class RecorderManager {
             }
         });
 
-        this.animationFrameId = requestAnimationFrame(() => this.compositeLoop(sources));
+        this.animationFrameId = requestAnimationFrame(() => this.compositeLoop());
     }
 
     stopRecording() {

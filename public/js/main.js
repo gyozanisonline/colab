@@ -25,8 +25,8 @@ window.app = {
                 if (header) header.style.display = 'block';
                 if (stepNav) stepNav.classList.remove('hidden-app');
                 if (controlsPanel) controlsPanel.classList.remove('hidden-app');
-                if (typeCanvas) typeCanvas.style.display = 'block';
-                if (window.setClassicTypeActive) window.setClassicTypeActive(true);
+                // NOTE: Don't control typeCanvas visibility or setClassicTypeActive here
+                // Let React's App.jsx handle this based on activeTypeMode state
 
                 // Show p5 background canvas (if wireframe is selected)
                 const p5Canvas = document.getElementById('canvas-background');

@@ -216,6 +216,10 @@ function setup() {
 
 
     setText();
+
+    // Start paused - the intro screen is active on load
+    // React will call setClassicTypeActive(true) when needed
+    noLoop();
 }
 
 
