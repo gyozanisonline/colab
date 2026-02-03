@@ -13,9 +13,24 @@ const backgroundSketch = (p) => {
     let posterHeight = 900;
 
     p.setup = () => {
+        console.log('[BackgroundModule] p5 setup started');
+        // Try to handle context loss overlap by creating canvas carefully
         let canvas = p.createCanvas(p.windowWidth, p.windowHeight, p.WEBGL);
         canvas.parent('canvas-background');
         p.frameRate(30);
+
+        // Native Context Loss Handling
+        const gl = canvas.GL; // p5 webgl context
+        if (canvas.elt) {
+            canvas.elt.addEventListener('webglcontextlost', (e) => {
+                console.error('[BackgroundModule] WEBGL CONTEXT LOST');
+                e.preventDefault();
+            }, false);
+            canvas.elt.addEventListener('webglcontextrestored', () => {
+                console.log('[BackgroundModule] WEBGL CONTEXT RESTORED');
+                p.redraw();
+            }, false);
+        }
     };
 
     p.setPosterMode = (val) => {

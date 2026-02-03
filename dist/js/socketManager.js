@@ -123,7 +123,12 @@ socket.on('remote_mouse_move', (data) => {
         label.style.top = '0px';
         cursor.appendChild(label);
 
-        cursorContainer.appendChild(cursor);
+        if (cursorContainer) {
+            cursorContainer.appendChild(cursor);
+        } else {
+            // Fallback or retry? For now just append to body if container missing
+            document.body.appendChild(cursor);
+        }
     }
 
     // Update visual properties
@@ -215,9 +220,35 @@ socket.on('initial_state', (state) => {
     }
 });
 
+// Track active app to filter updates
+let currentApp = 'intro'; // Default
+window.addEventListener('app-changed', (e) => {
+    currentApp = e.detail.app;
+    console.log(`[DEBUG] socketManager.js: App switched to ${currentApp}`);
+});
+
 // Receive State Update
 socket.on('update_state', (data) => {
+    // ACTIVE APP FILTER: Only process content updates if in 'typeflow' or if it's a global config
+    // Chat and Mouse are handled separately, so this is just for the creative canvas.
+    if (currentApp !== 'typeflow') {
+        // Optional: Allow 'active_background' to pass if we want background to change behind the scenes?
+        // For now, based on user feedback, we strictly ignore it to prevent conflicts.
+        // BUT: We might want to sync state so when they ENTER 'typeflow' it's ready.
+        // Actually, the best approach is to let the state update in memory (React) but NOT trigger legacy DOM events.
+
+        // HOWEVER, since this file triggers DIRECT DOM manipulation (legacySelect, etc.), we should block it.
+        // React's listener in App.jsx handles the state sync. 
+        // This file handles the LEGACY DOM sync.
+
+        // Let's block the legacy DOM updates if not in typeflow.
+        // return; 
+    }
+
     // console.log('Received update:', data);
+    if (data.key === 'active_background') {
+        console.log(`[DEBUG] socketManager.js: Received active_background update: ${data.value}`);
+    }
     isRemoteUpdate = true; // Flag to prevent echo loop
 
     if (data.type === 'text') {
@@ -241,11 +272,20 @@ socket.on('update_state', (data) => {
         }
     }
 
+    // DISPATCH EVENT FOR REACT (So App.jsx knows a remote update came in)
+    // This allows React to update its state regardless of the legacy DOM mapping above.
+    const event = new CustomEvent('remote-settings-update', {
+        detail: { key: data.key, value: data.value }
+    });
+    window.dispatchEvent(event);
+
+
     isRemoteUpdate = false;
 });
 
 // Helper function to update UI and Instances
 function updateParamFromSocket(key, value) {
+    // 1. Update UI Input
     // 1. Update UI Input
     const input = document.getElementById(key);
     if (input) {
@@ -254,10 +294,16 @@ function updateParamFromSocket(key, value) {
         } else {
             input.value = value;
         }
+    }
 
-        // Special case: Background Type needs to trigger change event
-        if (key === 'bg-type-select') {
-            input.dispatchEvent(new Event('change'));
+    // Special case: Background Type needs to trigger change event
+    // This handles both the legacy 'bg-type-select' ID and the new 'active_background' key
+    if (key === 'bg-type-select' || key === 'active_background') {
+        console.log(`[DEBUG] socketManager.js: Triggering background change event for ${value}`);
+        const bgSelect = document.getElementById('bg-type-select');
+        if (bgSelect) {
+            bgSelect.value = value;
+            bgSelect.dispatchEvent(new Event('change'));
         }
     }
 
@@ -298,6 +344,10 @@ function updateParamFromSocket(key, value) {
 
 function emitChange(type, key, value) {
     if (isRemoteUpdate) return; // Don't emit if we just received this from server
+
+    if (key === 'active_background') {
+        console.log(`[DEBUG] socketManager.js: Emitting active_background: ${value}`);
+    }
 
     socket.emit('update_state', {
         type: type,

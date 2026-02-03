@@ -140,13 +140,27 @@ function togglePosterMode(val) {
 }
 window.togglePosterMode = togglePosterMode;
 
+// Store a reference to the p5 instance for external access
+var _p5Instance = null;
+var _p5SetupComplete = false;
+
 // Control whether the classic type sketch is active (drawing)
 function setClassicTypeActive(isActive) {
-    if (isActive) {
-        loop();
-    } else {
-        noLoop();
-        clear(); // Clear the canvas content when pausing
+    // Only try to control loop if setup has completed
+    if (!_p5SetupComplete) {
+        console.log('[sketch.js] setClassicTypeActive called before setup complete, ignoring');
+        return;
+    }
+
+    try {
+        if (isActive) {
+            loop();
+        } else {
+            noLoop();
+            clear(); // Clear the canvas content when pausing
+        }
+    } catch (e) {
+        console.warn('[sketch.js] Error controlling p5 loop:', e);
     }
 }
 window.setClassicTypeActive = setClassicTypeActive;
@@ -216,6 +230,9 @@ function setup() {
 
 
     setText();
+
+    // Mark setup as complete so external calls to setClassicTypeActive will work
+    _p5SetupComplete = true;
 
     // Start paused - the intro screen is active on load
     // React will call setClassicTypeActive(true) when needed
