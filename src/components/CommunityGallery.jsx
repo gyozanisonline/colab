@@ -129,22 +129,6 @@ const CommunityGallery = ({ isActive, onCreateClick }) => {
                 <InfiniteMenu items={items} scale={2.5} />
             )}
 
-            {/* Title Overlay - same height as top-right buttons */}
-            <div style={{
-                position: 'absolute',
-                top: '20px',
-                left: '40px',
-                color: 'white',
-                pointerEvents: 'none',
-                zIndex: 10,
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                minHeight: '50px' // Match approx height of button area
-            }}>
-                <h1 style={{ fontSize: '2rem', margin: 0, textShadow: '0 2px 4px rgba(0,0,0,0.5)', letterSpacing: '0.1em' }}>GALLERY</h1>
-                <p style={{ opacity: 0.7, margin: '4px 0 0 0', fontSize: '0.85rem' }}>Drag to explore • Click to expand</p>
-            </div>
         </div>
     );
 };

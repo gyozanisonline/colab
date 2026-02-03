@@ -18,11 +18,12 @@
     left: 50%;
     z-index: 10;
 
-    /* React Button Style Override */
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    /* React Button Style Override - Now mostly handled by StarBorder */
+    background: transparent;
+    border: none;
     color: #eee;
-    padding: 8px 24px;
+    padding: 0;
+    /* StarBorder handles padding through its thickness/inner-content */
     border-radius: 6px;
     cursor: pointer;
     font-size: 0.9rem;
@@ -38,8 +39,6 @@
 }
 
 .action-button:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.3);
     color: #fff;
 }
 
@@ -92,7 +91,7 @@
 }
 
 .action-button.active {
-    bottom: 3.8em;
+    bottom: calc(3.8em + 353px);
     transform: translateX(-50%) scale(1);
     opacity: 1;
     pointer-events: auto;

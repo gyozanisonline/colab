@@ -17,6 +17,7 @@ import PaintText from './components/PaintText'; // Keeping for reference or remo
 import PaintToys from './components/PaintToys';
 import StringType from './components/StringType';
 import CRTEffect from './components/CRTEffect';
+import ChatWidget from './components/ChatWidget'; // Chat
 
 import VersionOverlay from './components/VersionOverlay';
 
@@ -210,17 +211,25 @@ function App() {
     // [DEBUG] Visual Override for Background
     useEffect(() => {
         const bgCanvas = document.getElementById('canvas-background');
-        console.log(`[DEBUG] App.jsx: Visual Override Effect triggered for ${activeBackground}`);
+        console.log(`[DEBUG] App.jsx: Visual Override Effect triggered for ${activeBackground}, Intro: ${showIntro}`);
+
         if (bgCanvas) {
+            // Force hide if intro is showing
+            if (showIntro) {
+                bgCanvas.style.display = 'none';
+                if (window.bgInstance && window.bgInstance.noLoop) window.bgInstance.noLoop();
+                return;
+            }
+
             if (activeBackground === 'wireframe') {
                 bgCanvas.style.display = 'block';
-                if (window.bgInstance) window.bgInstance.loop();
+                if (window.bgInstance && window.bgInstance.loop) window.bgInstance.loop();
             } else {
                 bgCanvas.style.display = 'none';
-                if (window.bgInstance) window.bgInstance.noLoop();
+                if (window.bgInstance && window.bgInstance.noLoop) window.bgInstance.noLoop();
             }
         }
-    }, [activeBackground]);
+    }, [activeBackground, showIntro]);
 
 
 
@@ -516,6 +525,9 @@ function App() {
                         isActive={activeApp === 'community'}
                         onCreateClick={() => handleSwitchApp('typeflow')}
                     />
+
+                    {/* Global Chat Widget */}
+                    <ChatWidget />
                 </>
             )}
         </div>

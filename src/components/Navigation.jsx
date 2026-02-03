@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import './InfiniteMenu.css'; // For action-button style
 import SignUpModal from './SignUpModal';
+import StarBorder from './StarBorder';
 
 const Navigation = ({ activeApp, onSwitchApp }) => {
     const [showSignUp, setShowSignUp] = useState(false);
@@ -34,7 +36,7 @@ const Navigation = ({ activeApp, onSwitchApp }) => {
         onSwitchApp && onSwitchApp('typeflow');
     };
 
-    return (
+    return createPortal(
         <>
             <div style={{
                 position: 'fixed',
@@ -48,9 +50,12 @@ const Navigation = ({ activeApp, onSwitchApp }) => {
                 pointerEvents: 'auto'
             }}>
                 {/* Button - to the LEFT of the logo */}
-                <button
+                <StarBorder
+                    as="button"
+                    className="create-btn-wrapper"
+                    color="#00ffcc"
+                    speed="3s"
                     onClick={handleButtonClick}
-                    className="action-button active"
                     style={{
                         position: 'relative',
                         left: 'auto',
@@ -60,7 +65,7 @@ const Navigation = ({ activeApp, onSwitchApp }) => {
                     }}
                 >
                     {isGalleryMode ? 'Create a Poster' : 'Gallery'}
-                </button>
+                </StarBorder>
 
                 {/* COLAB Logo - 30% bigger (120px * 1.3 = 156px) */}
                 <div style={{ cursor: 'pointer' }}>
@@ -84,7 +89,8 @@ const Navigation = ({ activeApp, onSwitchApp }) => {
                     onClose={() => setShowSignUp(false)}
                 />
             )}
-        </>
+        </>,
+        document.body
     );
 };
 

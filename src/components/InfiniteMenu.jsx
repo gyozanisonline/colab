@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { mat4, quat, vec2, vec3 } from 'gl-matrix';
 import './InfiniteMenu.css';
+import StarBorder from './StarBorder';
 
 const discVertShaderSource = `#version 300 es
 
@@ -1267,12 +1268,15 @@ export default function InfiniteMenu({ items = [], scale = 1.0 }) {
                 <>
                     {/* Default State: View Button Only */}
                     {!isZoomed && (
-                        <button
+                        <StarBorder
+                            as="button"
+                            color="#00ffcc"
+                            speed="3s"
                             onClick={handleButtonClick}
                             className={`action-button ${isMoving ? 'inactive' : 'active'}`}
                         >
                             View
-                        </button>
+                        </StarBorder>
                     )}
 
                     {/* Zoomed State: Split Layout */}

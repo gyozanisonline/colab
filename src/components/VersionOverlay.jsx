@@ -1,5 +1,7 @@
+import { createPortal } from 'react-dom';
+
 const VersionOverlay = () => {
-    return (
+    return createPortal(
         <div style={{
             position: 'absolute',
             bottom: '10px',
@@ -11,7 +13,8 @@ const VersionOverlay = () => {
             zIndex: 9999
         }}>
             v{__APP_VERSION__}
-        </div>
+        </div>,
+        document.body
     );
 };
 

@@ -235,6 +235,7 @@ input[type="text"] {
     background-color: #000;
     background-image: radial-gradient(#222 1px, transparent 1px);
     background-size: 20px 20px;
+    overflow: hidden;
 }
 
 /* Force specific sizing on canvases in Poster Mode */
