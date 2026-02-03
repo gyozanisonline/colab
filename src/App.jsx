@@ -195,11 +195,17 @@ function App() {
     // Toggle legacy canvas based on activeTypeMode (and intro state)
     useEffect(() => {
         const legacyCanvas = document.getElementById('canvas-type');
+        const shouldBeActive = !showIntro && activeTypeMode === 'classic' && activeApp === 'typeflow';
+
         if (legacyCanvas) {
-            // Only show if typeflow mode is classic AND intro is NOT showing
-            legacyCanvas.style.display = (!showIntro && activeTypeMode === 'classic') ? 'block' : 'none';
+            legacyCanvas.style.display = shouldBeActive ? 'block' : 'none';
         }
-    }, [activeTypeMode, showIntro]);
+
+        // Also control the p5.js draw loop
+        if (window.setClassicTypeActive) {
+            window.setClassicTypeActive(shouldBeActive);
+        }
+    }, [activeTypeMode, showIntro, activeApp]);
 
     // [DEBUG] Visual Override for Background
     useEffect(() => {

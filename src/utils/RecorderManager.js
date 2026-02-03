@@ -34,12 +34,13 @@ class RecorderManager {
             if (style.display === 'none') return false;
             // Check for visibility hidden
             if (style.visibility === 'hidden') return false;
-            // Check for opacity 0 - IF checking for "ghost" elements, but 
-            // ASCIIText might use opacity 0 canvas if it just uses the canvas for data.
-            // However, the issue description says "duplicate text layer". 
-            // If ASCIIText canvas is visible, it should be recorded.
-            // If Legacy canvas is hidden, it should NOT be recorded.
-            // Legacy canvas is hidden via display: none in App.jsx.
+
+            // Also check parent - if parent container is hidden, exclude this canvas
+            const parentId = c.parentElement?.id;
+            if (parentId === 'canvas-type' || parentId === 'canvas-background') {
+                const parentStyle = window.getComputedStyle(c.parentElement);
+                if (parentStyle.display === 'none') return false;
+            }
 
             return true;
         });

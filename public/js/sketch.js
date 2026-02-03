@@ -140,6 +140,17 @@ function togglePosterMode(val) {
 }
 window.togglePosterMode = togglePosterMode;
 
+// Control whether the classic type sketch is active (drawing)
+function setClassicTypeActive(isActive) {
+    if (isActive) {
+        loop();
+    } else {
+        noLoop();
+        clear(); // Clear the canvas content when pausing
+    }
+}
+window.setClassicTypeActive = setClassicTypeActive;
+
 function preload() {
     // Remote fonts might fail to load due to CORS or network. Switching to system fonts for reliability.
     logoImg = loadImage('assets/colab_logo.png');

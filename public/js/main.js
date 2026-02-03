@@ -26,6 +26,7 @@ window.app = {
                 if (stepNav) stepNav.classList.remove('hidden-app');
                 if (controlsPanel) controlsPanel.classList.remove('hidden-app');
                 if (typeCanvas) typeCanvas.style.display = 'block';
+                if (window.setClassicTypeActive) window.setClassicTypeActive(true);
 
                 // Show p5 background canvas (if wireframe is selected)
                 const p5Canvas = document.getElementById('canvas-background');
@@ -41,6 +42,7 @@ window.app = {
                 if (stepNav) stepNav.classList.add('hidden-app');
                 if (controlsPanel) controlsPanel.classList.add('hidden-app');
                 if (typeCanvas) typeCanvas.style.display = 'none';
+                if (window.setClassicTypeActive) window.setClassicTypeActive(false);
 
                 // If switching away, hide p5 background too
                 const p5Canvas = document.getElementById('canvas-background');
