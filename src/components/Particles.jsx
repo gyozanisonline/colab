@@ -65,7 +65,7 @@ export default function Particles() {
 
     return (
         <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, background: '#000' }}>
-            <Canvas camera={{ fov: 75, position: [0, 0, 70] }}>
+            <Canvas camera={{ fov: 75, position: [0, 0, 70] }} gl={{ preserveDrawingBuffer: true }}>
                 <ParticleSwarm count={count} color={color} size={size} speedFactor={speed} />
             </Canvas>
         </div>

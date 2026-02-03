@@ -94,6 +94,7 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
     const [isTrimmerOpen, setIsTrimmerOpen] = useState(false);
     const [isTrimmerPlaying, setIsTrimmerPlaying] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
+    const [showPublishSuccess, setShowPublishSuccess] = useState(false);
 
     // Initial sync with legacy system
     useEffect(() => {
@@ -373,8 +374,14 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                         });
 
                                         if (res.ok) {
-                                            // alert("Published!"); // Don't alert behind overlay? or wait?
-                                            // Let the overlay show success maybe? For now just simple alert after cleanup
+                                            // Show success popup and navigate to gallery
+                                            setShowPublishSuccess(true);
+
+                                            // After a short display, go to gallery
+                                            setTimeout(() => {
+                                                setShowPublishSuccess(false);
+                                                onSwitchApp('community');
+                                            }, 2000);
                                         } else {
                                             const err = await res.json();
                                             console.error("Failed: " + err.error);
@@ -2255,6 +2262,61 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                     </div>
                     <style>{`
                         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+                    `}</style>
+                </div>
+            )}
+
+            {/* Publish Success Popup */}
+            {showPublishSuccess && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100vw',
+                    height: '100vh',
+                    background: 'rgba(0, 0, 0, 0.85)',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 99999,
+                    backdropFilter: 'blur(10px)'
+                }}>
+                    <StarBorder
+                        as="div"
+                        color="#00ffcc"
+                        speed="3s"
+                        className="create-btn-wrapper"
+                        style={{
+                            '--star-padding': '40px 80px',
+                            animation: 'popIn 0.4s ease-out'
+                        }}
+                    >
+                        <h2 style={{
+                            color: '#ffffff',
+                            fontSize: '1.5rem',
+                            margin: '0 0 10px 0',
+                            fontWeight: 'bold',
+                            letterSpacing: '1px',
+                            fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
+                            textTransform: 'uppercase'
+                        }}>
+                            Your Poster is Ready!
+                        </h2>
+                        <p style={{
+                            color: 'rgba(255, 255, 255, 0.6)',
+                            fontSize: '0.9rem',
+                            margin: 0,
+                            fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif"
+                        }}>
+                            Taking you to the gallery...
+                        </p>
+                    </StarBorder>
+                    <style>{`
+                        @keyframes popIn {
+                            0% { transform: scale(0.5); opacity: 0; }
+                            70% { transform: scale(1.05); }
+                            100% { transform: scale(1); opacity: 1; }
+                        }
                     `}</style>
                 </div>
             )}

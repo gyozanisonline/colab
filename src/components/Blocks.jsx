@@ -27,7 +27,7 @@ function RotatingBox({ hoveredColor, defaultColor, scaleFactor, speedFactor, ...
 export default function Blocks({ defaultColor = 'orange', hoveredColor = 'hotpink', scale = 1, speed = 1 }) {
     return (
         <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, background: '#222' }}>
-            <Canvas>
+            <Canvas gl={{ preserveDrawingBuffer: true }}>
                 <ambientLight intensity={0.5} />
                 <pointLight position={[10, 10, 10]} />
                 <RotatingBox position={[-1.2, 0, 0]} hoveredColor={hoveredColor} defaultColor={defaultColor} scaleFactor={scale} speedFactor={speed} />

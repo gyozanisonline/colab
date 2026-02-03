@@ -261,15 +261,7 @@ socket.on('update_state', (data) => {
         updateParamFromSocket(data.key, data.value);
     } else if (data.type === 'function') {
         // Handle function calls
-        if (data.name === 'togglePosterMode') {
-            if (typeof window.togglePosterMode === 'function') {
-                // Update checkbox UI if it exists
-                const chk = document.getElementById('poster-mode-toggle');
-                if (chk) chk.checked = data.value;
-
-                window.togglePosterMode(data.value);
-            }
-        }
+        // Removed togglePosterMode listener
     }
 
     // DISPATCH EVENT FOR REACT (So App.jsx knows a remote update came in)
@@ -335,9 +327,7 @@ function updateParamFromSocket(key, value) {
     if (key === 'motion-type' && window.typeInstance) window.typeInstance.updateParams('motionType', value);
     if (key === 'intensity' && window.typeInstance) window.typeInstance.updateParams('intensity', parseFloat(value));
     if (key === 'shape-type' && window.typeInstance) window.typeInstance.updateParams('shapeType', value);
-    if (key === 'poster-mode' && window.typeInstance) {
-        window.typeInstance.updateParams('posterMode', (value === true || value === 'true'));
-    }
+    // Removed poster-mode sync
 }
 
 // --- EMIT UPDATES TO SERVER ---

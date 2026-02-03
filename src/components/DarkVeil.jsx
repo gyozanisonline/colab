@@ -114,7 +114,8 @@ export default function DarkVeil({
             dpr: Math.min(window.devicePixelRatio, 2),
             canvas,
             alpha: true,
-            antialias: true
+            antialias: true,
+            preserveDrawingBuffer: true
         });
 
         const gl = renderer.gl;

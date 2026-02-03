@@ -158,7 +158,8 @@ export default function ColorBends({
         const renderer = new THREE.WebGLRenderer({
             antialias: false,
             powerPreference: 'high-performance',
-            alpha: true
+            alpha: true,
+            preserveDrawingBuffer: true
         });
         rendererRef.current = renderer;
         renderer.outputColorSpace = THREE.SRGBColorSpace;

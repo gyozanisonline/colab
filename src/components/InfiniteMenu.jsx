@@ -715,7 +715,7 @@ class InfiniteGridMenu {
     }
 
     #init(onInit) {
-        this.gl = this.canvas.getContext('webgl2', { antialias: true, alpha: false });
+        this.gl = this.canvas.getContext('webgl2', { antialias: true, alpha: false, preserveDrawingBuffer: true });
         const gl = this.gl;
         if (!gl) {
             throw new Error('No WebGL 2 context!');
@@ -785,8 +785,9 @@ class InfiniteGridMenu {
         this.atlasSize = Math.ceil(Math.sqrt(itemCount));
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
-        // REVERT: Back to 2048 to match updateVideoTexture, or use a class property
-        this.cellSize = 2048;
+        // Reduced from 2048 to 512 for much better performance (16x less memory)
+        this.cellSize = 512;
+        this.lastVideoUpdateTime = 0; // For throttling video updates
 
         canvas.width = this.atlasSize * this.cellSize;
         canvas.height = this.atlasSize * this.cellSize;
@@ -843,7 +844,7 @@ class InfiniteGridMenu {
                                 });
                             }
 
-                            // Timeout fallback after 30 seconds (increased for huge files and slow connections)
+                            // Timeout fallback after 10 seconds (reduced for better UX)
                             setTimeout(() => {
                                 if (!resolved) {
                                     console.warn(`Video ${index} timeout, trying forced play or fallback`);
@@ -862,7 +863,7 @@ class InfiniteGridMenu {
                                         this.videoElements[index] = null;
                                     });
                                 }
-                            }, 30000);
+                            }, 10000);
 
                             // Trigger load
                             video.load();
@@ -982,29 +983,34 @@ class InfiniteGridMenu {
     #updateVideoTexture() {
         if (!this.textureCanvas || !this.videoElements || this.activeVideoIndex === -1) return;
 
-        const video = this.videoElements[this.activeVideoIndex];
-        if (!video) {
-            // this.#log(`No video element for index: ${this.activeVideoIndex}`, 'warn');
-            return;
-        }
+        // Throttle video updates to ~30fps for performance
+        const now = performance.now();
+        if (now - this.lastVideoUpdateTime < 33) return; // 33ms = ~30fps
+        this.lastVideoUpdateTime = now;
 
-        if (video.paused || video.ended) {
-            // this.#log(`Video paused or ended: ${this.activeVideoIndex}`, 'warn');
-            return;
-        }
+        const video = this.videoElements[this.activeVideoIndex];
+        if (!video) return;
+        if (video.paused || video.ended) return;
 
         const gl = this.gl;
-        // Use class property instead of hardcoded
         const x = (this.activeVideoIndex % this.atlasSize) * this.cellSize;
         const y = Math.floor(this.activeVideoIndex / this.atlasSize) * this.cellSize;
 
-        // Redraw current video frame
+        // Redraw current video frame to the canvas region
         this.textureContext.drawImage(video, x, y, this.cellSize, this.cellSize);
 
-        // Update WebGL texture
+        // Use texSubImage2D for incremental update instead of full re-upload
+        // This only updates the specific cell region, much faster than full texImage2D
         gl.bindTexture(gl.TEXTURE_2D, this.tex);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this.textureCanvas);
-        gl.generateMipmap(gl.TEXTURE_2D);
+        gl.texSubImage2D(
+            gl.TEXTURE_2D,
+            0,      // mip level
+            x,      // x offset
+            y,      // y offset  
+            gl.RGBA,
+            gl.UNSIGNED_BYTE,
+            this.textureContext.getImageData(x, y, this.cellSize, this.cellSize)
+        );
     }
 
     #render() {

@@ -65,18 +65,20 @@ const CommunityGallery = ({ isActive, onCreateClick }) => {
         const loadItems = async () => {
             setLoading(true);
             try {
-                // First, sync with Cloudinary to recover any missing posters
-                try {
-                    const syncResult = await fetch('/api/sync-cloudinary', { method: 'POST' });
-                    const syncData = await syncResult.json();
-                    if (syncData.synced > 0) {
-                        console.log(`[Gallery] Recovered ${syncData.synced} missing posters from Cloudinary`);
-                    }
-                } catch (syncErr) {
-                    console.warn('[Gallery] Cloudinary sync unavailable:', syncErr);
-                }
+                // Start Cloudinary sync in background (non-blocking)
+                // Don't await this - let it run while we load and show items
+                fetch('/api/sync-cloudinary', { method: 'POST' })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.synced > 0) {
+                            console.log(`[Gallery] Recovered ${data.synced} missing posters from Cloudinary`);
+                            // Optionally reload items after sync completes
+                            // For now, just log - items will appear on next gallery visit
+                        }
+                    })
+                    .catch(err => console.warn('[Gallery] Cloudinary sync unavailable:', err));
 
-                // Fetch user created posters
+                // Fetch user created posters immediately (don't wait for sync)
                 const response = await fetch('/api/posters');
                 const userPosters = await response.json();
 

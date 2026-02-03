@@ -110,7 +110,7 @@ const Silk = (props) => {
     const meshRef = useRef(null);
 
     return (
-        <Canvas dpr={[1, 2]} frameloop="always" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
+        <Canvas dpr={[1, 2]} frameloop="always" gl={{ preserveDrawingBuffer: true }} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
             <SilkPlane ref={meshRef} {...props} />
         </Canvas>
     );

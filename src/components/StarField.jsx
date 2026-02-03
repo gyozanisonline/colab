@@ -24,7 +24,7 @@ function Stars({ count, radius, color, size, speed, ...props }) {
 export default function StarField({ count = 5000, radius = 1.5, color = '#f272c8', size = 0.005, speed = 1 }) {
     return (
         <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, background: '#111' }}>
-            <Canvas camera={{ position: [0, 0, 1] }}>
+            <Canvas camera={{ position: [0, 0, 1] }} gl={{ preserveDrawingBuffer: true }}>
                 <Stars count={count} radius={radius} color={color} size={size} speed={speed} />
             </Canvas>
         </div>
