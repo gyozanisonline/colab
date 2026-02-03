@@ -129,60 +129,106 @@ app.get('/api/music-search', async (req, res) => {
     }
 });
 
-// Sync Cloudinary with posters.json - ensures no posters are lost
+// Sync Cloudinary with posters.json - bidirectional sync:
+// 1. Recover missing posters (on Cloudinary but not in JSON)
+// 2. Remove dead posters (in JSON but video deleted from Cloudinary)
 app.post('/api/sync-cloudinary', async (req, res) => {
     try {
-        console.log('[SYNC] Starting Cloudinary sync...');
+        console.log('[SYNC] Starting bidirectional Cloudinary sync...');
 
-        // Get all videos from Cloudinary colab gallery static folder
-        const result = await cloudinary.api.resources({
-            type: 'upload',
-            resource_type: 'video',
-            prefix: 'colab-gallery-static/',
-            max_results: 500
-        });
+        // Get all videos from Cloudinary - check both folders
+        const [staticResult, legacyResult] = await Promise.all([
+            cloudinary.api.resources({
+                type: 'upload',
+                resource_type: 'video',
+                prefix: 'colab-gallery-static/',
+                max_results: 500,
+                context: true
+            }),
+            cloudinary.api.resources({
+                type: 'upload',
+                resource_type: 'video',
+                prefix: 'colab-posters/',
+                max_results: 500,
+                context: true
+            })
+        ]);
 
-        console.log(`[SYNC] Found ${result.resources.length} videos on Cloudinary`);
+        const allResources = [...staticResult.resources, ...legacyResult.resources];
+        console.log(`[SYNC] Found ${allResources.length} videos on Cloudinary (${staticResult.resources.length} static + ${legacyResult.resources.length} legacy)`);
+
+        // Create lookup sets
+        const cloudinaryIds = new Set(allResources.map(r => r.public_id));
+        const cloudinaryIdToResource = new Map(allResources.map(r => [r.public_id, r]));
 
         // Read current posters
         const postersPath = path.join(__dirname, 'posters.json');
         const data = await fs.readFile(postersPath, 'utf-8');
-        const posters = JSON.parse(data);
-
-        // Find missing posters (on Cloudinary but not in JSON)
+        let posters = JSON.parse(data);
         const existingIds = new Set(posters.map(p => p.id));
+
+        // --- STEP 1: Remove dead posters ---
+        const originalCount = posters.length;
+        posters = posters.filter(poster => {
+            if (!poster.videoUrl) return true; // Keep legacy posters without videoUrl
+
+            const staticMatch = poster.videoUrl.match(/colab-gallery-static\/([^.]+)/);
+            const legacyMatch = poster.videoUrl.match(/colab-posters\/([^.]+)/);
+
+            let publicId = null;
+            if (staticMatch) {
+                publicId = `colab-gallery-static/${staticMatch[1]}`;
+            } else if (legacyMatch) {
+                publicId = `colab-posters/${legacyMatch[1]}`;
+            }
+
+            if (!publicId) return true; // Keep non-Cloudinary posters
+
+            const exists = cloudinaryIds.has(publicId);
+            if (!exists) {
+                console.log(`[SYNC] Removing dead poster ${poster.id} - "${poster.title}"`);
+            }
+            return exists;
+        });
+        const removedCount = originalCount - posters.length;
+
+        // --- STEP 2: Recover missing posters ---
+        const updatedExistingIds = new Set(posters.map(p => p.id));
         const missing = [];
 
-        for (const resource of result.resources) {
-            // Extract poster ID from public_id like "colab-posters/poster_1234567890"
+        for (const resource of allResources) {
             const match = resource.public_id.match(/poster_(\d+)/);
             if (match) {
                 const id = match[1];
-                if (!existingIds.has(id)) {
+                if (!updatedExistingIds.has(id)) {
                     missing.push({
                         id,
                         videoUrl: resource.secure_url,
-                        author: 'Unknown',
-                        title: `Recovered Poster`,
-                        text: 'Recovered from Cloudinary',
+                        author: resource.context?.custom?.author || 'Unknown',
+                        title: resource.context?.custom?.title || 'Recovered Poster',
+                        text: resource.context?.custom?.text || 'Recovered from Cloudinary',
                         createdAt: resource.created_at
                     });
-                    console.log(`[SYNC] Found missing poster: ${id}`);
+                    console.log(`[SYNC] Recovered missing poster: ${id}`);
                 }
             }
         }
 
         if (missing.length > 0) {
-            // Add missing posters at the beginning
             posters.unshift(...missing);
+        }
+
+        // Save if changes were made
+        if (removedCount > 0 || missing.length > 0) {
             await fs.writeFile(postersPath, JSON.stringify(posters, null, 2));
-            console.log(`[SYNC] Added ${missing.length} recovered posters`);
+            console.log(`[SYNC] Updated posters.json: removed ${removedCount}, recovered ${missing.length}`);
         }
 
         res.json({
             synced: missing.length,
+            removed: removedCount,
             total: posters.length,
-            cloudinaryCount: result.resources.length
+            cloudinaryCount: allResources.length
         });
     } catch (err) {
         console.error('[SYNC] Cloudinary sync failed:', err);
@@ -214,6 +260,94 @@ app.get('/api/cloudinary-all-videos', async (req, res) => {
     }
 });
 
+// Cleanup dead posters - removes posters whose videos no longer exist on Cloudinary
+app.post('/api/cleanup-posters', async (req, res) => {
+    try {
+        console.log('[CLEANUP] Starting dead poster cleanup...');
+
+        // Get all videos from Cloudinary - check both folders
+        const [staticResult, legacyResult] = await Promise.all([
+            cloudinary.api.resources({
+                type: 'upload',
+                resource_type: 'video',
+                prefix: 'colab-gallery-static/',
+                max_results: 500
+            }),
+            cloudinary.api.resources({
+                type: 'upload',
+                resource_type: 'video',
+                prefix: 'colab-posters/',
+                max_results: 500
+            })
+        ]);
+
+        // Create a set of existing Cloudinary public IDs for fast lookup
+        const cloudinaryIds = new Set([
+            ...staticResult.resources.map(r => r.public_id),
+            ...legacyResult.resources.map(r => r.public_id)
+        ]);
+        console.log(`[CLEANUP] Found ${cloudinaryIds.size} videos on Cloudinary (${staticResult.resources.length} static + ${legacyResult.resources.length} legacy)`);
+
+        // Read current posters
+        const postersPath = path.join(__dirname, 'posters.json');
+        const data = await fs.readFile(postersPath, 'utf-8');
+        const posters = JSON.parse(data);
+        const originalCount = posters.length;
+
+        // Filter out posters whose videos don't exist on Cloudinary
+        const validPosters = posters.filter(poster => {
+            // If no videoUrl, it's a legacy poster - keep it for now
+            if (!poster.videoUrl) {
+                console.log(`[CLEANUP] Keeping legacy poster ${poster.id} (no videoUrl)`);
+                return true;
+            }
+
+            // Extract public_id from Cloudinary URL
+            // URL formats: 
+            // - https://res.cloudinary.com/.../colab-gallery-static/poster_1234567890.webm
+            // - https://res.cloudinary.com/.../colab-posters/poster_1234567890.webm
+            const staticMatch = poster.videoUrl.match(/colab-gallery-static\/([^.]+)/);
+            const legacyMatch = poster.videoUrl.match(/colab-posters\/([^.]+)/);
+
+            let publicId = null;
+            if (staticMatch) {
+                publicId = `colab-gallery-static/${staticMatch[1]}`;
+            } else if (legacyMatch) {
+                publicId = `colab-posters/${legacyMatch[1]}`;
+            }
+
+            if (!publicId) {
+                console.log(`[CLEANUP] Keeping poster ${poster.id} (non-Cloudinary URL or unknown format)`);
+                return true;
+            }
+
+            const exists = cloudinaryIds.has(publicId);
+
+            if (!exists) {
+                console.log(`[CLEANUP] Removing dead poster ${poster.id} - "${poster.title}" (video not found on Cloudinary)`);
+            }
+
+            return exists;
+        });
+
+        const removedCount = originalCount - validPosters.length;
+
+        if (removedCount > 0) {
+            await fs.writeFile(postersPath, JSON.stringify(validPosters, null, 2));
+            console.log(`[CLEANUP] Removed ${removedCount} dead posters`);
+        }
+
+        res.json({
+            removed: removedCount,
+            remaining: validPosters.length,
+            cloudinaryCount: cloudinaryIds.size
+        });
+    } catch (err) {
+        console.error('[CLEANUP] Cleanup failed:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Save a poster
 app.post('/api/posters', async (req, res) => {
     try {
@@ -234,7 +368,13 @@ app.post('/api/posters', async (req, res) => {
                     resource_type: 'video',
                     folder: 'colab-gallery-static',
                     public_id: `poster_${newPoster.id}`,
-                    overwrite: true
+                    overwrite: true,
+                    // Save metadata to Cloudinary context (custom fields)
+                    context: {
+                        title: newPoster.title,
+                        author: newPoster.author,
+                        text: newPoster.text
+                    }
                 });
                 newPoster.videoUrl = uploadResult.secure_url;
                 delete newPoster.video; // Don't store base64 anymore

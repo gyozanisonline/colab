@@ -55,9 +55,30 @@ class RecorderManager {
             return;
         }
 
-        // Setup Compositor Size (Match the first source or window)
-        this.width = sources[0].width; // Use internal resolution
-        this.height = sources[0].height;
+        // Setup Compositor Size (Match the first source or window, capped at 1080p)
+        const sourceWidth = sources[0].width;
+        const sourceHeight = sources[0].height;
+
+        // Calculate aspect ratio
+        const aspectRatio = sourceWidth / sourceHeight;
+
+        // Cap to 1920x1080 (or 1080x1920 for portrait)
+        let targetWidth = sourceWidth;
+        let targetHeight = sourceHeight;
+
+        if (targetWidth > 1920 || targetHeight > 1080) {
+            // Check which dimension is the limiting factor
+            if (targetWidth / 1920 > targetHeight / 1080) {
+                targetWidth = 1920;
+                targetHeight = Math.round(1920 / aspectRatio);
+            } else {
+                targetHeight = 1080;
+                targetWidth = Math.round(1080 * aspectRatio);
+            }
+        }
+
+        this.width = targetWidth;
+        this.height = targetHeight;
         this.compositorCanvas.width = this.width;
         this.compositorCanvas.height = this.height;
 

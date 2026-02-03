@@ -93,6 +93,7 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
     const [isMusicLibraryOpen, setIsMusicLibraryOpen] = useState(false);
     const [isTrimmerOpen, setIsTrimmerOpen] = useState(false);
     const [isTrimmerPlaying, setIsTrimmerPlaying] = useState(false);
+    const [isExporting, setIsExporting] = useState(false);
 
     // Initial sync with legacy system
     useEffect(() => {
@@ -294,32 +295,47 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                         color="#20E5B0"
                         speed="3s"
                         onClick={async () => {
-                            // Auto-derive author and title
+                            // 1. Start Export Flow
+                            setIsExporting(true);
+
+                            // 2. Store original state
+                            const wasPosterActive = posterModeActive;
+
+                            // 3. Force Poster Mode (if not already active)
+                            if (!wasPosterActive) {
+                                setPosterModeActive(true);
+                                if (window.togglePosterMode) window.togglePosterMode(true);
+                                // Wait for layout/reflow (600ms)
+                                await new Promise(r => setTimeout(r, 600));
+                            } else {
+                                // Small delay for UI stability
+                                await new Promise(r => setTimeout(r, 100));
+                            }
+
+                            // 4. Auto-derive author and title
                             const author = localStorage.getItem('playerName') || 'Anonymous';
                             const title = (textContent.split('\n')[0] || '').trim().slice(0, 30) || 'Untitled';
 
-                            const btn = document.activeElement;
-                            // Ensure button is found - sometimes activeElement is body if clicked div
-                            // But StarBorder renders as button here.
-                            if (btn && btn.tagName === 'BUTTON') {
-                                btn.innerText = "REC...";
-                                btn.disabled = true;
-                            }
-
+                            // 5. Start Recording
                             recorder.startRecording(5000, async (blob) => {
-                                if (btn && btn.tagName === 'BUTTON') btn.innerText = "UP...";
-
-                                // Convert Blob to Base64
+                                // 6. Convert Blob to Base64
                                 const reader = new FileReader();
                                 reader.readAsDataURL(blob);
                                 reader.onloadend = async () => {
                                     const base64Video = reader.result;
 
-                                    // Collect State
+                                    // Collect State (Capture current state, which might include forced posterMode)
+                                    // Should we save the 'forced' state or the 'original'?
+                                    // Let's save the *actual* visual state matching the video (so Poster Mode = true)
+                                    // This ensures if they remix, they see what they saw in the video.
+                                    // Users can easily toggle it back if they want.
+
                                     const appState = {
                                         activeBackground,
                                         activeTypeMode,
                                         textContent,
+                                        // Explicitly save poster mode status now if we want remix consistency
+                                        posterMode: true,
                                         settings: {
                                             shapeSettings,
                                             particleSettings,
@@ -357,19 +373,25 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                         });
 
                                         if (res.ok) {
-                                            alert("Published!");
+                                            // alert("Published!"); // Don't alert behind overlay? or wait?
+                                            // Let the overlay show success maybe? For now just simple alert after cleanup
                                         } else {
                                             const err = await res.json();
-                                            alert("Failed: " + err.error);
+                                            console.error("Failed: " + err.error);
+                                            alert("Failed to publish: " + err.error);
                                         }
                                     } catch (error) {
                                         console.error("Upload failed", error);
                                         alert("Error uploading.");
                                     } finally {
-                                        if (btn && btn.tagName === 'BUTTON') {
-                                            btn.innerText = "PUBLISH";
-                                            btn.disabled = false;
+                                        // 7. Cleanup & Revert
+                                        if (!wasPosterActive) {
+                                            setPosterModeActive(false);
+                                            if (window.togglePosterMode) window.togglePosterMode(false);
                                         }
+                                        setIsExporting(false);
+                                        // Optional: Success toast here instead of alert?
+                                        // alert("Published Successfully!");
                                     }
                                 };
                             });
@@ -2189,6 +2211,53 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                     </div>
                 )}
             </div>
+            {/* Export Overlay */}
+            {isExporting && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100vw',
+                    height: '100vh',
+                    backgroundColor: 'rgba(0,0,0,0.9)',
+                    zIndex: 99999,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#E5B020',
+                    fontFamily: 'Staatliches, sans-serif',
+                    backdropFilter: 'blur(10px)'
+                }}>
+                    <div style={{
+                        fontSize: '3rem',
+                        marginBottom: '30px',
+                        letterSpacing: '2px',
+                        textShadow: '0 0 20px rgba(229, 176, 32, 0.5)'
+                    }}>
+                        CREATING POSTER...
+                    </div>
+                    <div style={{
+                        width: '50px',
+                        height: '50px',
+                        border: '4px solid rgba(229, 176, 32, 0.3)',
+                        borderTop: '4px solid #E5B020',
+                        borderRadius: '50%',
+                        animation: 'spin 1s linear infinite'
+                    }} />
+                    <div style={{
+                        marginTop: '20px',
+                        fontSize: '1rem',
+                        color: 'rgba(255,255,255,0.5)',
+                        fontFamily: 'Inter, sans-serif'
+                    }}>
+                        Adjusting Layout & Recording...
+                    </div>
+                    <style>{`
+                        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+                    `}</style>
+                </div>
+            )}
         </StaggeredMenu >
     );
 }
