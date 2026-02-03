@@ -129,6 +129,91 @@ app.get('/api/music-search', async (req, res) => {
     }
 });
 
+// Sync Cloudinary with posters.json - ensures no posters are lost
+app.post('/api/sync-cloudinary', async (req, res) => {
+    try {
+        console.log('[SYNC] Starting Cloudinary sync...');
+
+        // Get all videos from Cloudinary colab gallery static folder
+        const result = await cloudinary.api.resources({
+            type: 'upload',
+            resource_type: 'video',
+            prefix: 'colab-gallery-static/',
+            max_results: 500
+        });
+
+        console.log(`[SYNC] Found ${result.resources.length} videos on Cloudinary`);
+
+        // Read current posters
+        const postersPath = path.join(__dirname, 'posters.json');
+        const data = await fs.readFile(postersPath, 'utf-8');
+        const posters = JSON.parse(data);
+
+        // Find missing posters (on Cloudinary but not in JSON)
+        const existingIds = new Set(posters.map(p => p.id));
+        const missing = [];
+
+        for (const resource of result.resources) {
+            // Extract poster ID from public_id like "colab-posters/poster_1234567890"
+            const match = resource.public_id.match(/poster_(\d+)/);
+            if (match) {
+                const id = match[1];
+                if (!existingIds.has(id)) {
+                    missing.push({
+                        id,
+                        videoUrl: resource.secure_url,
+                        author: 'Unknown',
+                        title: `Recovered Poster`,
+                        text: 'Recovered from Cloudinary',
+                        createdAt: resource.created_at
+                    });
+                    console.log(`[SYNC] Found missing poster: ${id}`);
+                }
+            }
+        }
+
+        if (missing.length > 0) {
+            // Add missing posters at the beginning
+            posters.unshift(...missing);
+            await fs.writeFile(postersPath, JSON.stringify(posters, null, 2));
+            console.log(`[SYNC] Added ${missing.length} recovered posters`);
+        }
+
+        res.json({
+            synced: missing.length,
+            total: posters.length,
+            cloudinaryCount: result.resources.length
+        });
+    } catch (err) {
+        console.error('[SYNC] Cloudinary sync failed:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Debug: List ALL videos on Cloudinary (any folder)
+app.get('/api/cloudinary-all-videos', async (req, res) => {
+    try {
+        const result = await cloudinary.api.resources({
+            type: 'upload',
+            resource_type: 'video',
+            max_results: 500
+        });
+
+        const videos = result.resources.map(r => ({
+            public_id: r.public_id,
+            created: r.created_at,
+            url: r.secure_url
+        }));
+
+        res.json({
+            count: videos.length,
+            videos
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Save a poster
 app.post('/api/posters', async (req, res) => {
     try {
@@ -147,7 +232,7 @@ app.post('/api/posters', async (req, res) => {
             try {
                 const uploadResult = await cloudinary.uploader.upload(newPoster.video, {
                     resource_type: 'video',
-                    folder: 'colab-posters',
+                    folder: 'colab-gallery-static',
                     public_id: `poster_${newPoster.id}`,
                     overwrite: true
                 });

@@ -65,20 +65,33 @@ const CommunityGallery = ({ isActive, onCreateClick }) => {
         const loadItems = async () => {
             setLoading(true);
             try {
+                // First, sync with Cloudinary to recover any missing posters
+                try {
+                    const syncResult = await fetch('/api/sync-cloudinary', { method: 'POST' });
+                    const syncData = await syncResult.json();
+                    if (syncData.synced > 0) {
+                        console.log(`[Gallery] Recovered ${syncData.synced} missing posters from Cloudinary`);
+                    }
+                } catch (syncErr) {
+                    console.warn('[Gallery] Cloudinary sync unavailable:', syncErr);
+                }
+
                 // Fetch user created posters
                 const response = await fetch('/api/posters');
                 const userPosters = await response.json();
 
                 const formattedUserPosters = userPosters.map(p => ({
-                    image: 'https://placehold.co/600x900/222/FFF?text=' + encodeURIComponent(p.title), // Placeholder or thumbnail if we had one
+                    image: 'https://placehold.co/600x900/222/FFF?text=' + encodeURIComponent(p.title || 'Poster'),
                     video: p.videoUrl || p.video, // Cloudinary URL or legacy base64
                     link: '#',
-                    title: p.title,
-                    description: p.author,
+                    title: p.title || 'Untitled',
+                    description: p.author || 'Anonymous',
                     state: p.state // Store state for remixing later
                 }));
 
-                // Combine with static items
+                console.log(`Loading ${formattedUserPosters.length} user posters + ${videoItems.length} static items`);
+
+                // Combine with static items - InfiniteMenu handles video errors with fallback
                 setItems([...formattedUserPosters, ...videoItems]);
             } catch (err) {
                 console.error("Failed to load posters", err);
