@@ -210,8 +210,9 @@ function App() {
 
     const handleIntroComplete = () => {
         setShowIntro(false);
-        // Switch to main app mode
-        window.dispatchEvent(new CustomEvent('app-changed', { detail: { app: 'typeflow' } }));
+        // Go to gallery first, user can click CREATE to go to poster creation
+        setActiveApp('community');
+        window.dispatchEvent(new CustomEvent('app-changed', { detail: { app: 'community' } }));
     };
 
     const addShape = (type) => {
@@ -249,7 +250,10 @@ function App() {
             ) : (
                 <>
                     <VersionOverlay />
-                    <Navigation activeApp={activeApp} onSwitchApp={handleSwitchApp} />
+                    <Navigation
+                        activeApp={activeApp}
+                        onSwitchApp={handleSwitchApp}
+                    />
 
                     {/* New React-based Controls */}
                     {activeApp === 'typeflow' && (
@@ -380,7 +384,10 @@ function App() {
                         />
                     )}
 
-                    <CommunityGallery isActive={activeApp === 'community'} />
+                    <CommunityGallery
+                        isActive={activeApp === 'community'}
+                        onCreateClick={() => handleSwitchApp('typeflow')}
+                    />
                 </>
             )}
         </div>

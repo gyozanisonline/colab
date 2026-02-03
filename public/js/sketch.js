@@ -22,7 +22,7 @@ var keyArray = [];
 
 var main = "DANGER";
 
-var groupCount = 7;
+var groupCount = 1;
 var kineticGroups = [];
 
 var budgeCenter = [];
