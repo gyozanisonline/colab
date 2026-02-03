@@ -40,7 +40,8 @@ html {
 #canvas-type {
     z-index: 1;
     pointer-events: none;
-    /* Let clicks pass through to background if needed, or handle events */
+    display: none;
+    /* Hidden by default - only shown in typeflow mode via JS */
 }
 
 #react-root {
