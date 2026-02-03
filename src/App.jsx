@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Silk from './components/Silk';
 import SplineBackground from './components/SplineBackground';
 import StarField from './components/StarField';
@@ -31,6 +31,9 @@ function App() {
     const [activeStep, setActiveStep] = useState(1);
 
     const [shapes, setShapes] = useState([]);
+    useEffect(() => {
+        console.log('[DEBUG] App.jsx: activeShapes updated:', shapes);
+    }, [shapes]);
 
     const [shapeSettings, setShapeSettings] = useState({
         size: 1,
@@ -188,6 +191,7 @@ function App() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []); // Run once on mount
 
+
     // Toggle legacy canvas based on activeTypeMode (and intro state)
     useEffect(() => {
         const legacyCanvas = document.getElementById('canvas-type');
@@ -196,6 +200,118 @@ function App() {
             legacyCanvas.style.display = (!showIntro && activeTypeMode === 'classic') ? 'block' : 'none';
         }
     }, [activeTypeMode, showIntro]);
+
+    // [DEBUG] Visual Override for Background
+    useEffect(() => {
+        const bgCanvas = document.getElementById('canvas-background');
+        console.log(`[DEBUG] App.jsx: Visual Override Effect triggered for ${activeBackground}`);
+        if (bgCanvas) {
+            if (activeBackground === 'wireframe') {
+                bgCanvas.style.display = 'block';
+                if (window.bgInstance) window.bgInstance.loop();
+            } else {
+                bgCanvas.style.display = 'none';
+                if (window.bgInstance) window.bgInstance.noLoop();
+            }
+        }
+    }, [activeBackground]);
+
+
+
+
+    // --- SOCKET SYNC LOGIC ---
+
+    // Track which keys are currently being updated from the server
+    // so we don't emit them back (prevent echo loops)
+    const remoteUpdatePending = useRef(new Set());
+
+    // 1. LISTEN for remote updates
+    useEffect(() => {
+        const handleRemoteUpdate = (e) => {
+            const { key, value } = e.detail;
+
+            // Mark this key as "updating from remote"
+            remoteUpdatePending.current.add(key);
+
+            // Map keys back to setters
+            switch (key) {
+                case 'active_background': setActiveBackground(value); break;
+                case 'bg-type':
+                    // Legacy key support. Mark the React state key as pending too to prevent echo.
+                    remoteUpdatePending.current.add('active_background');
+                    setActiveBackground(value);
+                    break;
+                case 'active_type_mode': setActiveTypeMode(value); break;
+                case 'shapes_list': setShapes(value); break;
+
+                case 'shape_settings': setShapeSettings(value); break;
+                case 'particle_settings': setParticleSettings(value); break;
+                case 'silk_settings': setSilkSettings(value); break;
+                case 'starfield_settings': setStarfieldSettings(value); break;
+                case 'aurora_settings': setAuroraSettings(value); break;
+                case 'dark_veil_settings': setDarkVeilSettings(value); break;
+                case 'dither_settings': setDitherSettings(value); break;
+                case 'blocks_settings': setBlocksSettings(value); break;
+                case 'color_bends_settings': setColorBendsSettings(value); break;
+
+                case 'paint_settings': setPaintSettings(value); break;
+                case 'paint_toys_settings': setPaintToysSettings(value); break;
+                case 'string_type_settings': setStringTypeSettings(value); break;
+
+                case 'ascii_settings': setAsciiSettings(value); break;
+                case 'crt_background_settings': setCrtBackgroundSettings(value); break;
+                case 'crt_type_settings': setCrtTypeSettings(value); break;
+
+                case 'text_content': setTextContent(value); break;
+            }
+        };
+
+        window.addEventListener('remote-settings-update', handleRemoteUpdate);
+        return () => window.removeEventListener('remote-settings-update', handleRemoteUpdate);
+    }, []);
+
+    // 2. EMIT changes
+
+    // Helper to safely emit
+    const emitUpdate = (key, value) => {
+        // If this key is in our pending set, it means the change came from the server.
+        // We consume the flag and DO NOT emit.
+        if (remoteUpdatePending.current.has(key)) {
+            remoteUpdatePending.current.delete(key);
+            return;
+        }
+
+        // Otherwise, it's a local user change. Emit it.
+        if (window.emitChange) {
+            if (key === 'active_background') console.log('[App] emitUpdate active_background:', value);
+            window.emitChange('param', key, value);
+        }
+    };
+
+    // Watchers for each state
+    useEffect(() => { emitUpdate('active_background', activeBackground); }, [activeBackground]);
+    useEffect(() => { emitUpdate('active_type_mode', activeTypeMode); }, [activeTypeMode]);
+    useEffect(() => { emitUpdate('shapes_list', shapes); }, [shapes]);
+
+    useEffect(() => { emitUpdate('shape_settings', shapeSettings); }, [shapeSettings]);
+    useEffect(() => { emitUpdate('particle_settings', particleSettings); }, [particleSettings]);
+    useEffect(() => { emitUpdate('silk_settings', silkSettings); }, [silkSettings]);
+    useEffect(() => { emitUpdate('starfield_settings', starfieldSettings); }, [starfieldSettings]);
+    useEffect(() => { emitUpdate('aurora_settings', auroraSettings); }, [auroraSettings]);
+    useEffect(() => { emitUpdate('dark_veil_settings', darkVeilSettings); }, [darkVeilSettings]);
+    useEffect(() => { emitUpdate('dither_settings', ditherSettings); }, [ditherSettings]);
+    useEffect(() => { emitUpdate('blocks_settings', blocksSettings); }, [blocksSettings]);
+    useEffect(() => { emitUpdate('color_bends_settings', colorBendsSettings); }, [colorBendsSettings]);
+
+    useEffect(() => { emitUpdate('paint_settings', paintSettings); }, [paintSettings]);
+    useEffect(() => { emitUpdate('paint_toys_settings', paintToysSettings); }, [paintToysSettings]);
+    useEffect(() => { emitUpdate('string_type_settings', stringTypeSettings); }, [stringTypeSettings]);
+
+    useEffect(() => { emitUpdate('ascii_settings', asciiSettings); }, [asciiSettings]);
+    useEffect(() => { emitUpdate('crt_background_settings', crtBackgroundSettings); }, [crtBackgroundSettings]);
+    useEffect(() => { emitUpdate('crt_type_settings', crtTypeSettings); }, [crtTypeSettings]);
+
+    useEffect(() => { emitUpdate('text_content', textContent); }, [textContent]);
 
 
     const handleSwitchApp = (appId) => {
@@ -216,6 +332,7 @@ function App() {
     };
 
     const addShape = (type) => {
+        console.log(`[DEBUG] App.jsx: addShape triggered for ${type}`);
         const newShape = {
             id: Date.now(),
             type: type,
@@ -225,6 +342,11 @@ function App() {
         };
         setShapes([...shapes, newShape]);
     };
+
+    // Expose addShape for debugging
+    useEffect(() => {
+        window.addShape = addShape;
+    }, [shapes, shapeSettings]); // Re-bind when deps change to keep closure fresh
 
     const clearShapes = () => {
         setShapes([]);

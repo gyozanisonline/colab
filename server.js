@@ -42,6 +42,9 @@ io.on('connection', (socket) => {
 
     // Listen for state updates from a client
     socket.on('update_state', (data) => {
+        // [DEBUG]
+        console.log(`[SERVER] Received update_state from ${socket.id}:`, data);
+
         // data format: { type: 'text', value: '...' } OR { type: 'param', key: '...', value: '...' }
 
         // Update server-side state

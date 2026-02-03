@@ -15923,7 +15923,7 @@
  * @author   Feross Aboukhadijeh <https://feross.org>
  * @license  MIT
  */
-            /* eslint-disable no-proto */
+             
 
             'use strict';
 
@@ -16276,7 +16276,7 @@
 
             function SlowBuffer(length) {
               if (+length != length) {
-                // eslint-disable-line eqeqeq
+                 
                 length = 0;
               }
               return Buffer.alloc(+length);
@@ -17850,7 +17850,7 @@
             }
             function numberIsNaN(obj) {
               // For IE11 support
-              return obj !== obj; // eslint-disable-line no-self-compare
+              return obj !== obj;  
             }
 
             // Create lookup table for `toString('hex')`
@@ -20189,7 +20189,7 @@
             /* eslint no-useless-escape: 0 */
             return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
           }
-          /* eslint-disable */
+           
 
           var _entityMap = {
             '&': '&amp;',
@@ -20199,7 +20199,7 @@
             "'": '&#39;',
             '/': '&#x2F;'
           };
-          /* eslint-enable */
+           
 
           function escape(data) {
             if (typeof data === 'string') {
@@ -21171,7 +21171,7 @@
               return LanguageUtil;
             })();
 
-          /* eslint-disable */
+           
 
           var sets = [
             {
@@ -21494,7 +21494,7 @@
               );
             }
           };
-          /* eslint-enable */
+           
 
           function createRules() {
             var rules = {};

@@ -3,6 +3,12 @@ window.trackingFactor = 0.15;
 window.leadingFactor = 0.8;
 
 function setText() {
+    // Guard against missing processing variables
+    if (typeof pgTextSize === 'undefined' || typeof currentFont === 'undefined') {
+        // console.warn('[setText] legacy p5 variables not ready', { pgTextSize, currentFont });
+        return;
+    }
+
     console.log('[setText] Called! pgTextSize:', pgTextSize, 'currentFont:', currentFont);
     textSize(pgTextSize);
     textFont(currentFont);
