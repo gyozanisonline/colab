@@ -287,6 +287,8 @@ const ChatWidget = () => {
                     <input
                         ref={inputRef}
                         type="text"
+                        name="chat-message"
+                        id="chat-input"
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
                         onKeyDown={handleKeyDown}
