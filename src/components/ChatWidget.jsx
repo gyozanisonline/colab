@@ -20,9 +20,10 @@ const ChatWidget = () => {
     });
 
     // --- Socket Logic ---
+    // --- Socket Logic ---
     useEffect(() => {
-        const socket = window.socket;
-        if (!socket) return;
+        let socket = window.socket;
+        let intervalId = null;
 
         const handleMessage = (data) => {
             setMessages(prev => [...prev, data]);
@@ -31,10 +32,31 @@ const ChatWidget = () => {
             }
         };
 
-        socket.on('chat_message', handleMessage);
+        const attachListeners = (s) => {
+            console.log('[ChatWidget] Attaching listeners to socket', s.id);
+            s.off('chat_message', handleMessage); // cleanup old to be safe
+            s.on('chat_message', handleMessage);
+        };
+
+        if (socket) {
+            attachListeners(socket);
+        } else {
+            console.log('[ChatWidget] Waiting for socket...');
+            intervalId = setInterval(() => {
+                if (window.socket) {
+                    console.log('[ChatWidget] Socket found!');
+                    socket = window.socket;
+                    attachListeners(socket);
+                    clearInterval(intervalId);
+                }
+            }, 500);
+        }
 
         return () => {
-            socket.off('chat_message', handleMessage);
+            if (intervalId) clearInterval(intervalId);
+            if (socket) {
+                socket.off('chat_message', handleMessage);
+            }
         };
     }, [isOpen]);
 

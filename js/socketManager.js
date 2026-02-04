@@ -1,6 +1,15 @@
 const socket = io();
+window.socket = socket; // Expose immediately for React components
 
 let isRemoteUpdate = false;
+window.isRemoteUpdate = false; // Initial expose
+
+// We need to keep window.isRemoteUpdate in sync or just use window.isRemoteUpdate everywhere.
+// For safety with existing code, we'll sync them.
+Object.defineProperty(window, 'isRemoteUpdate', {
+    get: () => isRemoteUpdate,
+    set: (val) => { isRemoteUpdate = val; }
+});
 
 // --- MOUSE CURSOR LOGIC ---
 let myName = localStorage.getItem('playerName') || 'Guest';
@@ -218,17 +227,21 @@ socket.on('update_state', (data) => {
     // console.log('Received update:', data);
     isRemoteUpdate = true; // Flag to prevent echo loop
 
-    if (data.type === 'text') {
-        const textArea = document.getElementById('textArea');
-        if (textArea) {
-            textArea.value = data.value;
-            if (window.setText) window.setText();
+    try {
+        if (data.type === 'text') {
+            const textArea = document.getElementById('textArea');
+            if (textArea) {
+                textArea.value = data.value;
+                if (window.setText) window.setText();
+            }
+        } else if (data.type === 'param') {
+            updateParamFromSocket(data.key, data.value);
         }
-    } else if (data.type === 'param') {
-        updateParamFromSocket(data.key, data.value);
+    } catch (err) {
+        console.error("Error handling remote update:", err);
+    } finally {
+        isRemoteUpdate = false;
     }
-
-    isRemoteUpdate = false;
 });
 
 // Helper function to update UI and Instances
@@ -240,6 +253,15 @@ function updateParamFromSocket(key, value) {
             input.checked = (value === true || value === 'true');
         } else {
             input.value = value;
+        }
+    }
+
+    // Handle background type sync for legacy DOM
+    if (key === 'active_background' || key === 'bg-type') {
+        const bgSelect = document.getElementById('bg-type-select');
+        if (bgSelect) {
+            bgSelect.value = value;
+            bgSelect.dispatchEvent(new Event('change'));
         }
     }
 
@@ -265,18 +287,17 @@ function updateParamFromSocket(key, value) {
         window.typeInstance.updateParams('posterMode', (value === true || value === 'true'));
     }
 
-    // React State Bridge
-    if (key.startsWith('paint_toys_') || key.startsWith('string_type_') || key === 'active_type_mode') {
-        window.dispatchEvent(new CustomEvent('remote-settings-update', {
-            detail: { key, value }
-        }));
-    }
+    // React State Bridge - Broaden to ALL keys not handled above (or just all keys period)
+    // We dispatch for EVERYTHING so App.jsx can decide what to listen to.
+    window.dispatchEvent(new CustomEvent('remote-settings-update', {
+        detail: { key, value }
+    }));
 
     // --- EMIT UPDATES TO SERVER ---
 
     function emitChange(type, key, value) {
         if (isRemoteUpdate) return; // Don't emit if we just received this from server
-
+        // console.log('[Socket] emitChange:', key, value); 
         socket.emit('update_state', {
             type: type,
             key: key,
@@ -294,91 +315,7 @@ function updateParamFromSocket(key, value) {
         });
     }
 
-    // --- CHAT LOGIC ---
-    document.addEventListener('DOMContentLoaded', () => {
-        const chatContainer = document.getElementById('chat-container');
-        const chatMessages = document.getElementById('chat-messages');
-        const chatInput = document.getElementById('chat-input');
-        const chatSend = document.getElementById('chat-send');
-        const toggleChatBtn = document.getElementById('toggle-chat');
-        const chatHeader = document.getElementById('chat-header');
-
-        // Toggle Chat
-        if (toggleChatBtn && chatContainer) {
-            const toggle = () => {
-                chatContainer.classList.toggle('minimized');
-                toggleChatBtn.innerText = chatContainer.classList.contains('minimized') ? 'square' : '_';
-            };
-            toggleChatBtn.addEventListener('click', toggle);
-            chatHeader.addEventListener('click', toggle);
-        }
-
-        // Send Message Logic
-        function sendMessage() {
-            const text = chatInput.value.trim();
-            if (text) {
-                const payload = {
-                    text: text,
-                    name: myName,
-                    color: myColor
-                };
-
-                // Emit to server
-                socket.emit('chat_message', payload);
-
-                // Show locally immediately
-                appendMessage(payload, true);
-
-                chatInput.value = '';
-            }
-        }
-
-        if (chatSend) chatSend.addEventListener('click', sendMessage);
-        if (chatInput) {
-            chatInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') sendMessage();
-            });
-        }
-
-        // Expose append function for socket event to use
-        window.appendChatMessage = function (data, isMe) {
-            if (!chatMessages) return;
-
-            const msgDiv = document.createElement('div');
-            msgDiv.className = 'chat-msg';
-            msgDiv.style.borderLeft = `3px solid ${data.color || 'white'}`;
-
-            const nameSpan = document.createElement('strong');
-            nameSpan.innerText = (data.name || 'Guest') + ':';
-            nameSpan.style.color = data.color || 'white';
-
-            const textSpan = document.createElement('span');
-            textSpan.innerText = data.text;
-
-            msgDiv.appendChild(nameSpan);
-            msgDiv.appendChild(textSpan);
-
-            chatMessages.appendChild(msgDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        };
-    });
-
-    // Receive Message (can be outside because socket object exists)
-    socket.on('chat_message', (data) => {
-        if (window.appendChatMessage) {
-            window.appendChatMessage(data, false);
-        }
-    });
-
-    // Helper for local append (needs to wait for window.appendChatMessage to be ready)
-    function appendMessage(data, isMe) {
-        if (window.appendChatMessage) {
-            window.appendChatMessage(data, isMe);
-        }
-    }
-
-
-    // Expose to window so other scripts can use it
+    // Expose to window immediately
     window.emitChange = emitChange;
     window.emitFunction = emitFunction;
 
