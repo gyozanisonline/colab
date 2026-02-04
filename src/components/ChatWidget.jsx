@@ -20,10 +20,9 @@ const ChatWidget = () => {
     });
 
     // --- Socket Logic ---
-    // --- Socket Logic ---
     useEffect(() => {
-        let socket = window.socket;
-        let intervalId = null;
+        const socket = window.socket;
+        if (!socket) return;
 
         const handleMessage = (data) => {
             setMessages(prev => [...prev, data]);
@@ -32,31 +31,10 @@ const ChatWidget = () => {
             }
         };
 
-        const attachListeners = (s) => {
-            console.log('[ChatWidget] Attaching listeners to socket', s.id);
-            s.off('chat_message', handleMessage); // cleanup old to be safe
-            s.on('chat_message', handleMessage);
-        };
-
-        if (socket) {
-            attachListeners(socket);
-        } else {
-            console.log('[ChatWidget] Waiting for socket...');
-            intervalId = setInterval(() => {
-                if (window.socket) {
-                    console.log('[ChatWidget] Socket found!');
-                    socket = window.socket;
-                    attachListeners(socket);
-                    clearInterval(intervalId);
-                }
-            }, 500);
-        }
+        socket.on('chat_message', handleMessage);
 
         return () => {
-            if (intervalId) clearInterval(intervalId);
-            if (socket) {
-                socket.off('chat_message', handleMessage);
-            }
+            socket.off('chat_message', handleMessage);
         };
     }, [isOpen]);
 
@@ -287,8 +265,6 @@ const ChatWidget = () => {
                     <input
                         ref={inputRef}
                         type="text"
-                        name="chat-message"
-                        id="chat-input"
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
                         onKeyDown={handleKeyDown}

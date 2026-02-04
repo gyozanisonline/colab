@@ -66,6 +66,8 @@
     max-width: 600px;
     /* Removed negative margin for cleaner flow */
     margin-top: 0;
+    margin-left: auto;
+    margin-right: auto;
 
     /* Edit these numbers in DevTools to position the Inputs! */
     transform: translate(0px, 300px);

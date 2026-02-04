@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { RiCloseCircleFill } from 'react-icons/ri';
 
 export default function BackgroundShapes({ shapes = [], settings = { size: 1, speed: 20, fillOpacity: 0.1 }, onRemove }) {
+
     const containerRef = useRef(null);
     const [hoveredId, setHoveredId] = useState(null);
 

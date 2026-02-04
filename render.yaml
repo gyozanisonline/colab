@@ -5,6 +5,9 @@ services:
     plan: free
     buildCommand: npm install && npm run build
     startCommand: node server.js
+    domains:
+      - colabcolab.com
+      - www.colabcolab.com
     envVars:
       - key: NODE_VERSION
         value: 24.12.0
