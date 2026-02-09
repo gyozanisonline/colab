@@ -521,15 +521,16 @@ function App() {
                         />
                     )}
 
-                    <CommunityGallery
-                        isActive={activeApp === 'community'}
-                        onCreateClick={() => handleSwitchApp('typeflow')}
-                    />
-
                     {/* Global Chat Widget */}
                     <ChatWidget />
                 </>
             )}
+
+            {/* CommunityGallery: Rendered always (even during intro) for preloading, hidden via CSS when not active */}
+            <CommunityGallery
+                isActive={!showIntro && activeApp === 'community'}
+                onCreateClick={() => handleSwitchApp('typeflow')}
+            />
         </div>
     );
 }

@@ -7,7 +7,8 @@ const CommunityGallery = ({ isActive, onCreateClick }) => {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        if (!isActive) return;
+        // Load gallery data immediately on mount (during intro screen)
+        // Component remains hidden via CSS until isActive is true
 
         // Static items from Cloudinary
         const videoItems = [
@@ -105,9 +106,7 @@ const CommunityGallery = ({ isActive, onCreateClick }) => {
         };
 
         loadItems();
-    }, [isActive]);
-
-    if (!isActive) return null;
+    }, []); // Empty deps = run once on mount, preload during intro
 
     return (
         <div style={{
@@ -118,8 +117,9 @@ const CommunityGallery = ({ isActive, onCreateClick }) => {
             height: '100%',
             background: 'linear-gradient(135deg, #111, #222)',
             zIndex: 2000, // Above everything
-            pointerEvents: 'auto',
-            overflow: 'hidden' // Important for canvas
+            pointerEvents: isActive ? 'auto' : 'none', // Disable interactions when hidden
+            overflow: 'hidden', // Important for canvas
+            display: isActive ? 'block' : 'none' // Hide with CSS instead of conditional render
         }}>
             {loading ? (
                 <div style={{ color: 'white', position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
