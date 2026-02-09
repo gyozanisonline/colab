@@ -9,12 +9,11 @@ export default function IntroScreen({ onComplete }) {
                     <div style={{
                         marginTop: '20px',
                         display: 'flex',
-                        flexDirection: 'column',
+                        justifyContent: 'center',
                         alignItems: 'center',
-                        gap: '20px',
+                        gap: '30px',
                         width: '100%'
                     }}>
-                        {/* Primary CTA */}
                         <StarBorder
                             as="button"
                             className="create-btn-wrapper"
@@ -25,23 +24,15 @@ export default function IntroScreen({ onComplete }) {
                             CREATE POSTER
                         </StarBorder>
 
-                        {/* Secondary CTA */}
-                        <button
+                        <StarBorder
+                            as="button"
+                            className="create-btn-wrapper"
+                            color="#ff00cc"
+                            speed="3s"
                             onClick={() => onComplete('gallery')}
-                            style={{
-                                background: 'transparent',
-                                border: 'none',
-                                color: 'rgba(255, 255, 255, 0.5)',
-                                fontSize: '14px',
-                                cursor: 'pointer',
-                                textDecoration: 'underline',
-                                transition: 'color 0.3s ease'
-                            }}
-                            onMouseEnter={(e) => e.target.style.color = 'rgba(255, 255, 255, 0.8)'}
-                            onMouseLeave={(e) => e.target.style.color = 'rgba(255, 255, 255, 0.5)'}
                         >
-                            or explore gallery
-                        </button>
+                            EXPLORE GALLERY
+                        </StarBorder>
                     </div>
                 </div>
             </div>
