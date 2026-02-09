@@ -339,11 +339,12 @@ function App() {
         window.dispatchEvent(new CustomEvent('app-changed', { detail: { app: appId } }));
     };
 
-    const handleIntroComplete = () => {
+    const handleIntroComplete = (destination = 'create') => {
         setShowIntro(false);
-        // Go to gallery first, user can click CREATE to go to poster creation
-        setActiveApp('community');
-        window.dispatchEvent(new CustomEvent('app-changed', { detail: { app: 'community' } }));
+        // Navigate based on user choice from intro
+        const targetApp = destination === 'gallery' ? 'community' : 'typeflow';
+        setActiveApp(targetApp);
+        window.dispatchEvent(new CustomEvent('app-changed', { detail: { app: targetApp } }));
     };
 
     const addShape = (type) => {
