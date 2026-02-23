@@ -9,6 +9,13 @@ import 'dotenv/config';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Validate required environment variables
+const REQUIRED_ENV = ['CLOUDINARY_CLOUD_NAME', 'CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET'];
+const missingEnv = REQUIRED_ENV.filter(k => !process.env[k]);
+if (missingEnv.length > 0) {
+    console.warn(`[Server] Missing env vars: ${missingEnv.join(', ')} — video upload/sync will fail. Copy .env.example to .env and fill in values.`);
+}
+
 // Configure Cloudinary
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -42,9 +49,6 @@ io.on('connection', (socket) => {
 
     // Listen for state updates from a client
     socket.on('update_state', (data) => {
-        // [DEBUG]
-        console.log(`[SERVER] Received update_state from ${socket.id}:`, data);
-
         // data format: { type: 'text', value: '...' } OR { type: 'param', key: '...', value: '...' }
 
         // Update server-side state
@@ -117,8 +121,7 @@ app.get('/api/music-search', async (req, res) => {
         const query = req.query.q;
         if (!query) return res.json({ results: [] });
 
-        // Search songs, limit to 50 for better variety
-        const url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=50`;
+        const url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=20`;
         const response = await fetch(url);
         const data = await response.json();
 
@@ -133,6 +136,11 @@ app.get('/api/music-search', async (req, res) => {
 // 1. Recover missing posters (on Cloudinary but not in JSON)
 // 2. Remove dead posters (in JSON but video deleted from Cloudinary)
 app.post('/api/sync-cloudinary', async (req, res) => {
+    // Guard: skip silently if Cloudinary credentials are not configured
+    if (missingEnv.length > 0) {
+        return res.json({ synced: 0, removed: 0, total: 0, skipped: true, reason: 'Cloudinary credentials not configured' });
+    }
+
     try {
         console.log('[SYNC] Starting bidirectional Cloudinary sync...');
 
@@ -369,6 +377,11 @@ app.post('/api/posters', async (req, res) => {
                     folder: 'colab-gallery-static',
                     public_id: `poster_${newPoster.id}`,
                     overwrite: true,
+                    // Re-encode to MP4 — auto:best preserves quality for animated/graphic content
+                    eager: [
+                        { format: 'mp4', quality: 'auto:best', video_codec: 'h264' }
+                    ],
+                    eager_async: false,
                     // Save metadata to Cloudinary context (custom fields)
                     context: {
                         title: newPoster.title,
@@ -376,9 +389,11 @@ app.post('/api/posters', async (req, res) => {
                         text: newPoster.text
                     }
                 });
-                newPoster.videoUrl = uploadResult.secure_url;
+                // Prefer the eager MP4 (re-encoded, optimized) over the raw WebM source
+                const eagerMp4 = uploadResult.eager && uploadResult.eager[0];
+                newPoster.videoUrl = eagerMp4 ? eagerMp4.secure_url : uploadResult.secure_url;
                 delete newPoster.video; // Don't store base64 anymore
-                console.log(`Uploaded video to Cloudinary: ${uploadResult.secure_url}`);
+                console.log(`Uploaded video to Cloudinary: ${newPoster.videoUrl}`);
             } catch (uploadErr) {
                 console.error('Cloudinary upload failed:', uploadErr);
                 // Fall back to keeping base64 if upload fails

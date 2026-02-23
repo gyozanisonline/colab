@@ -110,9 +110,7 @@ const backgroundSketch = (p) => {
         if (key === 'color') bgColor = value;
         if (key === 'strokeSize') strokeSize = value;
         if (key === 'strokeColor') {
-            console.log('updateParams strokeColor from', strokeColor, 'to', value); // DEBUG
             strokeColor = p.color(value); // Convert hex to p5 color
-            console.log('strokeColor is now:', strokeColor); // DEBUG
         }
     };
 

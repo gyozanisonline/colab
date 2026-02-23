@@ -41,7 +41,6 @@ class KineticLetter {
         // Calculate letter tracking from global trackingFactor
         var safeTracking = (typeof window.trackingFactor !== 'undefined') ? window.trackingFactor : 0.15;
         this.xTrack = pgTextSize * safeTracking;
-        console.log('[KineticLetter] trackingFactor:', window.trackingFactor, 'safeTracking:', safeTracking, 'pgTextSize:', pgTextSize, 'xTrack:', this.xTrack);
         this.visible = false;
         this.influ = animIntensity;
 

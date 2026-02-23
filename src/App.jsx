@@ -13,13 +13,21 @@ import CommunityGallery from './components/CommunityGallery';
 import Controls from './components/Controls';
 import BackgroundShapes from './components/BackgroundShapes';
 import ASCIIText from './components/ASCIIText';
-import PaintText from './components/PaintText'; // Keeping for reference or removal
 import PaintToys from './components/PaintToys';
 import StringType from './components/StringType';
+import TypeField from './components/TypeField';
+import ParticleText from './components/ParticleText';
+import GlitchText from './components/GlitchText';
+import NeonText from './components/NeonText';
 import CRTEffect from './components/CRTEffect';
+import GlitchEffect from './components/GlitchEffect';
+import DepthOfField from './components/DepthOfField';
+import HalftoneEffect from './components/HalftoneEffect';
 import ChatWidget from './components/ChatWidget'; // Chat
 
 import VersionOverlay from './components/VersionOverlay';
+import ErrorBoundary from './components/ErrorBoundary';
+import SocketStatus from './components/SocketStatus';
 
 import IntroScreen from './components/IntroScreen';
 import ParticleIntro from './components/ParticleIntro';
@@ -32,9 +40,6 @@ function App() {
     const [activeStep, setActiveStep] = useState(1);
 
     const [shapes, setShapes] = useState([]);
-    useEffect(() => {
-        console.log('[DEBUG] App.jsx: activeShapes updated:', shapes);
-    }, [shapes]);
 
     const [shapeSettings, setShapeSettings] = useState({
         size: 1,
@@ -149,6 +154,40 @@ function App() {
         textColor: '#ffffff'
     });
 
+    const [typeFieldSettings, setTypeFieldSettings] = useState({
+        fontFamily: 'Bebas Neue',
+        fontSize: 48,
+        color: '#ffffff',
+        bold: false,
+        italic: false,
+        align: 'left',
+    });
+
+    const [particleTextSettings, setParticleTextSettings] = useState({
+        color: '#05c3dd',
+        particleCount: 3000,
+        particleSize: 2,
+        driftAmount: 0.8,
+        interactionRadius: 80,
+        fontSize: 180,
+    });
+
+    const [glitchTextSettings, setGlitchTextSettings] = useState({
+        color: '#ffffff',
+        fontSize: 180,
+        intensity: 0.5,
+        rgbSplit: 15,
+        sliceCount: 6,
+    });
+
+    const [neonTextSettings, setNeonTextSettings] = useState({
+        glowColor: '#ff00cc',
+        fontSize: 180,
+        bloomRadius: 40,
+        pulseSpeed: 1,
+        flickerIntensity: 0,
+    });
+
     // CRT Effect Settings (separate for background and type layers)
     const [crtBackgroundSettings, setCrtBackgroundSettings] = useState({
         enabled: false,
@@ -162,6 +201,32 @@ function App() {
         intensity: 70,
         scanlineDensity: 50,
         chromaAmount: 50
+    });
+
+    const [glitchSettings, setGlitchSettings] = useState({
+        enabled: false,
+        intensity: 50,
+        speed: 50,
+        rgbSplit: 50,
+        sliceCount: 5
+    });
+
+    const [dofSettings, setDofSettings] = useState({
+        enabled: false,
+        blurAmount: 8,
+        focusRadius: 35,
+        focusX: 50,
+        focusY: 50
+    });
+
+    const [halftoneSettings, setHalftoneSettings] = useState({
+        enabled: false,
+        dotSize: 4,
+        spacing: 10,
+        angle: 0,
+        opacity: 80,
+        color: '#000000',
+        blendMode: 'multiply'
     });
 
     useEffect(() => {
@@ -208,10 +273,8 @@ function App() {
         }
     }, [activeTypeMode, showIntro, activeApp]);
 
-    // [DEBUG] Visual Override for Background
     useEffect(() => {
         const bgCanvas = document.getElementById('canvas-background');
-        console.log(`[DEBUG] App.jsx: Visual Override Effect triggered for ${activeBackground}, Intro: ${showIntro}`);
 
         if (bgCanvas) {
             // Force hide if intro is showing
@@ -239,6 +302,19 @@ function App() {
     // Track which keys are currently being updated from the server
     // so we don't emit them back (prevent echo loops)
     const remoteUpdatePending = useRef(new Set());
+
+    // Debounce timers for continuous (slider) keys — keyed by param name
+    const debounceTimers = useRef(new Map());
+
+    // Keys that represent discrete user choices (switch backgrounds, change mode, etc.)
+    // These emit immediately so collaborators feel instant feedback.
+    // All other keys (settings objects from sliders) are debounced.
+    const DISCRETE_KEYS = new Set([
+        'active_background', 'bg-type',
+        'active_type_mode',
+        'shapes_list',
+        'text_content'
+    ]);
 
     // 1. LISTEN for remote updates
     useEffect(() => {
@@ -272,10 +348,17 @@ function App() {
                 case 'paint_settings': setPaintSettings(value); break;
                 case 'paint_toys_settings': setPaintToysSettings(value); break;
                 case 'string_type_settings': setStringTypeSettings(value); break;
+                case 'type_field_settings': setTypeFieldSettings(value); break;
+                case 'particle_text_settings': setParticleTextSettings(value); break;
+                case 'glitch_text_settings': setGlitchTextSettings(value); break;
+                case 'neon_text_settings': setNeonTextSettings(value); break;
 
                 case 'ascii_settings': setAsciiSettings(value); break;
                 case 'crt_background_settings': setCrtBackgroundSettings(value); break;
                 case 'crt_type_settings': setCrtTypeSettings(value); break;
+                case 'glitch_settings': setGlitchSettings(value); break;
+                case 'dof_settings': setDofSettings(value); break;
+                case 'halftone_settings': setHalftoneSettings(value); break;
 
                 case 'text_content': setTextContent(value); break;
             }
@@ -290,17 +373,35 @@ function App() {
     // Helper to safely emit
     const emitUpdate = (key, value) => {
         // If this key is in our pending set, it means the change came from the server.
-        // We consume the flag and DO NOT emit.
+        // We consume the flag and DO NOT emit (prevents echo loops).
         if (remoteUpdatePending.current.has(key)) {
             remoteUpdatePending.current.delete(key);
             return;
         }
 
-        // Otherwise, it's a local user change. Emit it.
-        if (window.emitChange) {
-            if (key === 'active_background') console.log('[App] emitUpdate active_background:', value);
-            window.emitChange('param', key, value);
+        // Discrete keys (background switch, mode, text, shapes) emit immediately.
+        if (DISCRETE_KEYS.has(key)) {
+            if (window.emitChange) window.emitChange('param', key, value);
+            return;
         }
+
+        // Continuous keys (slider settings objects) are debounced at 80ms.
+        // This collapses rapid slider drags from ~60 events/sec to ~12
+        // without any perceptible lag for collaborators.
+        if (debounceTimers.current.has(key)) {
+            clearTimeout(debounceTimers.current.get(key));
+        }
+        const timer = setTimeout(() => {
+            debounceTimers.current.delete(key);
+            // Re-check the remote flag at emit time: a remote update may have
+            // arrived during the debounce window and should still be suppressed.
+            if (remoteUpdatePending.current.has(key)) {
+                remoteUpdatePending.current.delete(key);
+                return;
+            }
+            if (window.emitChange) window.emitChange('param', key, value);
+        }, 80);
+        debounceTimers.current.set(key, timer);
     };
 
     // Watchers for each state
@@ -321,10 +422,17 @@ function App() {
     useEffect(() => { emitUpdate('paint_settings', paintSettings); }, [paintSettings]);
     useEffect(() => { emitUpdate('paint_toys_settings', paintToysSettings); }, [paintToysSettings]);
     useEffect(() => { emitUpdate('string_type_settings', stringTypeSettings); }, [stringTypeSettings]);
+    useEffect(() => { emitUpdate('type_field_settings', typeFieldSettings); }, [typeFieldSettings]);
+    useEffect(() => { emitUpdate('particle_text_settings', particleTextSettings); }, [particleTextSettings]);
+    useEffect(() => { emitUpdate('glitch_text_settings', glitchTextSettings); }, [glitchTextSettings]);
+    useEffect(() => { emitUpdate('neon_text_settings', neonTextSettings); }, [neonTextSettings]);
 
     useEffect(() => { emitUpdate('ascii_settings', asciiSettings); }, [asciiSettings]);
     useEffect(() => { emitUpdate('crt_background_settings', crtBackgroundSettings); }, [crtBackgroundSettings]);
     useEffect(() => { emitUpdate('crt_type_settings', crtTypeSettings); }, [crtTypeSettings]);
+    useEffect(() => { emitUpdate('glitch_settings', glitchSettings); }, [glitchSettings]);
+    useEffect(() => { emitUpdate('dof_settings', dofSettings); }, [dofSettings]);
+    useEffect(() => { emitUpdate('halftone_settings', halftoneSettings); }, [halftoneSettings]);
 
     useEffect(() => { emitUpdate('text_content', textContent); }, [textContent]);
 
@@ -348,7 +456,6 @@ function App() {
     };
 
     const addShape = (type) => {
-        console.log(`[DEBUG] App.jsx: addShape triggered for ${type}`);
         const newShape = {
             id: Date.now(),
             type: type,
@@ -359,7 +466,6 @@ function App() {
         setShapes([...shapes, newShape]);
     };
 
-    // Expose addShape for debugging
     useEffect(() => {
         window.addShape = addShape;
     }, [shapes, shapeSettings]); // Re-bind when deps change to keep closure fresh
@@ -433,12 +539,26 @@ function App() {
                             setPaintToysSettings={setPaintToysSettings}
                             stringTypeSettings={stringTypeSettings}
                             setStringTypeSettings={setStringTypeSettings}
+                            typeFieldSettings={typeFieldSettings}
+                            setTypeFieldSettings={setTypeFieldSettings}
+                            particleTextSettings={particleTextSettings}
+                            setParticleTextSettings={setParticleTextSettings}
+                            glitchTextSettings={glitchTextSettings}
+                            setGlitchTextSettings={setGlitchTextSettings}
+                            neonTextSettings={neonTextSettings}
+                            setNeonTextSettings={setNeonTextSettings}
                             crtBackgroundSettings={crtBackgroundSettings}
                             setCrtBackgroundSettings={setCrtBackgroundSettings}
                             crtTypeSettings={crtTypeSettings}
                             setCrtTypeSettings={setCrtTypeSettings}
                             colorBendsSettings={colorBendsSettings}
                             setColorBendsSettings={setColorBendsSettings}
+                            glitchSettings={glitchSettings}
+                            setGlitchSettings={setGlitchSettings}
+                            dofSettings={dofSettings}
+                            setDofSettings={setDofSettings}
+                            halftoneSettings={halftoneSettings}
+                            setHalftoneSettings={setHalftoneSettings}
                         />
                     )}
 
@@ -449,77 +569,178 @@ function App() {
                     {activeApp === 'typeflow' && (
                         <div style={{ width: '100%', height: '100%', pointerEvents: 'none', position: 'relative' }}>
                             {/* Background Shapes: Z-index managed by CSS or default stacking. Should be above bg, below type. */}
-                            <BackgroundShapes shapes={shapes} settings={shapeSettings} onRemove={removeShape} />
+                            <ErrorBoundary name="BackgroundShapes">
+                                <BackgroundShapes shapes={shapes} settings={shapeSettings} onRemove={removeShape} />
+                            </ErrorBoundary>
 
-                            {activeBackground === 'silk' && <Silk {...silkSettings} />}
-                            {activeBackground === 'spline_new' && <SplineBackground sceneUrl="https://prod.spline.design/Gc46LQNHKmMSkOyq/scene.splinecode" />}
-                            {activeBackground === 'starfield' && <StarField {...starfieldSettings} />}
-                            {activeBackground === 'aurora' && <Aurora {...auroraSettings} />}
-                            {activeBackground === 'blocks' && <Blocks {...blocksSettings} />}
-                            {activeBackground === 'particles' && <Particles {...particleSettings} />}
-                            {activeBackground === 'color_bends' && <ColorBends {...colorBendsSettings} />}
-                            {activeBackground === 'dark_veil' && <DarkVeil {...darkVeilSettings} />}
-                            {activeBackground === 'dither' && <Dither {...ditherSettings} />}
+                            <ErrorBoundary name="Background">
+                                {activeBackground === 'silk' && <Silk {...silkSettings} />}
+                                {activeBackground === 'spline_new' && <SplineBackground sceneUrl="https://prod.spline.design/Gc46LQNHKmMSkOyq/scene.splinecode" />}
+                                {activeBackground === 'starfield' && <StarField {...starfieldSettings} />}
+                                {activeBackground === 'aurora' && <Aurora {...auroraSettings} />}
+                                {activeBackground === 'blocks' && <Blocks {...blocksSettings} />}
+                                {activeBackground === 'particles' && <Particles {...particleSettings} />}
+                                {activeBackground === 'color_bends' && <ColorBends {...colorBendsSettings} />}
+                                {activeBackground === 'dark_veil' && <DarkVeil {...darkVeilSettings} />}
+                                {activeBackground === 'dither' && <Dither {...ditherSettings} />}
+                            </ErrorBoundary>
 
                             {/* CRT Effect for Background Layer */}
-                            <CRTEffect
-                                enabled={crtBackgroundSettings.enabled}
-                                intensity={crtBackgroundSettings.intensity}
-                                scanlineDensity={crtBackgroundSettings.scanlineDensity}
-                                chromaAmount={crtBackgroundSettings.chromaAmount}
-                                layer="background"
-                            />
+                            <ErrorBoundary name="CRTBackground">
+                                <CRTEffect
+                                    enabled={crtBackgroundSettings.enabled}
+                                    intensity={crtBackgroundSettings.intensity}
+                                    scanlineDensity={crtBackgroundSettings.scanlineDensity}
+                                    chromaAmount={crtBackgroundSettings.chromaAmount}
+                                    layer="background"
+                                />
+                            </ErrorBoundary>
                         </div>
                     )}
 
                     {/* New Type Effects Layer (Rendered on top of backgrounds) */}
                     {activeApp === 'typeflow' && activeTypeMode === 'ascii' && (
                         <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 10 }}>
-                            <ASCIIText
-                                text={textContent}
-                                enableWaves={asciiSettings.enableWaves}
-                                asciiFontSize={asciiSettings.asciiFontSize}
-                                textFontSize={asciiSettings.textFontSize}
-                                textColor={asciiSettings.textColor}
-                                planeBaseHeight={asciiSettings.planeBaseHeight}
-                                isMonochrome={asciiSettings.isMonochrome}
-                                kerning={asciiSettings.kerning}
-                                leading={asciiSettings.leading}
-                            />
+                            <ErrorBoundary name="ASCIIText">
+                                <ASCIIText
+                                    text={textContent}
+                                    enableWaves={asciiSettings.enableWaves}
+                                    asciiFontSize={asciiSettings.asciiFontSize}
+                                    textFontSize={asciiSettings.textFontSize}
+                                    textColor={asciiSettings.textColor}
+                                    planeBaseHeight={asciiSettings.planeBaseHeight}
+                                    isMonochrome={asciiSettings.isMonochrome}
+                                    kerning={asciiSettings.kerning}
+                                    leading={asciiSettings.leading}
+                                />
+                            </ErrorBoundary>
                         </div>
                     )}
 
                     {activeApp === 'typeflow' && activeTypeMode === 'paint_toys' && (
-                        <PaintToys
-                            text={textContent}
-                            textColor={paintSettings.textColor}
-                            minFontSize={paintToysSettings.minFontSize}
-                            maxFontSize={paintToysSettings.maxFontSize}
-                            angleDistortion={paintToysSettings.angleDistortion}
-                            fontFamily={paintToysSettings.fontFamily}
-                        />
+                        <ErrorBoundary name="PaintToys">
+                            <PaintToys
+                                text={textContent}
+                                textColor={paintSettings.textColor}
+                                minFontSize={paintToysSettings.minFontSize}
+                                maxFontSize={paintToysSettings.maxFontSize}
+                                angleDistortion={paintToysSettings.angleDistortion}
+                                fontFamily={paintToysSettings.fontFamily}
+                            />
+                        </ErrorBoundary>
                     )}
 
                     {activeApp === 'typeflow' && activeTypeMode === 'string_type' && (
-                        <StringType
-                            text={textContent}
-                            stripHeightProp={stringTypeSettings.stripHeight}
-                            animationSpeed={stringTypeSettings.animationSpeed}
-                            steps={stringTypeSettings.steps}
-                            stripCount={stringTypeSettings.stripCount}
-                            textColor={stringTypeSettings.textColor}
-                        />
+                        <ErrorBoundary name="StringType">
+                            <StringType
+                                text={textContent}
+                                stripHeightProp={stringTypeSettings.stripHeight}
+                                animationSpeed={stringTypeSettings.animationSpeed}
+                                steps={stringTypeSettings.steps}
+                                stripCount={stringTypeSettings.stripCount}
+                                textColor={stringTypeSettings.textColor}
+                            />
+                        </ErrorBoundary>
+                    )}
+
+                    {activeApp === 'typeflow' && activeTypeMode === 'type_field' && (
+                        <ErrorBoundary name="TypeField">
+                            <TypeField defaultSettings={typeFieldSettings} />
+                        </ErrorBoundary>
+                    )}
+
+                    {activeApp === 'typeflow' && activeTypeMode === 'particle_text' && (
+                        <ErrorBoundary name="ParticleText">
+                            <ParticleText
+                                text={textContent}
+                                color={particleTextSettings.color}
+                                particleCount={particleTextSettings.particleCount}
+                                particleSize={particleTextSettings.particleSize}
+                                driftAmount={particleTextSettings.driftAmount}
+                                interactionRadius={particleTextSettings.interactionRadius}
+                                fontSize={particleTextSettings.fontSize}
+                            />
+                        </ErrorBoundary>
+                    )}
+
+                    {activeApp === 'typeflow' && activeTypeMode === 'glitch_text' && (
+                        <ErrorBoundary name="GlitchText">
+                            <GlitchText
+                                text={textContent}
+                                color={glitchTextSettings.color}
+                                fontSize={glitchTextSettings.fontSize}
+                                intensity={glitchTextSettings.intensity}
+                                rgbSplit={glitchTextSettings.rgbSplit}
+                                sliceCount={glitchTextSettings.sliceCount}
+                            />
+                        </ErrorBoundary>
+                    )}
+
+                    {activeApp === 'typeflow' && activeTypeMode === 'neon_text' && (
+                        <ErrorBoundary name="NeonText">
+                            <NeonText
+                                text={textContent}
+                                glowColor={neonTextSettings.glowColor}
+                                fontSize={neonTextSettings.fontSize}
+                                bloomRadius={neonTextSettings.bloomRadius}
+                                pulseSpeed={neonTextSettings.pulseSpeed}
+                                flickerIntensity={neonTextSettings.flickerIntensity}
+                            />
+                        </ErrorBoundary>
                     )}
 
                     {/* CRT Effect for Type Layer */}
                     {activeApp === 'typeflow' && (
-                        <CRTEffect
-                            enabled={crtTypeSettings.enabled}
-                            intensity={crtTypeSettings.intensity}
-                            scanlineDensity={crtTypeSettings.scanlineDensity}
-                            chromaAmount={crtTypeSettings.chromaAmount}
-                            layer="type"
-                        />
+                        <ErrorBoundary name="CRTType">
+                            <CRTEffect
+                                enabled={crtTypeSettings.enabled}
+                                intensity={crtTypeSettings.intensity}
+                                scanlineDensity={crtTypeSettings.scanlineDensity}
+                                chromaAmount={crtTypeSettings.chromaAmount}
+                                layer="type"
+                            />
+                        </ErrorBoundary>
+                    )}
+
+                    {/* Halftone Post-FX */}
+                    {activeApp === 'typeflow' && (
+                        <ErrorBoundary name="HalftoneEffect">
+                            <HalftoneEffect
+                                enabled={halftoneSettings.enabled}
+                                dotSize={halftoneSettings.dotSize}
+                                spacing={halftoneSettings.spacing}
+                                angle={halftoneSettings.angle}
+                                opacity={halftoneSettings.opacity}
+                                color={halftoneSettings.color}
+                                blendMode={halftoneSettings.blendMode}
+                            />
+                        </ErrorBoundary>
+                    )}
+
+                    {/* Depth of Field Post-FX */}
+                    {activeApp === 'typeflow' && (
+                        <ErrorBoundary name="DepthOfField">
+                            <DepthOfField
+                                enabled={dofSettings.enabled}
+                                blurAmount={dofSettings.blurAmount}
+                                focusRadius={dofSettings.focusRadius}
+                                focusX={dofSettings.focusX}
+                                focusY={dofSettings.focusY}
+                            />
+                        </ErrorBoundary>
+                    )}
+
+                    {/* Glitch Post-FX */}
+                    {activeApp === 'typeflow' && (
+                        <ErrorBoundary name="GlitchEffect">
+                            <GlitchEffect
+                                enabled={glitchSettings.enabled}
+                                intensity={glitchSettings.intensity}
+                                speed={glitchSettings.speed}
+                                rgbSplit={glitchSettings.rgbSplit}
+                                sliceCount={glitchSettings.sliceCount}
+                            />
+                        </ErrorBoundary>
                     )}
 
                     {/* Global Chat Widget */}
@@ -532,6 +753,9 @@ function App() {
                 isActive={!showIntro && activeApp === 'community'}
                 onCreateClick={() => handleSwitchApp('typeflow')}
             />
+
+            {/* Socket connection status — always visible */}
+            <SocketStatus />
         </div>
     );
 }

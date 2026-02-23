@@ -2,3 +2,6 @@ node_modules
 dist
 .DS_Store
 .env
+
+# Runtime data — not source code, do not commit
+posters.json

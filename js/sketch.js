@@ -214,12 +214,10 @@ function setup() {
 }
 
 window.pauseType = function () {
-    console.log("Pausing Kinetic Type");
     noLoop();
 };
 
 window.resumeType = function () {
-    console.log("Resuming Kinetic Type");
     loop();
 };
 
@@ -339,6 +337,6 @@ function setRecorder() {
             encoder.initialize();
         })
     } else {
-        console.log("HME not loaded yet");
+        console.warn("HME encoder not loaded yet — recording unavailable");
     }
 }

@@ -7,8 +7,8 @@ class RecorderManager {
         this.mediaRecorder = null;
         this.recordedChunks = [];
         this.isRecording = false;
-        this.compositorCanvas = document.createElement('canvas');
-        this.ctx = this.compositorCanvas.getContext('2d');
+        this.compositorCanvas = null; // Created lazily on first recording
+        this.ctx = null;
         this.animationFrameId = null;
 
         // Settings
@@ -55,6 +55,12 @@ class RecorderManager {
             return;
         }
 
+        // Lazily create the compositor canvas on first use
+        if (!this.compositorCanvas) {
+            this.compositorCanvas = document.createElement('canvas');
+            this.ctx = this.compositorCanvas.getContext('2d');
+        }
+
         // Setup Compositor Size (Match the first source or window, capped at 1080p)
         const sourceWidth = sources[0].width;
         const sourceHeight = sources[0].height;
@@ -62,18 +68,20 @@ class RecorderManager {
         // Calculate aspect ratio
         const aspectRatio = sourceWidth / sourceHeight;
 
-        // Cap to 1920x1080 (or 1080x1920 for portrait)
+        // Cap the longest dimension to 1920 (supports both landscape and portrait)
         let targetWidth = sourceWidth;
         let targetHeight = sourceHeight;
+        const maxDim = 1920;
 
-        if (targetWidth > 1920 || targetHeight > 1080) {
-            // Check which dimension is the limiting factor
-            if (targetWidth / 1920 > targetHeight / 1080) {
-                targetWidth = 1920;
-                targetHeight = Math.round(1920 / aspectRatio);
+        if (targetWidth > maxDim || targetHeight > maxDim) {
+            if (targetWidth >= targetHeight) {
+                // Landscape or square — limit width
+                targetWidth = maxDim;
+                targetHeight = Math.round(maxDim / aspectRatio);
             } else {
-                targetHeight = 1080;
-                targetWidth = Math.round(1080 * aspectRatio);
+                // Portrait — limit height
+                targetHeight = maxDim;
+                targetWidth = Math.round(maxDim * aspectRatio);
             }
         }
 
@@ -96,7 +104,7 @@ class RecorderManager {
         try {
             this.mediaRecorder = new MediaRecorder(stream, {
                 mimeType: selectedType,
-                videoBitsPerSecond: 5000000 // 5 Mbps
+                videoBitsPerSecond: 8000000 // 8 Mbps — headroom for animated/particle content
             });
         } catch (e) {
             console.warn("High quality config failed, falling back to default.", e);
@@ -121,7 +129,6 @@ class RecorderManager {
 
         // Auto-stop if duration provided
         if (durationMs > 0) {
-            console.log(`Recording for ${durationMs}ms...`);
             setTimeout(() => {
                 this.stopRecording();
             }, durationMs);
@@ -140,12 +147,11 @@ class RecorderManager {
 
         // Draw each canvas
         sources.forEach(source => {
-            // Need to handle scaling if sources are different sizes?
-            // For now assume all full-screen canvases match.
             try {
                 this.ctx.drawImage(source, 0, 0, this.width, this.height);
-            } catch {
-                // Determine if source is ready
+            } catch (e) {
+                // Canvas may be tainted (cross-origin) or context lost — skip this frame's layer
+                console.warn('[RecorderManager] Skipped canvas draw:', e.message);
             }
         });
 
@@ -165,6 +171,7 @@ class RecorderManager {
     cleanup() {
         this.isRecording = false;
         this.mediaRecorder = null;
+        this.recordedChunks = [];
         cancelAnimationFrame(this.animationFrameId);
     }
 }

@@ -69,7 +69,7 @@ const effectCategories = {
     ]
 };
 
-export default function Controls({ activeStep, activeApp, onSwitchApp, activeBackground, shapes, addShape, clearShapes, updateShapeColor, removeShape, shapeSettings, setShapeSettings, particleSettings, setParticleSettings, silkSettings, setSilkSettings, starfieldSettings, setStarfieldSettings, auroraSettings, setAuroraSettings, darkVeilSettings, setDarkVeilSettings, ditherSettings, setDitherSettings, blocksSettings, setBlocksSettings, colorBendsSettings, setColorBendsSettings, paintSettings, setPaintSettings, paintToysSettings, setPaintToysSettings, stringTypeSettings, setStringTypeSettings, activeTypeMode, setActiveTypeMode, textContent, setTextContent, asciiSettings, setAsciiSettings, crtBackgroundSettings, setCrtBackgroundSettings, crtTypeSettings, setCrtTypeSettings }) {
+export default function Controls({ activeStep, activeApp, onSwitchApp, activeBackground, shapes, addShape, clearShapes, updateShapeColor, removeShape, shapeSettings, setShapeSettings, particleSettings, setParticleSettings, silkSettings, setSilkSettings, starfieldSettings, setStarfieldSettings, auroraSettings, setAuroraSettings, darkVeilSettings, setDarkVeilSettings, ditherSettings, setDitherSettings, blocksSettings, setBlocksSettings, colorBendsSettings, setColorBendsSettings, paintSettings, setPaintSettings, paintToysSettings, setPaintToysSettings, stringTypeSettings, setStringTypeSettings, typeFieldSettings, setTypeFieldSettings, particleTextSettings, setParticleTextSettings, glitchTextSettings, setGlitchTextSettings, neonTextSettings, setNeonTextSettings, activeTypeMode, setActiveTypeMode, textContent, setTextContent, asciiSettings, setAsciiSettings, crtBackgroundSettings, setCrtBackgroundSettings, crtTypeSettings, setCrtTypeSettings, glitchSettings, setGlitchSettings, dofSettings, setDofSettings, halftoneSettings, setHalftoneSettings }) {
     // Local state to track control values for UI feedback
     const [fontSize, setFontSize] = useState(70);
     const [layerCount, setLayerCount] = useState(7);
@@ -95,6 +95,7 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
     const [isTrimmerPlaying, setIsTrimmerPlaying] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
     const [showPublishSuccess, setShowPublishSuccess] = useState(false);
+    const [publishError, setPublishError] = useState(null);
 
     // Initial sync with legacy system
     useEffect(() => {
@@ -385,11 +386,11 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                         } else {
                                             const err = await res.json();
                                             console.error("Failed: " + err.error);
-                                            alert("Failed to publish: " + err.error);
+                                            setPublishError("Failed to publish: " + (err.error || 'Unknown error'));
                                         }
                                     } catch (error) {
                                         console.error("Upload failed", error);
-                                        alert("Error uploading.");
+                                        setPublishError("Upload failed. Check your connection and try again.");
                                     } finally {
                                         // 7. Cleanup & Revert
                                         if (!wasPosterActive) {
@@ -1483,6 +1484,10 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                 <option value="ascii">ASCII (3D)</option>
                                 <option value="paint_toys">Paint (Toys)</option>
                                 <option value="string_type">String Type</option>
+                                <option value="type_field">Type Field</option>
+                                <option value="particle_text">Particle</option>
+                                <option value="glitch_text">Glitch</option>
+                                <option value="neon_text">Neon</option>
                             </select>
                         </div>
 
@@ -1564,6 +1569,307 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                 )}
                             </div>
                         )}
+                        {/* Glitch Effect */}
+                        {glitchSettings && (
+                            <div style={{ marginBottom: '20px', padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.08)' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                                    <span style={{ fontSize: '0.85rem', fontWeight: '500' }}>Glitch</span>
+                                    <button
+                                        onClick={() => setGlitchSettings({ ...glitchSettings, enabled: !glitchSettings.enabled })}
+                                        style={{
+                                            background: glitchSettings.enabled ? '#E5B020' : 'rgba(255,255,255,0.1)',
+                                            border: 'none',
+                                            borderRadius: '12px',
+                                            width: '44px',
+                                            height: '24px',
+                                            cursor: 'pointer',
+                                            position: 'relative',
+                                            transition: 'background 0.2s'
+                                        }}
+                                    >
+                                        <span style={{
+                                            position: 'absolute',
+                                            top: '2px',
+                                            left: glitchSettings.enabled ? '22px' : '2px',
+                                            width: '20px',
+                                            height: '20px',
+                                            background: '#fff',
+                                            borderRadius: '50%',
+                                            transition: 'left 0.2s'
+                                        }} />
+                                    </button>
+                                </div>
+                                {glitchSettings.enabled && (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <span style={{ minWidth: '60px', fontSize: '0.75rem', opacity: 0.7 }}>Intensity</span>
+                                            <ElasticSlider
+                                                defaultValue={glitchSettings.intensity}
+                                                startingValue={0}
+                                                maxValue={100}
+                                                isStepped
+                                                stepSize={1}
+                                                leftIcon={<MdMonitor size={14} />}
+                                                rightIcon={<MdMonitor size={20} />}
+                                                onChange={(val) => setGlitchSettings({ ...glitchSettings, intensity: val })}
+                                                className="custom-slider"
+                                            />
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <span style={{ minWidth: '60px', fontSize: '0.7rem', opacity: 0.5 }}>Speed</span>
+                                            <ElasticSlider
+                                                defaultValue={glitchSettings.speed}
+                                                startingValue={0}
+                                                maxValue={100}
+                                                isStepped
+                                                stepSize={1}
+                                                leftIcon={<RiSpeedLine size={14} />}
+                                                rightIcon={<RiSpeedLine size={20} />}
+                                                onChange={(val) => setGlitchSettings({ ...glitchSettings, speed: val })}
+                                                className="custom-slider"
+                                            />
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <span style={{ minWidth: '60px', fontSize: '0.7rem', opacity: 0.5 }}>RGB Split</span>
+                                            <ElasticSlider
+                                                defaultValue={glitchSettings.rgbSplit}
+                                                startingValue={0}
+                                                maxValue={100}
+                                                isStepped
+                                                stepSize={1}
+                                                leftIcon={<RiContrastLine size={14} />}
+                                                rightIcon={<RiContrastLine size={20} />}
+                                                onChange={(val) => setGlitchSettings({ ...glitchSettings, rgbSplit: val })}
+                                                className="custom-slider"
+                                            />
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <span style={{ minWidth: '60px', fontSize: '0.7rem', opacity: 0.5 }}>Slices</span>
+                                            <ElasticSlider
+                                                defaultValue={glitchSettings.sliceCount}
+                                                startingValue={2}
+                                                maxValue={10}
+                                                isStepped
+                                                stepSize={1}
+                                                leftIcon={<BiLineChart size={14} />}
+                                                rightIcon={<BiLineChart size={20} />}
+                                                onChange={(val) => setGlitchSettings({ ...glitchSettings, sliceCount: val })}
+                                                className="custom-slider"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Depth of Field */}
+                        {dofSettings && (
+                            <div style={{ marginBottom: '20px', padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.08)' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                                    <span style={{ fontSize: '0.85rem', fontWeight: '500' }}>Depth of Field</span>
+                                    <button
+                                        onClick={() => setDofSettings({ ...dofSettings, enabled: !dofSettings.enabled })}
+                                        style={{
+                                            background: dofSettings.enabled ? '#E5B020' : 'rgba(255,255,255,0.1)',
+                                            border: 'none',
+                                            borderRadius: '12px',
+                                            width: '44px',
+                                            height: '24px',
+                                            cursor: 'pointer',
+                                            position: 'relative',
+                                            transition: 'background 0.2s'
+                                        }}
+                                    >
+                                        <span style={{
+                                            position: 'absolute',
+                                            top: '2px',
+                                            left: dofSettings.enabled ? '22px' : '2px',
+                                            width: '20px',
+                                            height: '20px',
+                                            background: '#fff',
+                                            borderRadius: '50%',
+                                            transition: 'left 0.2s'
+                                        }} />
+                                    </button>
+                                </div>
+                                {dofSettings.enabled && (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <span style={{ minWidth: '60px', fontSize: '0.75rem', opacity: 0.7 }}>Blur</span>
+                                            <ElasticSlider
+                                                defaultValue={dofSettings.blurAmount}
+                                                startingValue={0}
+                                                maxValue={30}
+                                                isStepped
+                                                stepSize={1}
+                                                leftIcon={<MdMonitor size={14} />}
+                                                rightIcon={<MdMonitor size={20} />}
+                                                onChange={(val) => setDofSettings({ ...dofSettings, blurAmount: val })}
+                                                className="custom-slider"
+                                            />
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <span style={{ minWidth: '60px', fontSize: '0.7rem', opacity: 0.5 }}>Focus Size</span>
+                                            <ElasticSlider
+                                                defaultValue={dofSettings.focusRadius}
+                                                startingValue={5}
+                                                maxValue={70}
+                                                isStepped
+                                                stepSize={1}
+                                                leftIcon={<RiExpandWidthLine size={14} />}
+                                                rightIcon={<RiExpandWidthLine size={20} />}
+                                                onChange={(val) => setDofSettings({ ...dofSettings, focusRadius: val })}
+                                                className="custom-slider"
+                                            />
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <span style={{ minWidth: '60px', fontSize: '0.7rem', opacity: 0.5 }}>Focus X</span>
+                                            <ElasticSlider
+                                                defaultValue={dofSettings.focusX}
+                                                startingValue={0}
+                                                maxValue={100}
+                                                isStepped
+                                                stepSize={1}
+                                                leftIcon={<RiExpandWidthLine size={14} />}
+                                                rightIcon={<RiExpandWidthLine size={20} />}
+                                                onChange={(val) => setDofSettings({ ...dofSettings, focusX: val })}
+                                                className="custom-slider"
+                                            />
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <span style={{ minWidth: '60px', fontSize: '0.7rem', opacity: 0.5 }}>Focus Y</span>
+                                            <ElasticSlider
+                                                defaultValue={dofSettings.focusY}
+                                                startingValue={0}
+                                                maxValue={100}
+                                                isStepped
+                                                stepSize={1}
+                                                leftIcon={<RiExpandHeightLine size={14} />}
+                                                rightIcon={<RiExpandHeightLine size={20} />}
+                                                onChange={(val) => setDofSettings({ ...dofSettings, focusY: val })}
+                                                className="custom-slider"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Halftone Effect */}
+                        {halftoneSettings && (
+                            <div style={{ marginBottom: '20px', padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.08)' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                                    <span style={{ fontSize: '0.85rem', fontWeight: '500' }}>Halftone</span>
+                                    <button
+                                        onClick={() => setHalftoneSettings({ ...halftoneSettings, enabled: !halftoneSettings.enabled })}
+                                        style={{
+                                            background: halftoneSettings.enabled ? '#E5B020' : 'rgba(255,255,255,0.1)',
+                                            border: 'none',
+                                            borderRadius: '12px',
+                                            width: '44px',
+                                            height: '24px',
+                                            cursor: 'pointer',
+                                            position: 'relative',
+                                            transition: 'background 0.2s'
+                                        }}
+                                    >
+                                        <span style={{
+                                            position: 'absolute',
+                                            top: '2px',
+                                            left: halftoneSettings.enabled ? '22px' : '2px',
+                                            width: '20px',
+                                            height: '20px',
+                                            background: '#fff',
+                                            borderRadius: '50%',
+                                            transition: 'left 0.2s'
+                                        }} />
+                                    </button>
+                                </div>
+                                {halftoneSettings.enabled && (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <span style={{ minWidth: '60px', fontSize: '0.75rem', opacity: 0.7 }}>Dot Size</span>
+                                            <ElasticSlider
+                                                defaultValue={halftoneSettings.dotSize}
+                                                startingValue={1}
+                                                maxValue={20}
+                                                isStepped
+                                                stepSize={1}
+                                                leftIcon={<MdGridOn size={14} />}
+                                                rightIcon={<MdGridOn size={20} />}
+                                                onChange={(val) => setHalftoneSettings({ ...halftoneSettings, dotSize: val })}
+                                                className="custom-slider"
+                                            />
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <span style={{ minWidth: '60px', fontSize: '0.7rem', opacity: 0.5 }}>Spacing</span>
+                                            <ElasticSlider
+                                                defaultValue={halftoneSettings.spacing}
+                                                startingValue={4}
+                                                maxValue={40}
+                                                isStepped
+                                                stepSize={1}
+                                                leftIcon={<RiExpandWidthLine size={14} />}
+                                                rightIcon={<RiExpandWidthLine size={20} />}
+                                                onChange={(val) => setHalftoneSettings({ ...halftoneSettings, spacing: val })}
+                                                className="custom-slider"
+                                            />
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <span style={{ minWidth: '60px', fontSize: '0.7rem', opacity: 0.5 }}>Angle</span>
+                                            <ElasticSlider
+                                                defaultValue={halftoneSettings.angle}
+                                                startingValue={0}
+                                                maxValue={90}
+                                                isStepped
+                                                stepSize={1}
+                                                leftIcon={<MdAnimation size={14} />}
+                                                rightIcon={<MdAnimation size={20} />}
+                                                onChange={(val) => setHalftoneSettings({ ...halftoneSettings, angle: val })}
+                                                className="custom-slider"
+                                            />
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <span style={{ minWidth: '60px', fontSize: '0.7rem', opacity: 0.5 }}>Opacity</span>
+                                            <ElasticSlider
+                                                defaultValue={halftoneSettings.opacity}
+                                                startingValue={0}
+                                                maxValue={100}
+                                                isStepped
+                                                stepSize={1}
+                                                leftIcon={<RiContrastLine size={14} />}
+                                                rightIcon={<RiContrastLine size={20} />}
+                                                onChange={(val) => setHalftoneSettings({ ...halftoneSettings, opacity: val })}
+                                                className="custom-slider"
+                                            />
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                            <span style={{ fontSize: '0.7rem', opacity: 0.5 }}>Color</span>
+                                            <input
+                                                type="color"
+                                                value={halftoneSettings.color}
+                                                onChange={(e) => setHalftoneSettings({ ...halftoneSettings, color: e.target.value })}
+                                                style={{ background: 'none', border: 'none', width: '36px', height: '36px', cursor: 'pointer' }}
+                                            />
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                            <span style={{ fontSize: '0.7rem', opacity: 0.5 }}>Blend</span>
+                                            <select
+                                                value={halftoneSettings.blendMode}
+                                                onChange={(e) => setHalftoneSettings({ ...halftoneSettings, blendMode: e.target.value })}
+                                                style={{ ...uiStyles.control, width: 'auto', padding: '4px 8px', fontSize: '0.75rem' }}
+                                            >
+                                                <option value="multiply">Multiply</option>
+                                                <option value="screen">Screen</option>
+                                                <option value="overlay">Overlay</option>
+                                                <option value="normal">Normal</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
                         <div style={{ marginBottom: '15px' }}>
                             <textarea
                                 value={textContent || ''} // Controlled component
@@ -1928,7 +2234,377 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                         </>
                                     )}
 
-                                    {/* Spacing Controls removed from here */}
+                                    {/* Type Field Controls */}
+                                    {activeTypeMode === 'type_field' && typeFieldSettings && (
+                                        <div style={{ gridColumn: 'span 2', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                            <div style={{ padding: '10px', background: 'rgba(255,255,255,0.05)', borderRadius: '6px' }}>
+                                                <p style={{ margin: 0, fontSize: '0.8rem', color: '#aaa', fontStyle: 'italic' }}>
+                                                    Click anywhere on the canvas to place a text box. Select a box, then style it below.
+                                                </p>
+                                            </div>
+
+                                            {/* Font Family */}
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                                <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Font Family</label>
+                                                <select
+                                                    value={typeFieldSettings.fontFamily}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value;
+                                                        setTypeFieldSettings(prev => ({ ...prev, fontFamily: val }));
+                                                        if (window.typeFieldBridge) window.typeFieldBridge.updateSelected({ fontFamily: val });
+                                                    }}
+                                                    style={uiStyles.control}
+                                                >
+                                                    <optgroup label="Display Fonts">
+                                                        <option value="Bebas Neue">Bebas Neue</option>
+                                                        <option value="Staatliches">Staatliches</option>
+                                                        <option value="Orbitron">Orbitron</option>
+                                                        <option value="Monoton">Monoton</option>
+                                                        <option value="Fredoka">Fredoka</option>
+                                                        <option value="Permanent Marker">Permanent Marker</option>
+                                                        <option value="Lobster">Lobster</option>
+                                                        <option value="Dela Gothic One">Dela Gothic One</option>
+                                                        <option value="Ultra">Ultra</option>
+                                                    </optgroup>
+                                                    <optgroup label="System Fonts">
+                                                        <option value="Georgia">Georgia</option>
+                                                        <option value="Arial">Arial</option>
+                                                        <option value="Helvetica">Helvetica</option>
+                                                        <option value="Times New Roman">Times New Roman</option>
+                                                        <option value="Courier New">Courier New</option>
+                                                        <option value="Impact">Impact</option>
+                                                    </optgroup>
+                                                </select>
+                                            </div>
+
+                                            {/* Font Size */}
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                                <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Font Size</label>
+                                                <ElasticSlider
+                                                    key={`tf-size-${activeTypeMode}`}
+                                                    defaultValue={typeFieldSettings.fontSize}
+                                                    startingValue={12}
+                                                    maxValue={200}
+                                                    stepSize={2}
+                                                    leftIcon={<RiFontSize2 size={16} />}
+                                                    rightIcon={<RiFontSize2 size={24} />}
+                                                    onChange={(val) => {
+                                                        setTypeFieldSettings(prev => ({ ...prev, fontSize: val }));
+                                                        if (window.typeFieldBridge) window.typeFieldBridge.updateSelected({ fontSize: val });
+                                                    }}
+                                                    className="custom-slider"
+                                                />
+                                            </div>
+
+                                            {/* Color */}
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>Color</span>
+                                                <input
+                                                    type="color"
+                                                    value={typeFieldSettings.color}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value;
+                                                        setTypeFieldSettings(prev => ({ ...prev, color: val }));
+                                                        if (window.typeFieldBridge) window.typeFieldBridge.updateSelected({ color: val });
+                                                    }}
+                                                    style={{ background: 'none', border: 'none', width: '40px', height: '40px', cursor: 'pointer' }}
+                                                />
+                                            </div>
+
+                                            {/* Bold / Italic */}
+                                            <div style={{ display: 'flex', gap: '10px' }}>
+                                                {[{ key: 'bold', label: 'B', style: { fontWeight: 'bold' } }, { key: 'italic', label: 'I', style: { fontStyle: 'italic' } }].map(({ key, label, style: s }) => (
+                                                    <button
+                                                        key={key}
+                                                        onClick={() => {
+                                                            const val = !typeFieldSettings[key];
+                                                            setTypeFieldSettings(prev => ({ ...prev, [key]: val }));
+                                                            if (window.typeFieldBridge) window.typeFieldBridge.updateSelected({ [key]: val });
+                                                        }}
+                                                        style={{
+                                                            ...uiStyles.button, ...s,
+                                                            flex: 1,
+                                                            background: typeFieldSettings[key] ? '#E5B020' : 'rgba(255,255,255,0.07)',
+                                                            color: typeFieldSettings[key] ? '#000' : '#fff',
+                                                            border: typeFieldSettings[key] ? 'none' : '1px solid rgba(255,255,255,0.15)'
+                                                        }}
+                                                    >{label}</button>
+                                                ))}
+                                            </div>
+
+                                            {/* Alignment */}
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                                <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Alignment</label>
+                                                <div style={{ display: 'flex', gap: '6px' }}>
+                                                    {['left', 'center', 'right'].map(a => (
+                                                        <button
+                                                            key={a}
+                                                            onClick={() => {
+                                                                setTypeFieldSettings(prev => ({ ...prev, align: a }));
+                                                                if (window.typeFieldBridge) window.typeFieldBridge.updateSelected({ align: a });
+                                                            }}
+                                                            style={{
+                                                                ...uiStyles.button,
+                                                                flex: 1,
+                                                                fontSize: '0.75rem',
+                                                                textTransform: 'capitalize',
+                                                                background: typeFieldSettings.align === a ? '#E5B020' : 'rgba(255,255,255,0.07)',
+                                                                color: typeFieldSettings.align === a ? '#000' : '#fff',
+                                                                border: typeFieldSettings.align === a ? 'none' : '1px solid rgba(255,255,255,0.15)'
+                                                            }}
+                                                        >{a}</button>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            {/* Clear All */}
+                                            <button
+                                                onClick={() => { if (window.typeFieldBridge) window.typeFieldBridge.clearAll(); }}
+                                                style={{
+                                                    ...uiStyles.button,
+                                                    marginTop: '8px',
+                                                    background: 'rgba(229,176,32,0.1)',
+                                                    color: '#E5B020',
+                                                    borderColor: '#E5B020'
+                                                }}
+                                            >
+                                                Clear All Boxes
+                                            </button>
+                                        </div>
+                                    )}
+
+                                    {/* Particle Text Controls */}
+                                    {activeTypeMode === 'particle_text' && particleTextSettings && (
+                                        <div style={{ gridColumn: 'span 2', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                            <div style={{ padding: '10px', background: 'rgba(255,255,255,0.05)', borderRadius: '6px' }}>
+                                                <p style={{ margin: 0, fontSize: '0.8rem', color: '#aaa', fontStyle: 'italic' }}>
+                                                    Text formed by particles. Move the mouse to scatter them.
+                                                </p>
+                                            </div>
+
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>Color</span>
+                                                <input
+                                                    type="color"
+                                                    value={particleTextSettings.color}
+                                                    onChange={(e) => setParticleTextSettings(prev => ({ ...prev, color: e.target.value }))}
+                                                    style={{ background: 'none', border: 'none', width: '40px', height: '40px', cursor: 'pointer' }}
+                                                />
+                                            </div>
+
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                                <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Font Size</label>
+                                                <ElasticSlider
+                                                    key={`pt-fontsize-${activeTypeMode}`}
+                                                    defaultValue={particleTextSettings.fontSize}
+                                                    startingValue={60}
+                                                    maxValue={400}
+                                                    stepSize={10}
+                                                    leftIcon={<RiFontSize2 size={16} />}
+                                                    rightIcon={<RiFontSize2 size={24} />}
+                                                    onChange={(val) => setParticleTextSettings(prev => ({ ...prev, fontSize: val }))}
+                                                />
+                                            </div>
+
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                                <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Particle Count</label>
+                                                <ElasticSlider
+                                                    key={`pt-count-${activeTypeMode}`}
+                                                    defaultValue={particleTextSettings.particleCount}
+                                                    startingValue={500}
+                                                    maxValue={6000}
+                                                    stepSize={100}
+                                                    leftIcon={<MdGridOn size={16} />}
+                                                    rightIcon={<MdGridOn size={24} />}
+                                                    onChange={(val) => setParticleTextSettings(prev => ({ ...prev, particleCount: val }))}
+                                                />
+                                            </div>
+
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                                <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Particle Size</label>
+                                                <ElasticSlider
+                                                    key={`pt-size-${activeTypeMode}`}
+                                                    defaultValue={particleTextSettings.particleSize * 10}
+                                                    startingValue={5}
+                                                    maxValue={50}
+                                                    stepSize={1}
+                                                    leftIcon={<RiFontSize2 size={16} />}
+                                                    rightIcon={<RiFontSize2 size={24} />}
+                                                    onChange={(val) => setParticleTextSettings(prev => ({ ...prev, particleSize: val / 10 }))}
+                                                />
+                                            </div>
+
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                                <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Drift</label>
+                                                <ElasticSlider
+                                                    key={`pt-drift-${activeTypeMode}`}
+                                                    defaultValue={particleTextSettings.driftAmount * 10}
+                                                    startingValue={0}
+                                                    maxValue={30}
+                                                    stepSize={1}
+                                                    leftIcon={<MdAnimation size={16} />}
+                                                    rightIcon={<MdAnimation size={24} />}
+                                                    onChange={(val) => setParticleTextSettings(prev => ({ ...prev, driftAmount: val / 10 }))}
+                                                />
+                                            </div>
+
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                                <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Scatter Radius</label>
+                                                <ElasticSlider
+                                                    key={`pt-radius-${activeTypeMode}`}
+                                                    defaultValue={particleTextSettings.interactionRadius}
+                                                    startingValue={20}
+                                                    maxValue={250}
+                                                    stepSize={5}
+                                                    leftIcon={<RiExpandWidthLine size={16} />}
+                                                    rightIcon={<RiExpandWidthLine size={24} />}
+                                                    onChange={(val) => setParticleTextSettings(prev => ({ ...prev, interactionRadius: val }))}
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Glitch Text Controls */}
+                                    {activeTypeMode === 'glitch_text' && glitchTextSettings && (
+                                        <div style={{ gridColumn: 'span 2', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>Color</span>
+                                                <input
+                                                    type="color"
+                                                    value={glitchTextSettings.color}
+                                                    onChange={(e) => setGlitchTextSettings(prev => ({ ...prev, color: e.target.value }))}
+                                                    style={{ background: 'none', border: 'none', width: '40px', height: '40px', cursor: 'pointer' }}
+                                                />
+                                            </div>
+
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                                <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Font Size</label>
+                                                <ElasticSlider
+                                                    key={`gt-fontsize-${activeTypeMode}`}
+                                                    defaultValue={glitchTextSettings.fontSize}
+                                                    startingValue={60}
+                                                    maxValue={400}
+                                                    stepSize={10}
+                                                    leftIcon={<RiFontSize2 size={16} />}
+                                                    rightIcon={<RiFontSize2 size={24} />}
+                                                    onChange={(val) => setGlitchTextSettings(prev => ({ ...prev, fontSize: val }))}
+                                                />
+                                            </div>
+
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                                <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Intensity</label>
+                                                <ElasticSlider
+                                                    key={`gt-intensity-${activeTypeMode}`}
+                                                    defaultValue={glitchTextSettings.intensity * 10}
+                                                    startingValue={0}
+                                                    maxValue={10}
+                                                    stepSize={1}
+                                                    leftIcon={<MdAnimation size={16} />}
+                                                    rightIcon={<MdAnimation size={24} />}
+                                                    onChange={(val) => setGlitchTextSettings(prev => ({ ...prev, intensity: val / 10 }))}
+                                                />
+                                            </div>
+
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                                <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>RGB Split</label>
+                                                <ElasticSlider
+                                                    key={`gt-rgb-${activeTypeMode}`}
+                                                    defaultValue={glitchTextSettings.rgbSplit}
+                                                    startingValue={0}
+                                                    maxValue={50}
+                                                    stepSize={1}
+                                                    leftIcon={<RiContrastLine size={16} />}
+                                                    rightIcon={<RiContrastLine size={24} />}
+                                                    onChange={(val) => setGlitchTextSettings(prev => ({ ...prev, rgbSplit: val }))}
+                                                />
+                                            </div>
+
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                                <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Slices</label>
+                                                <ElasticSlider
+                                                    key={`gt-slices-${activeTypeMode}`}
+                                                    defaultValue={glitchTextSettings.sliceCount}
+                                                    startingValue={1}
+                                                    maxValue={16}
+                                                    stepSize={1}
+                                                    leftIcon={<RiStackLine size={16} />}
+                                                    rightIcon={<RiStackLine size={24} />}
+                                                    onChange={(val) => setGlitchTextSettings(prev => ({ ...prev, sliceCount: val }))}
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Neon Text Controls */}
+                                    {activeTypeMode === 'neon_text' && neonTextSettings && (
+                                        <div style={{ gridColumn: 'span 2', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>Glow Color</span>
+                                                <input
+                                                    type="color"
+                                                    value={neonTextSettings.glowColor}
+                                                    onChange={(e) => setNeonTextSettings(prev => ({ ...prev, glowColor: e.target.value }))}
+                                                    style={{ background: 'none', border: 'none', width: '40px', height: '40px', cursor: 'pointer' }}
+                                                />
+                                            </div>
+
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                                <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Font Size</label>
+                                                <ElasticSlider
+                                                    key={`nt-fontsize-${activeTypeMode}`}
+                                                    defaultValue={neonTextSettings.fontSize}
+                                                    startingValue={60}
+                                                    maxValue={400}
+                                                    stepSize={10}
+                                                    leftIcon={<RiFontSize2 size={16} />}
+                                                    rightIcon={<RiFontSize2 size={24} />}
+                                                    onChange={(val) => setNeonTextSettings(prev => ({ ...prev, fontSize: val }))}
+                                                />
+                                            </div>
+
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                                <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Bloom Radius</label>
+                                                <ElasticSlider
+                                                    key={`nt-bloom-${activeTypeMode}`}
+                                                    defaultValue={neonTextSettings.bloomRadius}
+                                                    startingValue={0}
+                                                    maxValue={80}
+                                                    stepSize={1}
+                                                    leftIcon={<RiContrastLine size={16} />}
+                                                    rightIcon={<RiContrastLine size={24} />}
+                                                    onChange={(val) => setNeonTextSettings(prev => ({ ...prev, bloomRadius: val }))}
+                                                />
+                                            </div>
+
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                                <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Pulse Speed</label>
+                                                <ElasticSlider
+                                                    key={`nt-pulse-${activeTypeMode}`}
+                                                    defaultValue={neonTextSettings.pulseSpeed * 10}
+                                                    startingValue={0}
+                                                    maxValue={30}
+                                                    stepSize={1}
+                                                    leftIcon={<RiSpeedLine size={16} />}
+                                                    rightIcon={<RiSpeedLine size={24} />}
+                                                    onChange={(val) => setNeonTextSettings(prev => ({ ...prev, pulseSpeed: val / 10 }))}
+                                                />
+                                            </div>
+
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                                <label style={{ fontSize: '0.75rem', opacity: 0.7 }}>Flicker</label>
+                                                <ElasticSlider
+                                                    key={`nt-flicker-${activeTypeMode}`}
+                                                    defaultValue={neonTextSettings.flickerIntensity * 10}
+                                                    startingValue={0}
+                                                    maxValue={10}
+                                                    stepSize={1}
+                                                    leftIcon={<MdAnimation size={16} />}
+                                                    rightIcon={<MdAnimation size={24} />}
+                                                    onChange={(val) => setNeonTextSettings(prev => ({ ...prev, flickerIntensity: val / 10 }))}
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
                                 </>
                             )}
 
@@ -1979,27 +2655,15 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                                     leftIcon={<RiExpandWidthLine size={16} />}
                                     rightIcon={<RiExpandWidthLine size={24} />}
                                     onChange={(val) => {
-                                        // Kerning change handler for classic 2D mode
-                                        console.log('[Kerning] Mode:', activeTypeMode, 'Value:', val);
                                         if (activeTypeMode === 'ascii') {
                                             setAsciiSettings({ ...asciiSettings, kerning: val });
                                         } else {
-                                            // Directly set the global tracking factor
                                             const newTrackingFactor = 0.15 + (val / 100);
-                                            console.log('[Kerning] Setting trackingFactor to:', newTrackingFactor);
                                             window.trackingFactor = newTrackingFactor;
-                                            console.log('[Kerning] window.trackingFactor is now:', window.trackingFactor);
-                                            console.log('[Kerning] window.setText:', typeof window.setText, 'window.resetAnim:', typeof window.resetAnim);
-
-                                            // Trigger text recreation - try multiple methods
                                             if (typeof window.setText === 'function') {
-                                                console.log('[Kerning] Calling window.setText()');
                                                 window.setText();
                                             } else if (typeof window.resetAnim === 'function') {
-                                                console.log('[Kerning] Calling window.resetAnim()');
                                                 window.resetAnim();
-                                            } else {
-                                                console.log('[Kerning] ERROR: Neither setText nor resetAnim available!');
                                             }
                                         }
                                     }}
@@ -2263,6 +2927,34 @@ export default function Controls({ activeStep, activeApp, onSwitchApp, activeBac
                     <style>{`
                         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
                     `}</style>
+                </div>
+            )}
+
+            {/* Publish Error Toast */}
+            {publishError && (
+                <div
+                    onClick={() => setPublishError(null)}
+                    style={{
+                        position: 'fixed',
+                        bottom: '32px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        background: 'rgba(200, 30, 30, 0.92)',
+                        color: '#fff',
+                        padding: '14px 24px',
+                        borderRadius: '8px',
+                        fontSize: '0.85rem',
+                        fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
+                        zIndex: 99999,
+                        cursor: 'pointer',
+                        backdropFilter: 'blur(6px)',
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+                        maxWidth: '400px',
+                        textAlign: 'center'
+                    }}
+                >
+                    {publishError}
+                    <span style={{ marginLeft: '12px', opacity: 0.7, fontSize: '0.75rem' }}>tap to dismiss</span>
                 </div>
             )}
 

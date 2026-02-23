@@ -10,7 +10,6 @@
     "client": "vite",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "build": "vite build",
-    "postinstall": "npm run build",
     "lint": "eslint .",
     "prepare": "husky"
   },

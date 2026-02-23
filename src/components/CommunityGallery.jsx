@@ -2,61 +2,64 @@
 import { useState, useEffect } from 'react';
 import InfiniteMenu from './InfiniteMenu';
 
-const CommunityGallery = ({ isActive, onCreateClick }) => {
+const CommunityGallery = ({ isActive }) => {
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [loadError, setLoadError] = useState(null);
 
     useEffect(() => {
         // Load gallery data immediately on mount (during intro screen)
         // Component remains hidden via CSS until isActive is true
 
         // Static items from Cloudinary
+        const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'dl93c5cwm';
+        const cdnBase = `https://res.cloudinary.com/${cloudName}/video/upload`;
         const videoItems = [
             {
                 image: 'https://placehold.co/600x900/333/666?text=Kimchi',
-                video: 'https://res.cloudinary.com/dl93c5cwm/video/upload/v1769962105/colab-gallery-static/kimchi.mov',
+                video: `${cdnBase}/v1769962105/colab-gallery-static/kimchi.mov`,
                 link: '#',
                 title: 'Kimchi',
                 description: '8'
             },
             {
                 image: 'https://placehold.co/600x900/333/666?text=Hello+World',
-                video: 'https://res.cloudinary.com/dl93c5cwm/video/upload/v1769962107/colab-gallery-static/baby_born.mov',
+                video: `${cdnBase}/v1769962107/colab-gallery-static/baby_born.mov`,
                 link: '#',
                 title: 'Hello World!',
                 description: 'Baby Born'
             },
             {
                 image: 'https://placehold.co/600x900/333/666?text=I+Love+Watson',
-                video: 'https://res.cloudinary.com/dl93c5cwm/video/upload/v1769962108/colab-gallery-static/watson.mov',
+                video: `${cdnBase}/v1769962108/colab-gallery-static/watson.mov`,
                 link: '#',
                 title: 'I Love Watson',
                 description: 'Ayala Niv'
             },
             {
                 image: 'https://placehold.co/600x900/333/666?text=Pigs+In+Space',
-                video: 'https://res.cloudinary.com/dl93c5cwm/video/upload/v1769962111/colab-gallery-static/pigs_in_space.mov',
+                video: `${cdnBase}/v1769962111/colab-gallery-static/pigs_in_space.mov`,
                 link: '#',
                 title: 'Pigs In Space',
                 description: 'Ruth Zajdner'
             },
             {
                 image: 'https://placehold.co/600x900/333/666?text=Self+Portrait',
-                video: 'https://res.cloudinary.com/dl93c5cwm/video/upload/v1769962113/colab-gallery-static/self_portrait.mov',
+                video: `${cdnBase}/v1769962113/colab-gallery-static/self_portrait.mov`,
                 link: '#',
                 title: 'Self Portrait',
                 description: 'Yonatan Alperin'
             },
             {
                 image: 'https://placehold.co/600x900/333/666?text=Smile',
-                video: 'https://res.cloudinary.com/dl93c5cwm/video/upload/v1769962115/colab-gallery-static/smile.mov',
+                video: `${cdnBase}/v1769962115/colab-gallery-static/smile.mov`,
                 link: '#',
                 title: 'Smile',
                 description: 'Yoel Zajdner'
             },
             {
                 image: 'https://placehold.co/600x900/333/666?text=Aliens',
-                video: 'https://res.cloudinary.com/dl93c5cwm/video/upload/v1769962116/colab-gallery-static/aliens.mov',
+                video: `${cdnBase}/v1769962116/colab-gallery-static/aliens.mov`,
                 link: '#',
                 title: 'The Aliens are coming',
                 description: 'Rotem Ronen'
@@ -92,12 +95,11 @@ const CommunityGallery = ({ isActive, onCreateClick }) => {
                     state: p.state // Store state for remixing later
                 }));
 
-                console.log(`Loading ${formattedUserPosters.length} user posters + ${videoItems.length} static items`);
-
                 // Combine with static items - InfiniteMenu handles video errors with fallback
                 setItems([...formattedUserPosters, ...videoItems]);
             } catch (err) {
                 console.error("Failed to load posters", err);
+                setLoadError("Couldn't load community posters. Showing curated works only.");
                 // Fallback to static only
                 setItems(videoItems);
             } finally {
@@ -126,7 +128,32 @@ const CommunityGallery = ({ isActive, onCreateClick }) => {
                     Loading Gallery...
                 </div>
             ) : (
-                <InfiniteMenu items={items} scale={2.5} />
+                <>
+                    {loadError && (
+                        <div
+                            onClick={() => setLoadError(null)}
+                            style={{
+                                position: 'absolute',
+                                top: '16px',
+                                left: '50%',
+                                transform: 'translateX(-50%)',
+                                background: 'rgba(180, 60, 60, 0.85)',
+                                color: '#fff',
+                                padding: '10px 20px',
+                                borderRadius: '6px',
+                                fontSize: '0.8rem',
+                                fontFamily: 'Helvetica Neue, Helvetica, Arial, sans-serif',
+                                zIndex: 10,
+                                cursor: 'pointer',
+                                backdropFilter: 'blur(4px)',
+                                whiteSpace: 'nowrap'
+                            }}
+                        >
+                            {loadError} <span style={{ opacity: 0.7 }}>✕</span>
+                        </div>
+                    )}
+                    {isActive && <InfiniteMenu items={items} scale={2.5} />}
+                </>
             )}
 
         </div>

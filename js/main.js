@@ -157,15 +157,12 @@ window.app = {
             params
         };
 
-        console.log("Attempting to save poster:", payload);
-
         try {
             const res = await fetch('/api/posters', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
-            console.log("Save response status:", res.status);
             if (res.ok) {
                 alert('Poster Saved to Community!');
             } else {
@@ -201,7 +198,6 @@ document.addEventListener('DOMContentLoaded', () => {
             // Pause Legacy Backgrounds
             if (p5Canvas) p5Canvas.style.display = 'none';
             if (window.bgInstance) {
-                console.log("Pausing Background Sketch");
                 window.bgInstance.noLoop();
             }
 
@@ -216,7 +212,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (bgType === 'wireframe') {
                 if (p5Canvas) p5Canvas.style.display = 'block';
                 if (window.bgInstance) {
-                    console.log("Resuming Background Sketch");
                     window.bgInstance.loop();
                 }
             }

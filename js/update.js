@@ -9,7 +9,6 @@ function setText() {
         return;
     }
 
-    console.log('[setText] Called! pgTextSize:', pgTextSize, 'currentFont:', currentFont);
     textSize(pgTextSize);
     textFont(currentFont);
 
@@ -23,9 +22,7 @@ function setText() {
 
     if (window.emitChange) window.emitChange('text', 'textArea', enteredText);
 
-    console.log('[setText] About to call resetAnim. keyArray:', keyArray);
     resetAnim();
-    console.log('[setText] resetAnim completed');
 }
 
 function setFont(val) {
@@ -79,12 +76,10 @@ function runSave() {
 
 function setForeColor(val) {
     foreColor = color(val);
-    console.log('Foreground Color:', val);
 }
 
 function setLayerCount(val) {
     groupCount = parseInt(val);
-    console.log('Layer Count:', groupCount);
     resetAnim();
     if (window.emitFunction) window.emitFunction('setLayerCount', val);
 }
@@ -200,19 +195,16 @@ function hideWidget() {
 // Animation control functions
 function setAnimSpeed(val) {
     animSpeed = parseFloat(val);
-    console.log('Animation Speed:', animSpeed);
     if (window.emitFunction) window.emitFunction('setAnimSpeed', val);
 }
 
 function setAnimSpread(val) {
     animSpread = parseInt(val);
-    console.log('Animation Spread:', animSpread);
     if (window.emitFunction) window.emitFunction('setAnimSpread', val);
 }
 
 function setAnimIntensity(val) {
     animIntensity = parseInt(val);
-    console.log('Animation Intensity:', animIntensity);
     if (window.emitFunction) window.emitFunction('setAnimIntensity', val);
 }
 
@@ -450,7 +442,6 @@ function setMotionGlitchIntensity(val) {
 
 function setShapeMode(val) {
     shapeMode = val;
-    console.log('Shape Mode:', shapeMode);
     resetAnim();
     if (window.emitFunction) window.emitFunction('setShapeMode', val);
 }

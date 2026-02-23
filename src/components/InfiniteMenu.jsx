@@ -652,6 +652,25 @@ class InfiniteGridMenu {
         this.onMovementChange = onMovementChange || (() => { });
         this.scaleFactor = scale;
         this.camera.position[2] = 6 * scale;
+
+        this._handleContextLost = (e) => {
+            e.preventDefault();
+            console.warn('[InfiniteMenu] WebGL context lost — pausing render loop');
+            this.isRunning = false;
+        };
+
+        this._handleContextRestored = () => {
+            console.log('[InfiniteMenu] WebGL context restored — reinitialising');
+            this.isRunning = true;
+            this.#init(onInit);
+            if (this.isRunning) {
+                this.run();
+            }
+        };
+
+        this.canvas.addEventListener('webglcontextlost', this._handleContextLost, false);
+        this.canvas.addEventListener('webglcontextrestored', this._handleContextRestored, false);
+
         this.#init(onInit);
     }
 
@@ -690,13 +709,21 @@ class InfiniteGridMenu {
     destroy() {
         this.isRunning = false;
 
+        if (this.canvas) {
+            this.canvas.removeEventListener('webglcontextlost', this._handleContextLost);
+            this.canvas.removeEventListener('webglcontextrestored', this._handleContextRestored);
+        }
+
         if (this.gl) {
             const gl = this.gl;
+            // Force-release the WebGL context slot so other renderers can use it
+            const loseCtx = gl.getExtension('WEBGL_lose_context');
+            if (loseCtx) loseCtx.loseContext();
             // Basic cleanup
-            gl.deleteProgram(this.discProgram);
-            gl.deleteVertexArray(this.discVAO);
-            gl.deleteTexture(this.tex);
-            gl.deleteBuffer(this.discInstances.buffer);
+            if (this.discProgram) gl.deleteProgram(this.discProgram);
+            if (this.discVAO) gl.deleteVertexArray(this.discVAO);
+            if (this.tex) gl.deleteTexture(this.tex);
+            if (this.discInstances && this.discInstances.buffer) gl.deleteBuffer(this.discInstances.buffer);
         }
 
         if (this.control) {
@@ -716,10 +743,23 @@ class InfiniteGridMenu {
     }
 
     #init(onInit) {
-        this.gl = this.canvas.getContext('webgl2', { antialias: true, alpha: false, preserveDrawingBuffer: true });
+        this.gl = this.canvas.getContext('webgl2', {
+            antialias: true,
+            alpha: false,
+            preserveDrawingBuffer: true,
+            powerPreference: 'high-performance',
+            failIfMajorPerformanceCaveat: false
+        });
         const gl = this.gl;
         if (!gl) {
             throw new Error('No WebGL 2 context!');
+        }
+
+        if (gl.isContextLost()) {
+            console.warn('[InfiniteMenu] WebGL context is lost at initialization');
+            this.isRunning = false;
+            // The webglcontextrestored event handler will restart init when the context comes back
+            return;
         }
 
         this.viewportSize = vec2.fromValues(this.canvas.clientWidth, this.canvas.clientHeight);
@@ -731,6 +771,12 @@ class InfiniteGridMenu {
             aModelUvs: 2,
             aInstanceMatrix: 3
         });
+
+        if (!this.discProgram) {
+            console.error('[InfiniteMenu] Failed to create shader program (possibly due to context loss).');
+            this.isRunning = false;
+            return;
+        }
 
         this.discLocations = {
             aModelPosition: gl.getAttribLocation(this.discProgram, 'aModelPosition'),
@@ -785,7 +831,8 @@ class InfiniteGridMenu {
         const itemCount = Math.max(1, this.items.length);
         this.atlasSize = Math.ceil(Math.sqrt(itemCount));
         const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
+        // willReadFrequently avoids the browser warning and speeds up getImageData
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
         // Reduced from 2048 to 512 for much better performance (16x less memory)
         this.cellSize = 512;
         this.lastVideoUpdateTime = 0; // For throttling video updates
@@ -804,12 +851,14 @@ class InfiniteGridMenu {
                         // If item has video property, create video element
                         if (item.video) {
                             const video = document.createElement('video');
-                            // Add essential attributes for autoplay/inline
+                            // Attributes must be set before src for browser compatibility
                             video.muted = true;
                             video.loop = true;
                             video.playsInline = true;
                             video.crossOrigin = 'anonymous';
-                            video.preload = 'auto';
+                            // preload='none' means the browser won't fetch any data until
+                            // play() is called — prevents 27 simultaneous network requests on startup
+                            video.preload = 'none';
 
                             // Set src AFTER attributes
                             video.src = item.video;
@@ -845,29 +894,22 @@ class InfiniteGridMenu {
                                 });
                             }
 
-                            // Timeout fallback after 10 seconds (reduced for better UX)
+                            // With preload='none', videos load on-demand when play() is called.
+                            // We still resolve immediately so the atlas can paint the placeholder image.
+                            // A short timeout resolves items that haven't started yet (e.g., images used as fallback).
                             setTimeout(() => {
                                 if (!resolved) {
-                                    console.warn(`Video ${index} timeout, trying forced play or fallback`);
-                                    // Try forcing play first
-                                    video.play().then(() => {
-                                        console.log(`Video ${index} forced play success`);
-                                        handleLoad();
-                                    }).catch(() => {
-                                        console.warn(`Video ${index} timeout definitive, using fallback image`);
-                                        if (resolved) return;
-                                        const img = new Image();
-                                        img.crossOrigin = 'anonymous';
-                                        img.onload = () => finish({ element: img, index });
-                                        img.onerror = () => finish({ element: img, index });
-                                        img.src = item.image;
-                                        this.videoElements[index] = null;
-                                    });
+                                    // Resolve with the placeholder image — the video will load lazily on first play
+                                    const img = new Image();
+                                    img.crossOrigin = 'anonymous';
+                                    img.onload = () => finish({ element: img, index });
+                                    img.onerror = () => finish({ element: img, index });
+                                    img.src = item.image;
                                 }
-                            }, 10000);
+                            }, 2000); // 2s is enough for the placeholder image to load
 
-                            // Trigger load
-                            video.load();
+                            // NOTE: do NOT call video.load() here — that would eagerly fetch all 27
+                            // videos at once. Instead, play() in #updateVideoPlayback triggers load on demand.
                         } else {
                             // Regular image loading
                             const img = new Image();

@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
+const SERVER_PORT = parseInt(process.env.PORT || '3000', 10);
+
 export default defineConfig({
     plugins: [react()],
     define: {
@@ -10,11 +12,11 @@ export default defineConfig({
     server: {
         proxy: {
             '/socket.io': {
-                target: 'http://localhost:3000',
+                target: `http://localhost:${SERVER_PORT}`,
                 ws: true
             },
             '/api': {
-                target: 'http://localhost:3000',
+                target: `http://localhost:${SERVER_PORT}`,
                 changeOrigin: true
             }
         }
