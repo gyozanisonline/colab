@@ -2,6 +2,16 @@
 import { useState, useEffect } from 'react';
 import InfiniteMenu from './InfiniteMenu';
 
+const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'dl93c5cwm';
+
+function getCloudinaryThumbnail(videoUrl) {
+    if (!videoUrl || videoUrl.startsWith('data:')) return null;
+    if (!videoUrl.includes('res.cloudinary.com')) return null;
+    return videoUrl
+        .replace('/video/upload/', '/video/upload/so_0,w_600,h_900,c_fill,q_80,f_jpg/')
+        .replace(/\.(mov|mp4|webm|avi)(\?.*)?$/i, '.jpg');
+}
+
 const CommunityGallery = ({ isActive }) => {
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -12,54 +22,53 @@ const CommunityGallery = ({ isActive }) => {
         // Component remains hidden via CSS until isActive is true
 
         // Static items from Cloudinary
-        const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'dl93c5cwm';
         const cdnBase = `https://res.cloudinary.com/${cloudName}/video/upload`;
         const videoItems = [
             {
-                image: 'https://placehold.co/600x900/333/666?text=Kimchi',
                 video: `${cdnBase}/v1769962105/colab-gallery-static/kimchi.mov`,
+                get image() { return getCloudinaryThumbnail(this.video) || 'https://placehold.co/600x900/333/666?text=Kimchi'; },
                 link: '#',
                 title: 'Kimchi',
                 description: '8'
             },
             {
-                image: 'https://placehold.co/600x900/333/666?text=Hello+World',
                 video: `${cdnBase}/v1769962107/colab-gallery-static/baby_born.mov`,
+                get image() { return getCloudinaryThumbnail(this.video) || 'https://placehold.co/600x900/333/666?text=Hello+World'; },
                 link: '#',
                 title: 'Hello World!',
                 description: 'Baby Born'
             },
             {
-                image: 'https://placehold.co/600x900/333/666?text=I+Love+Watson',
                 video: `${cdnBase}/v1769962108/colab-gallery-static/watson.mov`,
+                get image() { return getCloudinaryThumbnail(this.video) || 'https://placehold.co/600x900/333/666?text=I+Love+Watson'; },
                 link: '#',
                 title: 'I Love Watson',
                 description: 'Ayala Niv'
             },
             {
-                image: 'https://placehold.co/600x900/333/666?text=Pigs+In+Space',
                 video: `${cdnBase}/v1769962111/colab-gallery-static/pigs_in_space.mov`,
+                get image() { return getCloudinaryThumbnail(this.video) || 'https://placehold.co/600x900/333/666?text=Pigs+In+Space'; },
                 link: '#',
                 title: 'Pigs In Space',
                 description: 'Ruth Zajdner'
             },
             {
-                image: 'https://placehold.co/600x900/333/666?text=Self+Portrait',
                 video: `${cdnBase}/v1769962113/colab-gallery-static/self_portrait.mov`,
+                get image() { return getCloudinaryThumbnail(this.video) || 'https://placehold.co/600x900/333/666?text=Self+Portrait'; },
                 link: '#',
                 title: 'Self Portrait',
                 description: 'Yonatan Alperin'
             },
             {
-                image: 'https://placehold.co/600x900/333/666?text=Smile',
                 video: `${cdnBase}/v1769962115/colab-gallery-static/smile.mov`,
+                get image() { return getCloudinaryThumbnail(this.video) || 'https://placehold.co/600x900/333/666?text=Smile'; },
                 link: '#',
                 title: 'Smile',
                 description: 'Yoel Zajdner'
             },
             {
-                image: 'https://placehold.co/600x900/333/666?text=Aliens',
                 video: `${cdnBase}/v1769962116/colab-gallery-static/aliens.mov`,
+                get image() { return getCloudinaryThumbnail(this.video) || 'https://placehold.co/600x900/333/666?text=Aliens'; },
                 link: '#',
                 title: 'The Aliens are coming',
                 description: 'Rotem Ronen'
@@ -87,7 +96,8 @@ const CommunityGallery = ({ isActive }) => {
                 const userPosters = await response.json();
 
                 const formattedUserPosters = userPosters.map(p => ({
-                    image: 'https://placehold.co/600x900/222/FFF?text=' + encodeURIComponent(p.title || 'Poster'),
+                    image: getCloudinaryThumbnail(p.videoUrl || p.video)
+                        || ('https://placehold.co/600x900/222/FFF?text=' + encodeURIComponent(p.title || 'Poster')),
                     video: p.videoUrl || p.video, // Cloudinary URL or legacy base64
                     link: '#',
                     title: p.title || 'Untitled',
@@ -95,8 +105,16 @@ const CommunityGallery = ({ isActive }) => {
                     state: p.state // Store state for remixing later
                 }));
 
-                // Combine with static items - InfiniteMenu handles video errors with fallback
-                setItems([...formattedUserPosters, ...videoItems]);
+                const combined = [...formattedUserPosters, ...videoItems];
+
+                // Preload thumbnails into browser cache during intro so gallery is instant on open
+                combined.forEach(item => {
+                    if (item.image && item.image.startsWith('http')) {
+                        new Image().src = item.image;
+                    }
+                });
+
+                setItems(combined);
             } catch (err) {
                 console.error("Failed to load posters", err);
                 setLoadError("Couldn't load community posters. Showing curated works only.");
