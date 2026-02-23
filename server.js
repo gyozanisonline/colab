@@ -418,4 +418,13 @@ app.post('/api/posters', async (req, res) => {
 
 server.listen(PORT, () => {
     console.log(`Server running locally at http://localhost:${PORT}`);
+
+    // Auto-sync posters from Cloudinary on every startup so the gallery
+    // is always populated after a fresh deploy (Render filesystem is ephemeral)
+    if (missingEnv.length === 0) {
+        fetch(`http://localhost:${PORT}/api/sync-cloudinary`, { method: 'POST' })
+            .then(r => r.json())
+            .then(result => console.log(`[STARTUP] Cloudinary sync complete — recovered: ${result.synced}, removed: ${result.removed}, total: ${result.total}`))
+            .catch(err => console.warn('[STARTUP] Auto-sync failed:', err.message));
+    }
 });
